@@ -1,467 +1,2363 @@
-<!doctype html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>2026 강원수어문화제 3D 행사장</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;700&display=swap">
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>수어 길찾기 — 3D 학습 게임</title>
+<!-- Three.js Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-/* Layout: full-screen 3D festival ground, booth chips floating at bottom */
-:root{
-  --bg:#f3e4c6; --fg:#3b2418; --muted:#7a5a46; --panel:rgba(255,250,241,.93);
-  --line:#e2cfae; --accent:#d9541e; --accent-fg:#fff;
-  --display:"Black Han Sans","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#1f1712; --fg:#f6ead8; --muted:#c3a88f; --panel:rgba(40,30,23,.93);
-  --line:#4d3a2c; --accent:#f07a3e; --accent-fg:#1f1712; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#1f1712; --fg:#f6ead8; --muted:#c3a88f; --panel:rgba(40,30,23,.93);
-  --line:#4d3a2c; --accent:#f07a3e; --accent-fg:#1f1712; color-scheme:dark}
-html,body{height:100%}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);overflow:hidden}
-#stage{position:fixed;inset:0}
-#stage canvas{display:block;touch-action:none}
-.top{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));
-  left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));pointer-events:none}
-.top h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(20px,4vw,28px);color:#3b2418;text-wrap:balance;
-  text-shadow:0 1px 0 rgba(255,255,255,.6)}
-.top p{margin:4px 0 0;color:#5a3a28;font-size:13px}
-.back{pointer-events:auto;display:inline-block;margin-bottom:6px;font-size:14px;font-weight:700;color:#fffaf1;background:#3b2418;
-  padding:5px 12px;border-radius:999px;text-decoration:none}
-.back:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.info .kind{display:inline-block;font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--line);color:var(--fg);margin-bottom:2px}
-.info p{margin:2px 0 0;font-size:.86rem;color:var(--muted);line-height:1.45}
-.info small{display:block;font-size:.78rem;color:var(--accent);font-weight:700}
-.info>div{min-width:0}
-.panel{position:fixed;left:50%;transform:translateX(-50%);
-  bottom:calc(12px + env(safe-area-inset-bottom,0px));
-  width:min(900px,calc(100% - 32px));background:var(--panel);
-  border:1px solid var(--line);border-radius:14px;padding:12px 14px;
-  display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(6px)}
-.info{display:flex;align-items:flex-start;gap:10px;min-height:34px}
-.info .no{flex:none;min-width:34px;height:34px;border-radius:17px;display:grid;place-items:center;
-  background:var(--accent);color:var(--accent-fg);font-family:var(--display);font-size:1.05rem;padding-inline:6px}
-.info b{font-size:1.02rem}
-.info span{color:var(--muted);font-size:.86rem}
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
-.chips button{flex:none;font:inherit;font-size:13px;padding:6px 10px;border-radius:999px;
-  border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;white-space:nowrap}
-.chips button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
-.chips button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.chips .sep{flex:none;width:1px;background:var(--line);margin:2px 2px}
-.chips #walk{border-color:var(--accent);color:var(--accent);font-weight:700}
-.chips #walk[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
-body.walking #booths,body.walking #all,body.walking .sep,body.walking .top h1,body.walking .top p{display:none}
-#joy{position:fixed;left:max(20px,env(safe-area-inset-left,0px));bottom:calc(var(--panel-h,150px) + 24px + env(safe-area-inset-bottom,0px));
-  width:120px;height:120px;border-radius:50%;background:rgba(59,36,24,.28);border:2px solid rgba(255,250,241,.7);touch-action:none;z-index:5}
-#joy i{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:#fffaf1;
-  box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.walk-tip{font-size:.8rem;color:var(--muted)}
+  :root {
+    --ink: #1c2433; 
+    --panel: #ffffff; 
+    --line: #dde3ec;
+    --accent: #2b59c3; 
+    --accent-soft: #e8eefb;
+    --gold: #f0a32f; 
+    --muted: #6b7689;
+    --ok: #1f9d55; 
+    --no: #d64545;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: #eef2f7; 
+    color: var(--ink);
+    display: flex; 
+    flex-direction: column; 
+    height: 100vh; 
+    overflow: hidden;
+  }
+
+  /* ── 헤더 ── */
+  header {
+    display: flex; 
+    align-items: center; 
+    gap: 12px;
+    padding: 10px 18px; 
+    background: var(--panel);
+    border-bottom: 2px solid var(--accent); 
+    flex-shrink: 0;
+  }
+  header .logo {
+    width: 36px; height: 36px; 
+    border-radius: 10px; 
+    background: var(--accent);
+    color: #fff; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 20px;
+  }
+  header h1 { font-size: 18px; font-weight: 800; }
+
+  /* 이동수단 선택 버튼 바 */
+  .vehicle-selector {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    margin-left: 12px;
+  }
+  .v-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .v-btn:hover { background: rgba(255,255,255,0.8); }
+  .v-btn.active {
+    background: #ffffff;
+    color: var(--accent);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  /* 헤더 우측 메뉴 */
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-teacher {
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-teacher:hover { background: #2563eb; }
+
+  header .qnum {
+    font-size: 14px; 
+    font-weight: 700; 
+    color: var(--accent);
+    background: var(--accent-soft); 
+    padding: 6px 14px; 
+    border-radius: 999px;
+  }
+
+  /* ── 본문: 왼쪽 영상/문제 + 오른쪽 3D ── */
+  main { flex: 1; display: flex; min-height: 0; }
+
+  aside {
+    flex: 1.3; 
+    min-width: 320px;
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px;
+    padding: 12px; 
+    min-height: 0;
+  }
+  .panel {
+    background: var(--panel); 
+    border: 1px solid var(--line);
+    border-radius: 14px; 
+    overflow: hidden;
+    display: flex; 
+    flex-direction: column;
+  }
+  .panel .label {
+    flex-shrink: 0; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    padding: 9px 14px; 
+    font-size: 12.5px; 
+    font-weight: 700; 
+    color: var(--accent);
+    background: var(--accent-soft); 
+    border-bottom: 1px solid var(--line);
+  }
+  .panel .label .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+
+  #video-panel { flex: 2.2; min-height: 0; }
+  #video-box {
+    flex: 1; 
+    min-height: 0; 
+    background: #10151f;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    position: relative;
+  }
+  #video-box video { width: 100%; height: 100%; object-fit: contain; }
+  #video-box .placeholder {
+    color: #8a94a8; 
+    font-size: 13.5px; 
+    text-align: center; 
+    line-height: 1.8; 
+    padding: 16px;
+  }
+
+  #question-panel { flex: 1; min-height: 0; }
+  #question-text {
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 14px 16px;
+    font-size: 14.5px; 
+    line-height: 1.7; 
+    font-weight: 600;
+  }
+  #hint-area { padding: 0 16px 12px; }
+  #btn-hint {
+    width: 100%; 
+    padding: 9px; 
+    border: 1.5px dashed var(--line); 
+    border-radius: 10px;
+    background: #fafbfd; 
+    color: var(--muted); 
+    font-size: 13px; 
+    font-weight: 600; 
+    cursor: pointer;
+  }
+  #hint-text {
+    display: none; 
+    margin-top: 10px; 
+    padding: 10px 12px;
+    background: #fff8ec; 
+    border-left: 3px solid var(--gold); 
+    border-radius: 0 8px 8px 0;
+    font-size: 13.5px; 
+    line-height: 1.6; 
+    color: #7a5a16;
+  }
+  #hint-text.show { display: block; }
+
+  .side-actions { display: flex; gap: 8px; }
+  .side-actions button {
+    flex: 1; 
+    padding: 12px; 
+    border-radius: 12px; 
+    border: none;
+    font-size: 15px; 
+    font-weight: 800; 
+    cursor: pointer; 
+    transition: transform .1s;
+  }
+  .side-actions button:active { transform: scale(.97); }
+  #btn-arrive { background: var(--accent); color: #fff; }
+  #btn-reset { background: #eef1f6; color: var(--muted); flex: 0 0 110px; }
+
+  /* ── 3D Canvas 영역 ── */
+  #game-wrap { flex: 2; position: relative; min-width: 0; }
+  #game-canvas { width: 100%; height: 100%; display: block; }
+
+  /* 키보드 조작 안내 */
+  #key-guide {
+    position: absolute; 
+    top: 12px; 
+    left: 12px;
+    background: rgba(255,255,255,.92); 
+    border-radius: 10px;
+    padding: 8px 14px; 
+    font-size: 12.5px; 
+    color: var(--muted); 
+    font-weight: 600;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  /* 영상 없는 버전 */
+  .nv-wrap { width: 100%; height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 12px; background: #f8fafc; overflow: hidden; }
+  .nv-text { flex: 0 0 auto; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .nv-title { font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: 4px; }
+  .nv-body { font-size: 15px; font-weight: 700; line-height: 1.6; white-space: pre-line; }
+  .nv-map { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+  .nv-svg { height: 100%; width: auto; max-width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; background: #9fce8f; }
+
+  /* 영상 없는 버전: 3D 화면이 전체 화면을 차지 */
+  body.novideo aside { display: none; }
+  body.novideo #game-wrap { flex: 1; }
+  #nv-actions { position: absolute; left: 12px; bottom: 12px; display: none; gap: 8px; z-index: 20; }
+  body.novideo #nv-actions { display: flex; }
+  #nv-actions button {
+    border: none; border-radius: 12px; padding: 12px 16px;
+    font-size: 15px; font-weight: 800; cursor: pointer;
+    background: var(--accent); color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  #nv-actions button.sub { background: #eef1f6; color: var(--muted); }
+  #nv-vehicles { position: absolute; left: 12px; top: 12px; display: none; gap: 4px; z-index: 20; background: #fff; padding: 4px; border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  body.novideo #nv-vehicles { display: flex; }
+  body.novideo #vehicle-main { display: none; }
+  .nv-v { border: none; background: transparent; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 800; cursor: pointer; color: var(--muted); }
+  .nv-v.active { background: var(--accent); color: #fff; }
+
+  /* 전체 화면일 때는 3D 길만 보이도록 안내·버튼·이름표를 숨김 */
+  #game-wrap:fullscreen { background: #000; }
+  #game-wrap:fullscreen #key-guide,
+  #game-wrap:fullscreen #signal-hud,
+  #game-wrap:fullscreen #compass-hud,
+  #game-wrap:fullscreen #touch-pad { display: none !important; }
+  #game-wrap:fullscreen #nv-actions .fs-btn { display: none !important; }
+
+  /* 건물 이름표 (화면 위에 항상 같은 크기로 표시) */
+  #label-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .bld-label {
+    position: absolute;
+    left: 0; top: 0;
+    display: none;
+    background: rgba(15, 23, 42, 0.88);
+    color: #fff;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    padding: 3px 9px;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+
+  /* 신호등 안내 (화면 왼쪽 위) */
+  #signal-hud {
+    position: absolute;
+    top: 58px;
+    left: 12px;
+    background: rgba(255,255,255,.92);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink);
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  #signal-hud.red { color: var(--no); }
+  #signal-hud.yellow { color: #b45309; }
+  #signal-hud.green { color: var(--ok); }
+
+  /* 동서남북 방위계 (Compass HUD) */
+  #compass-hud {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 76px;
+    height: 76px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    pointer-events: none;
+    user-select: none;
+  }
+  #compass-dial {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.1s linear;
+  }
+  .c-label {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--ink);
+  }
+  .c-label.n { top: 4px; left: 50%; transform: translateX(-50%); color: #e11d48; }
+  .c-label.s { bottom: 4px; left: 50%; transform: translateX(-50%); }
+  .c-label.e { right: 6px; top: 50%; transform: translateY(-50%); }
+  .c-label.w { left: 6px; top: 50%; transform: translateY(-50%); }
+  #compass-needle {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 4px; height: 38px;
+    margin-top: -19px; margin-left: -2px;
+    background: linear-gradient(to bottom, #e11d48 50%, #94a3b8 50%);
+    border-radius: 2px;
+  }
+
+  /* 모바일 터치 패드 */
+  #touch-pad {
+    position: absolute; 
+    right: 18px; 
+    bottom: 18px;
+    display: grid;
+    grid-template-areas: ". up ." "left down right";
+    grid-template-columns: repeat(3, 56px);
+    grid-template-rows: 56px 56px;
+    gap: 6px;
+    user-select: none; 
+    -webkit-user-select: none;
+  }
+  #touch-pad button {
+    border: none; 
+    border-radius: 14px;
+    background: rgba(43,89,195,.85); 
+    color: #fff;
+    font-size: 20px; 
+    font-weight: 800;
+    touch-action: none;
+  }
+  #touch-pad button:active { background: rgba(28,63,148,.95); }
+  #tp-up { grid-area: up; } 
+  #tp-down { grid-area: down; }
+  #tp-left { grid-area: left; } 
+  #tp-right { grid-area: right; }
+
+  /* 토스트 메시지 */
+  #toast {
+    position: absolute; 
+    left: 50%; 
+    bottom: 24px; 
+    transform: translateX(-50%);
+    background: rgba(28,36,51,.92); 
+    color: #fff;
+    padding: 11px 22px; 
+    border-radius: 999px;
+    font-size: 14.5px; 
+    font-weight: 700;
+    opacity: 0; 
+    transition: opacity .25s; 
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 50;
+  }
+  #toast.show { opacity: 1; }
+
+  /* ── 결과 모달 ── */
+  .modal-overlay {
+    position: fixed; 
+    inset: 0; 
+    background: rgba(20,28,45,.6);
+    display: none; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 100; 
+    padding: 16px;
+  }
+  .modal-overlay.show { display: flex; }
+  #result-card {
+    background: #fff; 
+    border-radius: 20px; 
+    max-width: 420px; 
+    width: 100%;
+    padding: 28px; 
+    text-align: center; 
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  }
+  #result-card .big { font-size: 46px; margin-bottom: 8px; }
+  #result-card h3 { font-size: 21px; font-weight: 800; margin-bottom: 10px; }
+  #result-card h3.ok { color: var(--ok); } 
+  #result-card h3.no { color: var(--no); }
+  #result-card p { font-size: 14.5px; line-height: 1.7; color: var(--muted); margin-bottom: 18px; }
+  #result-card button {
+    padding: 12px 30px; 
+    border: none; 
+    border-radius: 12px;
+    background: var(--accent); 
+    color: #fff;
+    font-size: 15px; 
+    font-weight: 800; 
+    cursor: pointer;
+  }
+
+  /* ── 강사 관리자 모달 ── */
+  #teacher-modal-card {
+    background: #fff;
+    border-radius: 20px;
+    max-width: 780px;
+    width: 100%;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 16px 20px;
+    background: #1e293b;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-header h2 { font-size: 17px; font-weight: 800; }
+  .btn-close-modal {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 22px;
+    cursor: pointer;
+  }
+  .btn-close-modal:hover { color: #fff; }
+  .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* 건물 배치 참고 지도 */
+  .map-guide-toggle {
+    background: #f1f5f9;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .map-guide-toggle button {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--accent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .map-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .map-grid-item {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    font-size: 12px;
+  }
+  .map-grid-item strong { display: block; font-size: 13.5px; color: var(--ink); margin-bottom: 2px; }
+  .map-grid-item span { color: var(--muted); font-size: 11px; }
+
+  .q-edit-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .q-edit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 12.5px; font-weight: 700; color: #475569; }
+  .form-group input, .form-group textarea, .form-group select {
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-family: inherit;
+  }
+  .form-group textarea { resize: vertical; min-height: 52px; }
+
+  .btn-del-q {
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-add-q {
+    background: #f1f5f9;
+    border: 2px dashed #cbd5e1;
+    color: #475569;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    text-align: center;
+  }
+  .btn-add-q:hover { background: #e2e8f0; }
+
+  .modal-footer {
+    padding: 14px 20px;
+    background: #f8fafc;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .btn-save-teachers {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .backup-group { display: flex; gap: 8px; margin-right: auto; }
+  .btn-backup {
+    background: #e2e8f0; color: #1e293b; border: none;
+    padding: 10px 14px; border-radius: 10px;
+    font-size: 13px; font-weight: 800; cursor: pointer;
+  }
+  .btn-backup:hover { background: #cbd5e1; }
+  .range-row { display: flex; gap: 8px; align-items: center; }
+  .range-row input { width: 110px; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13.5px; }
+  .range-row .unit { font-size: 12px; color: #64748b; }
+
+  @media (max-width:820px) {
+    main { flex-direction: column; }
+    aside { display: none; }   /* 모바일: 지도(3D 화면)만 보이게 문제·영상 숨김 */
+    .header-right, #mode-selector { display: none !important; }
+    #nv-actions .fs-btn { display: none; }
+    #game-wrap { flex: 1 1 auto; min-height: 70vh; }
+    #touch-pad { display: grid; }
+    #key-guide { display: none; }
+  }
+  @media (min-width:821px) {
+    #touch-pad { display: none; }
+  }
 </style>
+</head>
+<body>
 
-<div id="stage"></div>
-<div class="top">
-  <a class="back" href="./#events">‹ 홈페이지로</a>
-  <h1>3D 행사장 둘러보기</h1>
-  <p>밀어서 돌려보기 · 두 손가락으로 확대 · 천막을 누르면 가까이 가요</p>
-</div>
+<header>
+  <div class="logo">🚗</div>
+  <h1>수어 길찾기</h1>
 
-<div id="joy" hidden aria-hidden="true"><i></i></div>
-<div class="panel">
-  <div class="info" id="info"></div>
-  <div class="chips" id="booths"></div>
-  <div class="chips">
-    <button id="all" aria-pressed="true">전체 보기</button>
-    <span class="sep"></span>
-    <button id="tDay" aria-pressed="true">낮</button>
-    <button id="tDusk" aria-pressed="false">노을</button>
-    <button id="spin" aria-pressed="false">자동 회전</button>
-    <button id="labels" aria-pressed="true">이름표</button>
-    <button id="walk" aria-pressed="false">걸어서 둘러보기</button>
+  <!-- 이동 수단 선택 메뉴 -->
+  <div class="vehicle-selector" id="vehicle-main">
+    <button class="v-btn active" id="vbtn-car" onclick="selectVehicle('car')">🚗 자동차</button>
+    <button class="v-btn" id="vbtn-bike" onclick="selectVehicle('bicycle')">🚲 자전거</button>
+    <button class="v-btn" id="vbtn-bus" onclick="selectVehicle('bus')">🚌 버스</button>
+    <button class="v-btn" id="vbtn-walk" onclick="selectVehicle('walk')">🚶 사람</button>
+  </div>
+
+  <!-- 영상 버전 / 영상 없는 버전 선택 -->
+  <button class="btn-teacher" id="btn-guide" style="background:#fff7ed;color:#9a3412;margin-left:8px" onclick="toggleGuide(true)">📖 사용법</button>
+
+  <div class="vehicle-selector" id="mode-selector" style="margin-left:8px">
+    <button class="v-btn active" id="mode-video" onclick="setPlayMode('video')">🎬 영상 버전</button>
+    <button class="v-btn" id="mode-novideo" onclick="setPlayMode('novideo')">🗺 영상 없는 버전</button>
+  </div>
+
+  <div class="header-right">
+    <button class="btn-teacher" style="background:#eef2ff;color:#1d4ed8" onclick="openRegionMap()">🗺 우리 지역 지도</button>
+    <button class="btn-teacher" onclick="toggleTeacherModal(true)">⚙️ 강사 관리 모드</button>
+    <div class="qnum" id="qnum">문제 1 / 3</div>
+  </div>
+</header>
+
+<!-- 사용법 창 -->
+<div id="guide-modal" onclick="if(event.target===this)toggleGuide(false)" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:300;align-items:center;justify-content:center;padding:12px;">
+  <div style="background:#fff;border-radius:14px;width:min(620px,96vw);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #e2e8f0;">
+      <b style="font-size:17px;">📖 수어 길찾기 사용법</b>
+      <button onclick="toggleGuide(false)" style="border:none;border-radius:8px;padding:8px 14px;background:#eef1f6;font-weight:700;cursor:pointer;">닫기 ✕</button>
+    </div>
+    <div style="padding:14px 18px;overflow-y:auto;font-size:15px;line-height:1.7;color:#1c2433;">
+      <p style="margin:0 0 8px;"><b>1. 이동 수단 고르기</b></p>
+      <p style="margin:0 0 12px;">🚗 자동차 · 🚲 자전거 · 🚌 버스 · 🚶 사람 중 하나를 누릅니다. 영상 없는 버전에서는 지도 왼쪽 위에 있습니다.</p>
+
+      <p style="margin:0 0 8px;"><b>2. 움직이기</b></p>
+      <p style="margin:0 0 12px;">컴퓨터는 방향키(↑ 앞으로, ↓ 뒤로, ← → 핸들)를 씁니다. 휴대폰은 화면 아래의 방향 버튼을 누릅니다.</p>
+
+      <p style="margin:0 0 8px;"><b>3. 신호 지키기</b></p>
+      <p style="margin:0 0 12px;">🚗 차는 <b>차량 신호</b>(가로로 놓인 빨강·노랑·초록)를 따릅니다. 빨간불이면 멈춥니다.<br>
+      🚶 사람은 <b>사람 신호</b>(빨강·초록)를 따릅니다. 초록불일 때만 횡단보도를 건널 수 있습니다.</p>
+
+      <p style="margin:0 0 8px;"><b>4. 목표 건물 찾아가기</b></p>
+      <p style="margin:0 0 12px;">강사가 알려준 목표 건물을 찾아 가까이 갑니다. 건물 가까이에서 <b>건물을 마우스로 누르면(휴대폰은 터치)</b> 정답을 확인합니다. 틀리면 "여기는 ○○입니다. 다시 찾아보세요."라고 나옵니다.</p>
+
+      <p style="margin:0 0 8px;"><b>5. 막히거나 길을 잃었을 때</b></p>
+      <p style="margin:0 0 12px;">↩ <b>출발점</b> 버튼을 누르면 처음 출발 위치로 돌아갑니다.</p>
+
+      <p style="margin:0 0 8px;"><b>6. 참고</b></p>
+      <p style="margin:0;">· 자전거는 자전거 전용도로(초록 띠)와 인도, 차도 일부로 다닐 수 있습니다.<br>
+      · 사람은 인도와 횡단보도로 다닙니다.<br>
+      · 컴퓨터에서는 🎬 영상 버전과 🗺 영상 없는 버전을 고를 수 있습니다.<br>
+      · 강사 관리 모드(컴퓨터)에서 문제와 목표 건물을 정하고, 반드시 "저장하고 반영하기"를 눌러야 저장됩니다.</p>
+    </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<!-- 우리 지역 지도 창 -->
+<div id="region-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:300;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:14px;width:min(960px,94vw);height:min(720px,88vh);display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #e2e8f0;">
+      <b>📍 우리 지역 지도</b>
+      <button onclick="closeRegionMap()" style="border:none;border-radius:8px;padding:8px 14px;background:#eef1f6;font-weight:700;cursor:pointer;">닫기 ✕</button>
+    </div>
+    <div id="region-map" style="flex:1;min-height:0;">
+      <div style="padding:20px;">위치를 찾는 중...</div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <aside>
+    <section class="panel" id="video-panel">
+      <div class="label"><span class="dot"></span><span id="video-label">수어 지시 영상</span></div>
+      <div id="video-box">
+        <div class="placeholder">📹<br>여기에 수어 영상이 들어갑니다.<br>(강사 관리 모드에서 영상 등록 가능)</div>
+      </div>
+    </section>
+
+    <section class="panel" id="question-panel">
+      <div class="label"><span class="dot"></span>문제</div>
+      <div id="question-text"></div>
+      <div id="hint-area" style="display:none;">
+        <button id="btn-hint">📖 글 지시문 보기 (연습용)</button>
+        <div id="hint-text"></div>
+      </div>
+    </section>
+
+    <div class="side-actions">
+      <button id="btn-arrive">📍 여기예요!</button>
+      <button id="btn-reset">↩ 출발점</button>
+    </div>
+  </aside>
+
+  <div id="game-wrap">
+    <canvas id="game-canvas"></canvas>
+    <div id="key-guide">⌨ 방향키 조작: ↑ 전진 · ↓ 후진 · ← → 핸들</div>
+    <div id="label-layer"></div>
+    <div id="nv-vehicles">
+      <button class="nv-v active" id="nv-vbtn-car" onclick="selectVehicle('car')">🚗 자동차</button>
+      <button class="nv-v" id="nv-vbtn-bike" onclick="selectVehicle('bicycle')">🚲 자전거</button>
+      <button class="nv-v" id="nv-vbtn-bus" onclick="selectVehicle('bus')">🚌 버스</button>
+      <button class="nv-v" id="nv-vbtn-walk" onclick="selectVehicle('walk')">🚶 사람</button>
+    </div>
+    <div id="nv-actions">
+      <button class="sub" onclick="document.getElementById('btn-reset').click()">↩ 출발점</button>
+      <button class="fs-btn" onclick="toggleNvFullscreen()">⛶ 전체 화면</button>
+    </div>
+    
+    <!-- 동서남북 방위계 (Compass HUD) -->
+    <div id="compass-hud">
+      <div id="compass-dial">
+        <div class="c-label n">N</div>
+        <div class="c-label e">E</div>
+        <div class="c-label s">S</div>
+        <div class="c-label w">W</div>
+        <div id="compass-needle"></div>
+      </div>
+    </div>
+
+    <div id="touch-pad">
+      <button id="tp-up">▲</button>
+      <button id="tp-left">◀</button>
+      <button id="tp-down">▼</button>
+      <button id="tp-right">▶</button>
+    </div>
+    <div id="toast"></div>
+  </div>
+</main>
+
+<!-- 정답/오답 결과 모달 -->
+<div class="modal-overlay" id="result-overlay">
+  <div id="result-card">
+    <div class="big" id="r-icon">🎉</div>
+    <h3 id="r-title">정답입니다!</h3>
+    <p id="r-desc"></p>
+    <button id="r-btn">다음 문제 ▶</button>
+  </div>
+</div>
+
+<!-- 강사 전용 관리자 모달 -->
+<div class="modal-overlay" id="teacher-overlay">
+  <div id="teacher-modal-card">
+    <div class="modal-header">
+      <h2>⚙️ 강사 전용 관리자 모드</h2>
+      <button class="btn-close-modal" onclick="toggleTeacherModal(false)">✕</button>
+    </div>
+    <div class="modal-body">
+      
+      <!-- 건물 위치 참고 지도 -->
+      <div class="map-guide-toggle">
+        <button onclick="toggleMapGuide()">
+          <span>🗺️ 3D 마을 건물 배치도 (정답 설정 참고용)</span>
+          <span id="map-guide-arrow">▼ 펼치기</span>
+        </button>
+        <div id="map-guide-content" style="display:none; margin-top:10px;">
+          <p style="font-size:12px; color:var(--muted); margin-bottom:8px; text-align:center;">
+            위에서 내려다본 실제 배치도입니다. 위쪽이 북쪽, 빨간 점이 출발지, 가운데 초록 원이 중앙공원입니다.
+          </p>
+          <div id="map-svg-box"></div>
+          <p style="font-size:11.5px; color:var(--accent); margin-top:8px; text-align:center; font-weight:700;">
+            🚗 출발지: 남쪽 길 끝 (북쪽을 향해 출발)
+          </p>
+        </div>
+      </div>
+
+      <div id="teacher-questions-list"></div>
+      <button class="btn-add-q" onclick="addQuestion()">➕ 새 문제 추가하기</button>
+    </div>
+    <div class="modal-footer">
+      <div class="backup-group">
+        <button class="btn-backup" onclick="downloadBackup()">💾 백업 파일 받기</button>
+        <button class="btn-backup" onclick="document.getElementById('restore-file').click()">📂 백업 불러오기</button>
+        <input type="file" id="restore-file" accept=".json,application/json" style="display:none" onchange="restoreBackup(event)">
+      </div>
+      <button class="btn-save-teachers" onclick="saveTeacherQuestions()">저장하고 반영하기</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// 부스 지도(SVG 1000×740)의 위치를 그대로 옮김. x,y = 천막 그림의 왼쪽 위 좌표
-const BOOTHS = [
-  {no:1,  name:'총괄본부 · 응급의료', x:860, y:50, c:'#6f7f3e', face:1, kind:'안내',
-   title:'총괄본부 · 응급의료', desc:'행사 안내와 응급 처치가 필요할 때 찾아오세요.'},
-  {no:12, name:'공연자 대기실', x:195, y:60, c:'#8a7564', face:1, off:true},
-  {no:2,  name:'스탬프 · 선물 뽑기', x:118, y:215, c:'#6f7f3e', face:1, kind:'스탬프 투어',
-   title:'스탬프 엽서 & 기념품', desc:'부스를 돌며 스탬프를 모으고 선물뽑기에 도전하세요!'},
-  {no:3,  name:'도서·영상 전시 · 가치봄', x:225, y:215, c:'#9b3a2a', face:1, kind:'전시·홍보',
-   title:'수어 도서·영상 전시 · 가치봄 영화축제', desc:'수어 도서와 영상 자료 전시, 수어에 대한 궁금증 해결, 가치봄 영화 소개'},
-  {no:4,  name:'슈링클스 · 감정수어챌린지', x:332, y:215, c:'#d9541e', face:1, kind:'체험·게임',
-   title:'슈링클스 만들기 · 감정수어챌린지', desc:'나만의 슈링클스 고리 만들기와 감정수어챌린지'},
-  {no:5,  name:'수어로 강원 한 바퀴', x:25, y:565, c:'#d9541e', face:-1, kind:'체험',
-   title:'QR 찍고! 주사위 굴리고! 수어로 강원 한 바퀴', desc:'농문화 퀴즈, 다짐카드 쓰기', org:'원주시수어통역센터'},
-  {no:6,  name:'현수막 네임가방 만들기', x:165, y:555, c:'#d9541e', face:-1, kind:'체험',
-   title:'버려진 현수막, 수어를 담다', desc:'폐현수막으로 나만의 네임가방 만들기', org:'홍천군수어통역센터'},
-  {no:7,  name:'가죽공예 · 양말목공예', x:305, y:545, c:'#9b3a2a', face:-1, kind:'전시·체험',
-   title:'가죽공예 · 양말목공예', desc:'농아인 작품 전시와 컵받침 만들기 체험', org:'춘천시농아인협회'},
-  {no:8,  name:'한지 · 토탈 · 목공예', x:445, y:535, c:'#9b3a2a', face:-1, kind:'전시·판매',
-   title:'한지공예 · 토탈공예 · 목공예', desc:'농아인 작품 전시와 한지공예 판매', org:'영월군농아인협회 · 인제군농아인협회'},
-  {no:9,  name:'퀼트 작품 전시 & 판매', x:585, y:525, c:'#9b3a2a', face:-1, kind:'전시·판매',
-   title:'퀼트 작품 전시 & 판매', desc:'농아인 작가들의 퀼트 작품', org:'강릉시농아인협회 손땀동아리'},
-  {no:10, name:'수어퍼즐 · 방탈출', x:725, y:515, c:'#e09a2b', face:-1, kind:'게임',
-   title:'디지털 수어퍼즐 · 온라인 방탈출', desc:'노트북과 휴대폰으로 즐기는 수어 게임'},
-  {no:11, name:'뉴스 수어통역사 · 포토존', x:865, y:505, c:'#d9541e', face:-1, kind:'체험',
-   title:'나도 뉴스 수어통역사! · 포토존', desc:'뉴스 화면 속 수어통역사 되어 보기, 4컷 사진 촬영'},
-];
-const ON = BOOTHS.filter(b=>!b.off);
-const isPhone = Math.min(innerWidth,innerHeight) < 700;
-const S = 0.03; // 지도 1칸 = 3cm (천막 100칸 = 3m)
-const P = (x,y) => new THREE.Vector3((x-500)*S, 0, (y-370)*S);
 
-const stage = document.getElementById('stage');
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,isPhone?1.5:2));
-renderer.shadowMap.enabled = !isPhone;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.outputEncoding = THREE.sRGBEncoding;
-stage.appendChild(renderer.domElement);
+/* ============================================================
+   1. IndexedDB 설정 (동영상 및 문제 데이터 저장)
+============================================================ */
+const DB_NAME = 'SignLanguage3D_DB';
+const DB_VERSION = 1;
+let db = null;
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(40,1,0.1,300);
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.maxPolarAngle = Math.PI*0.48;
-controls.minDistance = 4; controls.maxDistance = 110;
-controls.autoRotateSpeed = 0.5;
-
-const hemi = new THREE.HemisphereLight(0xfff3e0,0x8a7a5a,0.75); scene.add(hemi);
-const sun = new THREE.DirectionalLight(0xffffff,0.9);
-sun.castShadow = true; sun.shadow.mapSize.set(4096,4096);
-Object.assign(sun.shadow.camera,{left:-22,right:22,top:18,bottom:-18,far:80});
-scene.add(sun);
-
-const std=(color,o={})=>new THREE.MeshStandardMaterial(Object.assign({color,roughness:.85},o));
-const sh=m=>{m.castShadow=true;m.receiveShadow=true;return m;};
-const FD='"Black Han Sans","Malgun Gothic",sans-serif', FB='"Gowun Dodum","Malgun Gothic",sans-serif';
-const textures=[];
-function canvasTex(w,h,draw){
-  const cv=document.createElement('canvas');cv.width=w;cv.height=h;
-  const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;
-  t.redraw=()=>{const c=cv.getContext('2d');c.clearRect(0,0,w,h);draw(c,w,h);t.needsUpdate=true;};
-  t.redraw();textures.push(t);return t;
-}
-function fit(c,text,maxW,size,font){let s=size;c.font=`${s}px ${font}`;
-  while(c.measureText(text).width>maxW&&s>10){s-=2;c.font=`${s}px ${font}`;}}
-function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
-
-// ---- ground ----
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(90,70),std(0xd6c096));
-ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
-const grass=new THREE.Mesh(new THREE.PlaneGeometry(40,19.6),std(0xb8b06f));
-grass.rotation.x=-Math.PI/2;grass.position.set(0,.004,5.2);grass.receiveShadow=true;scene.add(grass);
-// 산책로 (지도의 곡선 길)
-(function(){
-  const a=P(20,520),b=P(480,505),e=P(990,470),N=60,m=std(0xe2cda4);
-  for(let i=0;i<N;i++){
-    const t=i/(N-1),u=1-t;
-    const p=new THREE.Vector3(u*u*a.x+2*u*t*b.x+t*t*e.x,.01,u*u*a.z+2*u*t*b.z+t*t*e.z);
-    const seg=new THREE.Mesh(new THREE.CircleGeometry(.7,16),m);
-    seg.rotation.x=-Math.PI/2;seg.position.copy(p);seg.receiveShadow=true;scene.add(seg);
-  }
-})();
-
-// ---- stage + screen ----
-(function(){
-  const c=P(580,170);
-  const deck=sh(new THREE.Mesh(new THREE.BoxGeometry(13.2,.7,2.6),std(0x9a6644)));
-  deck.position.set(c.x,.35,c.z);scene.add(deck);
-  const skirt=sh(new THREE.Mesh(new THREE.BoxGeometry(13.3,.25,2.7),std(0x6b4330)));
-  skirt.position.set(c.x,.12,c.z+.02);scene.add(skirt);
-  const scrTex=canvasTex(1024,320,(g,w,h)=>{
-    const gr=g.createLinearGradient(0,0,w,h);gr.addColorStop(0,'#f6c35a');gr.addColorStop(.55,'#e2672b');gr.addColorStop(1,'#8e2f23');
-    g.fillStyle=gr;g.fillRect(0,0,w,h);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
-    fit(g,'2026 강원수어문화제 · 가치봄 영화축제',w-80,64,FD);g.fillText('2026 강원수어문화제 · 가치봄 영화축제',w/2,h*.42);
-    g.font=`34px ${FB}`;g.fillText('2026. 10. 24. (토)',w/2,h*.72);
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => {
+      const database = e.target.result;
+      if (!database.objectStoreNames.contains('questions')) {
+        database.createObjectStore('questions', { keyPath: 'id' });
+      }
+      if (!database.objectStoreNames.contains('videos')) {
+        database.createObjectStore('videos');
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(db); };
+    req.onerror = e => reject(e);
   });
-  const frame=sh(new THREE.Mesh(new THREE.BoxGeometry(9.4,3.6,.2),std(0x4a2e22)));
-  frame.position.set(c.x,2.9,c.z-1.15);scene.add(frame);
-  const scr=new THREE.Mesh(new THREE.PlaneGeometry(8.9,3.1),std(0xffffff,{map:scrTex,emissive:0xffffff,emissiveMap:scrTex,emissiveIntensity:.35}));
-  scr.position.set(c.x,2.9,c.z-1.04);scene.add(scr);
-  [-1,1].forEach(s=>{const sp=sh(new THREE.Mesh(new THREE.BoxGeometry(.5,2.4,.5),std(0x2e1d15)));
-    sp.position.set(c.x+s*5.3,1.9,c.z-.6);scene.add(sp);});
-  [-1.6,0,1.6].forEach((dx,i)=>{person(c.x+dx,c.z+.2,[0x2f6f8f,0xd9541e,0x6f7f3e][i],0,0).position.y=.7;});
-})();
+}
 
-// ---- audience seats 12 × 10 ----
-(function(){
-  const seat=new THREE.BoxGeometry(.45,.06,.42),back=new THREE.BoxGeometry(.45,.4,.05);
-  const n=120,a=new THREE.InstancedMesh(seat,std(0xb9874f),n),b=new THREE.InstancedMesh(back,std(0xb9874f),n);
-  a.castShadow=b.castShadow=true;const d=new THREE.Object3D();let i=0;
-  for(let r=0;r<10;r++)for(let col=0;col<12;col++){
-    const p=P(475+col*30,272+r*13.5);
-    d.position.set(p.x,.45,p.z);d.updateMatrix();a.setMatrixAt(i,d.matrix);
-    d.position.set(p.x,.68,p.z+.19);d.updateMatrix();b.setMatrixAt(i,d.matrix);i++;
-    if((r*12+col)%3===0) person(p.x,p.z,[0xe9a23b,0xd9541e,0x9b3a2a,0x2f6f8f,0x6f7f3e][(r+col)%5],.42,Math.PI);
+function saveDBStore(storeName, key, value) {
+  return new Promise((resolve, reject) => {
+    if (!db) return reject(new Error('DB 연결이 없습니다.'));
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    // key가 없으면(undefined) value 안의 id 칸을 사용 (keyPath 저장소용)
+    if (key === undefined) store.put(value);
+    else store.put(value, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+}
+
+function getDBStore(storeName, key) {
+  return new Promise((resolve) => {
+    if (!db) return resolve(null);
+    const tx = db.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const req = store.get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve(null);
+  });
+}
+
+/* ============================================================
+   2. 문제 및 3D 데이터 선언
+============================================================ */
+let QUESTIONS = [
+  {
+    id: 1,
+    question: "수어 영상을 보고, 지시하는 길을 따라 운전해서 도착한 건물 앞에서 '여기예요!'를 눌러주세요.",
+    directions: "출발 후 북쪽으로 직진하세요. 왼쪽에 보이는 두 번째 건물, 식당입니다.",
+    answer: "식당",
+    explain: "[직진]과 [좌회전], [식당](🍱) 수어 표현을 확인해보세요."
+  },
+  {
+    id: 2,
+    question: "수어 지시를 따라 올바른 목적지로 이동하세요.",
+    directions: "출발 후 북쪽으로 직진하세요. 오른쪽에 보이는 두 번째 건물, 우체국입니다.",
+    answer: "우체국",
+    explain: "[우회전] 및 [우체국](📮) 수어 표현이 포인트입니다."
+  },
+  {
+    id: 3,
+    question: "마지막 문제! 수어 영상을 보고 도착지를 찾아보세요.",
+    directions: "중앙 공원 둘레의 길을 따라 북쪽 길까지 가세요. 그 길에서 오른쪽에 보이는 학교입니다.",
+    answer: "학교",
+    explain: "[직진], [오른쪽], [학교] 수어 표현을 복습해보세요."
   }
-  scene.add(a,b);
-})();
+];
+
+const BUILDINGS = [
+  // 중앙공원 주변 4갈래길 양쪽에 건물 2개씩 배치 (길 위에는 건물이 없음)
+  // 북쪽 길 (x=0): 왼쪽 x=-18, 오른쪽 x=18
+  { name:"병원",   x:-18, z:-45, color:0xe8eef7, accent:0xd64545, icon:"🏥" },
+  { name:"마트",   x:-18, z:-75, color:0xf7e0a3, accent:0xf0a32f, icon:"🛒" },
+  { name:"학교",   x: 18, z:-45, color:0xf2d8b0, accent:0x8a6b4f, icon:"🏫" },
+  { name:"은행",   x: 18, z:-75, color:0xcfd8e6, accent:0x2b59c3, icon:"🏦", w:9, d:15 },
+  // 남쪽 길 (x=0): 왼쪽 x=-18, 오른쪽 x=18
+  { name:"식당",   x:-18, z: 45, color:0xf7c8b8, accent:0xd6712b, icon:"🍱", w:12, d:10, shape:"trapezoid" },
+  { name:"카페",   x:-18, z: 75, color:0xfff7ed, accent:0x9a3412, icon:"☕", w:12, shape:"half", signScale:0.5 },
+  { name:"우체국", x: 18, z: 45, color:0xfde3e3, accent:0xd64545, icon:"📮", w:10, shape:"tower" },
+  { name:"경찰서", x: 18, z: 75, color:0xd6dff0, accent:0x2b59c3, icon:"🚔" },
+  // 동쪽 길 (z=0): 북쪽 z=-18, 남쪽 z=18
+  { name:"소방서", x: 45, z:-18, color:0xfee2e2, accent:0xef4444, icon:"🚒" },
+  { name:"도서관", x: 75, z:-18, color:0xd8e6d4, accent:0x1f9d55, icon:"📚", w:15, d:9 },
+  { name:"약국",   x: 45, z: 18, color:0xffffff, accent:0x1f9d55, icon:"💊" },
+  { name:"시민공원", x: 75, z: 18, color:0xdcfce7, accent:0x16a34a, icon:"🌳", w:12, h:6, shape:"dome" },
+  // 서쪽 길 (z=0): 북쪽 z=-18, 남쪽 z=18 (새 건물 4개는 간판 없음)
+  { name:"유치원", x:-45, z:-18, color:0xfde68a, icon:"🧸", w:13, h:9,  style:"house", accent:0xfacc15 },
+  { name:"관공서", x:-75, z:-18, color:0xbfdbfe, accent:0x1d4ed8, icon:"🏛️", w:8,  h:7,  style:"house" },
+  { name:"아파트", x:-45, z: 18, color:0xd1d5db, accent:0x374151, icon:"🏢", w:13, h:24 },
+  { name:"아파트", x:-75, z: 18, color:0xe9d5ff, accent:0x7c3aed, icon:"🏢", w:8,  h:16 }
+];
+
+const BUILD_SIZE = 11;
+const ARRIVE_DISTANCE = 22;
+const START = { x: 0, z: 115, angle: 0 }; // 시민공원 앞 도로 출발 (북쪽 향함)
+
+/* 탈것 스펙 설정 */
+const BUILD_HEIGHT_SCALE = 0.75;   // 건물 높이 비율 (1 = 원래 높이, 낮출수록 낮아짐)
+const VEHICLE_SPECS = {
+  car:     { name: "자동차", maxSpeed: 0.85, accel: 0.012, turn: 0.025, camDist: 14, camH: 89 },
+  bicycle: { name: "자전거", maxSpeed: 0.65, accel: 0.018, turn: 0.04, camDist: 12, camH: 83 },
+  bus:     { name: "버스",   maxSpeed: 0.75, accel: 0.008, turn: 0.018, camDist: 20, camH: 95 },
+  walk:    { name: "사람",   maxSpeed: 0.35, accel: 0.012, turn: 0.03,  camDist: 12, camH: 81 }
+};
+
+let scene, camera, renderer, car;
+let speed = 0, angle = 0;
+let vehicleType = 'car';
+let MAX_SPEED = VEHICLE_SPECS.car.maxSpeed;
+let ACCEL = VEHICLE_SPECS.car.accel;
+let TURN = VEHICLE_SPECS.car.turn;
+const FRICTION = 0.94;
+
+const keys = { up:false, down:false, left:false, right:false };
+const buildingBoxes = [];
+const buildingGroups = [];   // 건물 3D 묶음 (마우스로 누른 건물을 찾는 데 사용)
+const billboardSprites = [];
 
 
-// ---- 화장실 ----
-(function(){
-  const p=P(66,284);
-  const b=sh(new THREE.Mesh(new THREE.BoxGeometry(2.9,2.4,2.6),std(0xefe5d6)));b.position.set(p.x,1.2,p.z);scene.add(b);
-  const r=sh(new THREE.Mesh(new THREE.BoxGeometry(3.2,.25,2.9),std(0x8a5a3c)));r.position.set(p.x,2.5,p.z);scene.add(r);
-  [-.6,.6].forEach(dx=>{const d=new THREE.Mesh(new THREE.PlaneGeometry(.66,1.6),std(0xb0886a));d.position.set(p.x+dx,.8,p.z+1.31);scene.add(d);});
-})();
+/* ── 360도 수평 빌보드 이름표 ── */
+function makeBuildingLabel(icon, text) {
+  const cv = document.createElement('canvas');
+  cv.width = 512; cv.height = 160;
+  const ctx = cv.getContext('2d');
 
-// ---- trees ----
-[[40,40,1.2,0xe2672b],[95,25,.9,0xf2b14a],[330,22,.85,0xc9452a],[975,430,1,0xe2672b],[790,28,.8,0xd9541e],
- [980,250,.9,0xf2b14a],[20,440,.9,0xc9452a],[990,720,.8,0xe9a23b]].forEach(([x,y,s,c])=>{
-  const p=P(x,y),g=new THREE.Group();
-  const tr=sh(new THREE.Mesh(new THREE.CylinderGeometry(.1*s,.15*s,1.8*s,8),std(0x6b4330)));tr.position.y=.9*s;g.add(tr);
-  [[0,2.1,0,.95],[.5,1.85,.2,.65],[-.45,1.9,-.2,.7],[.1,2.6,-.1,.6]].forEach(([a,b,cz,r])=>{
-    const m=sh(new THREE.Mesh(new THREE.IcosahedronGeometry(r*s,1),std(c,{flatShading:true})));m.position.set(a*s,b*s,cz*s);g.add(m);});
-  g.position.copy(p);scene.add(g);
-});
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+  const r = 24;
+  ctx.beginPath();
+  ctx.moveTo(r, 0); ctx.lineTo(512-r, 0); ctx.quadraticCurveTo(512, 0, 512, r);
+  ctx.lineTo(512, 160-r); ctx.quadraticCurveTo(512, 160, 512-r, 160);
+  ctx.lineTo(r, 160); ctx.quadraticCurveTo(0, 160, 0, 160-r);
+  ctx.lineTo(0, r); ctx.quadraticCurveTo(0, 0, r, 0); ctx.fill();
 
-// ---- fallen leaves ----
-[0xe0672c,0xe9b52f,0xc2412b,0xd98a2b].forEach((col,ci)=>{
-  const n=260,inst=new THREE.InstancedMesh(new THREE.PlaneGeometry(.1,.07),std(col,{side:THREE.DoubleSide}),n),d=new THREE.Object3D();
-  for(let i=0;i<n;i++){d.position.set((Math.random()-.5)*38,.015+ci*.001,(Math.random()-.5)*28);
-    d.rotation.set(-Math.PI/2,0,Math.random()*6.28);d.updateMatrix();inst.setMatrixAt(i,d.matrix);}
-  inst.receiveShadow=true;scene.add(inst);
-});
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 8;
+  ctx.stroke();
 
-// ---- people ----
-function xz(x,y){const p=P(x,y);return [p.x,p.z];}
-function person(x,z,col,sitY,ry){
-  const g=new THREE.Group(),sit=typeof sitY==='number'&&sitY>0&&sitY<.5;
-  const h=sit?.55:1.0, base=sit?sitY:0;
-  const body=sh(new THREE.Mesh(new THREE.CylinderGeometry(.16,.19,h*.62,12),std(col)));body.position.y=base+(sit?.32:.75);g.add(body);
-  const head=sh(new THREE.Mesh(new THREE.SphereGeometry(.12,14,10),std(0xf1c9a5)));head.position.y=base+(sit?.72:1.32);g.add(head);
-  const hair=new THREE.Mesh(new THREE.SphereGeometry(.125,14,10,0,6.3,0,1.3),std(0x3b2418));hair.position.y=head.position.y+.01;g.add(hair);
-  if(!sit){[-.08,.08].forEach(dx=>{const l=sh(new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.45,8),std(0x4a3a30)));l.position.set(dx,.225,0);g.add(l);});}
-  g.position.set(x,0,z);g.rotation.y=ry||0;scene.add(g);return g;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 64px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(`${icon} ${text}`, 256, 82);
+
+  const tex = new THREE.CanvasTexture(cv);
+  // fog: false → 멀리 있어도 안개에 가려지지 않고 또렷하게 보임
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, fog: false }));
+  sp.scale.set(17, 5.4, 1);
+  return sp;
 }
 
-// ---- booths ----
-const legMat=std(0xd5d5d5,{metalness:.6,roughness:.35});
-const booths=[];
-function makeBooth(b){
-  const g=new THREE.Group(),col=b.c;
-  const roofM=std(col,{side:THREE.DoubleSide,roughness:.9}),plain=std(col);
-  [[-1.5,-1.5],[1.5,-1.5],[-1.5,1.5],[1.5,1.5]].forEach(([x,z])=>{
-    const l=sh(new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,2.2,10),legMat));l.position.set(x,1.1,z);g.add(l);});
-  const roof=sh(new THREE.Mesh(new THREE.ConeGeometry(2.12,.85,4,1,true),roofM));roof.rotation.y=Math.PI/4;roof.position.y=2.625;g.add(roof);
-  const stripe=new THREE.Mesh(new THREE.ConeGeometry(2.13,.85,4,1,true,Math.PI*.15,Math.PI*.2),std(0xffffff,{side:THREE.DoubleSide,transparent:true,opacity:.35}));
-  stripe.rotation.y=Math.PI/4;stripe.position.y=2.626;g.add(stripe);
-  const vt=canvasTex(1024,110,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#fffaf1';
-    c.textAlign='center';c.textBaseline='middle';const vtx=b.off?b.name:`${b.no}. ${b.name}`;fit(c,vtx,w-60,70,FD);c.fillText(vtx,w/2,h/2+4);});
-  const front=std(0xffffff,{map:vt});
-  [[0,1.52,0,true],[0,-1.52,Math.PI,false],[1.52,0,Math.PI/2,false],[-1.52,0,-Math.PI/2,false]].forEach(([x,z,ry,f])=>{
-    const m=sh(new THREE.Mesh(new THREE.BoxGeometry(3.04,.3,.02),[plain,plain,plain,plain,f?front:plain,plain]));
-    m.position.set(x,2.06,z);m.rotation.y=ry;g.add(m);});
-  const back=new THREE.Mesh(new THREE.PlaneGeometry(2.96,1.9),std(0xfff6e6));back.position.set(0,1.05,-1.48);back.receiveShadow=true;g.add(back);
-  const cloth=sh(new THREE.Mesh(new THREE.BoxGeometry(1.84,.74,.64),std(0xc98a5a)));cloth.position.set(0,.37,.55);g.add(cloth);
-  const top=sh(new THREE.Mesh(new THREE.BoxGeometry(1.86,.03,.66),std(0xe8c9a2)));top.position.set(0,.755,.55);g.add(top);
-  [0x2f6f8f,0xe9a23b,0x9b3a2a].forEach((cc,i)=>{const it=sh(new THREE.Mesh(new THREE.BoxGeometry(.25,.04+.06*(i%2),.25),std(cc)));
-    it.position.set(-.55+i*.55,.8,.55);g.add(it);});
-  [-.45,.45].forEach((dx,i)=>{const p=person(0,0,[0x7a5a46,0x9b3a2a,0x2f6f8f,0x6f7f3e][(b.no+i)%4],0,0);scene.remove(p);p.position.set(dx,0,-.25);g.add(p);});
-  if(b.no!==12){const v=person(0,0,[0xe9a23b,0x2f6f8f][b.no%2],0,Math.PI);scene.remove(v);v.position.set(.3,0,1.35);g.add(v);}
-  const p=P(b.x+50,b.y+95);g.position.copy(p);g.rotation.y=b.face>0?0:Math.PI;
-  if(b.off){scene.add(g);b.group=g;return;}
-  // 공중 이름표
-  const lt=canvasTex(640,150,(c,w,h)=>{
-    rr(c,4,4,w-8,h-8,40);c.fillStyle='rgba(59,36,24,.92)';c.fill();
-    c.beginPath();c.arc(72,h/2,48,0,7);c.fillStyle='#fffaf1';c.fill();
-    c.fillStyle=col;c.textAlign='center';c.textBaseline='middle';c.font=`58px ${FD}`;c.fillText(b.no,72,h/2+3);
-    c.fillStyle='#fffaf1';c.textAlign='left';fit(c,b.name,w-160,52,FD);c.fillText(b.name,136,h/2+3);});
-  const label=new THREE.Sprite(new THREE.SpriteMaterial({map:lt,depthTest:false,transparent:true,sizeAttenuation:false}));
-  label.scale.set(.2,.047,1);label.position.y=3.6;label.renderOrder=11;label.visible=false;g.add(label);
-  const nt=canvasTex(128,128,(c,w,h)=>{c.beginPath();c.arc(64,64,58,0,7);c.fillStyle='#3b2418';c.fill();
-    c.beginPath();c.arc(64,64,48,0,7);c.fillStyle='#fffaf1';c.fill();
-    c.fillStyle=col;c.textAlign='center';c.textBaseline='middle';c.font=`64px ${FD}`;c.fillText(b.no,64,68);});
-  const badge=new THREE.Sprite(new THREE.SpriteMaterial({map:nt,depthTest:false,transparent:true,sizeAttenuation:false}));
-  {const t=innerWidth<innerHeight?.04:.05;badge.scale.set(t,t,1);}badge.position.y=3.4;badge.renderOrder=10;g.add(badge);b.badge=badge;
-  g.userData=b;scene.add(g);
-  b.group=g;b.label=label;booths.push(g);
+/* ── 건물 간판 (벽 4면) ── */
+// 진한 바탕에 흰 굵은 글씨: 멀리서도 잘 보이도록 큰 판으로 만듦
+function makeSignTexture(name, planeW, H, textH) {
+  const cvW = 512;
+  const cvH = Math.round(cvW * H / planeW);
+  const cv = document.createElement('canvas');
+  cv.width = cvW; cv.height = cvH;
+  const c = cv.getContext('2d');
+  c.fillStyle = '#1c2433'; c.fillRect(0, 0, cvW, cvH);
+  c.strokeStyle = '#ffffff'; c.lineWidth = cvW * 0.025;
+  c.strokeRect(cvW * 0.03, cvH * 0.08, cvW * 0.94, cvH * 0.84);
+  const text = name;   // 이모지는 글씨에서 빼고 옥상 3D 모형으로 표현
+  let size = Math.round(cvH * (textH / H));   // 글씨 높이 = textH (원래 크기 유지)
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.font = `900 ${size}px "Malgun Gothic", sans-serif`;
+  while (c.measureText(text).width > cvW * 0.84 && size > 20) {
+    size -= 4;
+    c.font = `900 ${size}px "Malgun Gothic", sans-serif`;
+  }
+  c.fillStyle = '#ffffff';
+  c.fillText(text, cvW / 2, cvH / 2 + size * 0.04);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.anisotropy = 8;
+  return tex;
 }
-BOOTHS.forEach(makeBooth);
 
-// 공간 이름표 (무대, 관람석, 화장실, 대기실)
-function areaLabel(text,x,y,h){
-  const t=canvasTex(512,110,(c,w,hh)=>{rr(c,4,4,w-8,hh-8,50);c.fillStyle='#fffaf1';c.fill();c.lineWidth=5;c.strokeStyle='#3b2418';c.stroke();
-    c.fillStyle='#3b2418';c.textAlign='center';c.textBaseline='middle';fit(c,text,w-50,48,FD);c.fillText(text,w/2,hh/2+3);});
-  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthTest:false,transparent:true,sizeAttenuation:false}));
-  const p=P(x,y);s.position.set(p.x,h,p.z);s.scale.set(.13,.028,1);s.renderOrder=9;scene.add(s);return s;
+function addBuildingSigns(g, b, wx, wz, h) {
+  // 사다리꼴은 길 방향에 따라 90도 돌아가 있으므로 판의 가로·세로를 맞바꿈
+  if (b.shape === 'trapezoid' && Math.abs(b.z) > Math.abs(b.x)) { const t = wx; wx = wz; wz = t; }
+  const y = Math.max(2.6, h * 0.6), H0 = 3.0, gap = 0.06;
+  const textH = 0.55 * H0;                    // 글씨 높이는 원래와 같게 유지
+  let H = H0, wZ = wx * 0.9, wX = wz * 0.9;
+  if (b.signScale) {
+    // 글씨 주변 여백을 절반으로: 판 = 글씨 + (원래 판 - 글씨) / 2
+    const ctx = document.createElement('canvas').getContext('2d');
+    ctx.font = '900 100px "Malgun Gothic", sans-serif';
+    const t = ctx.measureText(b.name).width * textH / 100;   // 글씨 가로 길이 (단위)
+    H = H0 - (H0 - textH) * 0.5;
+    wZ = t + (wZ - t) * 0.5;
+    wX = t + (wX - t) * 0.5;
+  }
+  const texZ = makeSignTexture(b.name, wZ, H, textH);
+  const texX = makeSignTexture(b.name, wX, H, textH);
+  const faces = [
+    { w: wZ, tex: texZ, pos: [0, y, wz / 2 + gap],  ry: 0 },
+    { w: wZ, tex: texZ, pos: [0, y, -wz / 2 - gap], ry: Math.PI },
+    { w: wX, tex: texX, pos: [wx / 2 + gap, y, 0],  ry: Math.PI / 2 },
+    { w: wX, tex: texX, pos: [-wx / 2 - gap, y, 0], ry: -Math.PI / 2 },
+  ];
+  faces.forEach(f => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(f.w, H), new THREE.MeshBasicMaterial({ map: f.tex, transparent: true }));
+    m.position.set(f.pos[0], f.pos[1], f.pos[2]);
+    m.rotation.y = f.ry;
+    g.add(m);
+  });
 }
-const areaLabels=[areaLabel('무대 · 수어공연 · 영화상영',590,175,5.4),areaLabel('관람석 100여 석',612,335,2.2),
-  areaLabel('화장실',66,284,3.5),areaLabel('공연자 대기실',245,150,3.6)];
 
-// 선택 표시 고리
-const ring=new THREE.Mesh(new THREE.RingGeometry(2.3,2.6,48),new THREE.MeshBasicMaterial({color:0xf2b85a,transparent:true,opacity:.85}));
-ring.rotation.x=-Math.PI/2;ring.position.y=.03;ring.visible=false;scene.add(ring);
+function addRooftopDecor(g, b, wx, wz, h) {
 
-// ---- camera moves ----
-const HOME={pos:new THREE.Vector3(0,26,30),tgt:new THREE.Vector3(0,0,1)};
-let fly=null;
-function flyTo(pos,tgt){fly={p0:camera.position.clone(),t0:controls.target.clone(),p1:pos,t1:tgt,s:performance.now()};}
-camera.position.copy(HOME.pos);controls.target.copy(HOME.tgt);
+  const add = (geo, color, x, y, z) => {
+    const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
+    m.position.set(x, y, z); g.add(m); return m;
+  };
+  const wheels = (xs, zs) => { [[xs[0], zs[0]], [xs[0], zs[1]], [xs[1], zs[0]], [xs[1], zs[1]]].forEach(([x, z]) => {
+    const w = add(new THREE.CylinderGeometry(0.45, 0.45, 0.35, 12), 0x111827, x, h + 0.5, z);
+    w.rotation.x = Math.PI / 2;
+  }); };
 
-const infoEl=document.getElementById('info'),boothsEl=document.getElementById('booths');
-function showInfo(b){
-  infoEl.innerHTML=b?`<span class="no">${b.no}</span><div><span class="kind">${b.kind}</span><br><b>${b.title}</b><p>${b.desc}</p>${b.org?`<small>${b.org}</small>`:''}</div>`
-    :`<div><b>부대행사 부스 ${ON.length}곳 · 11:00~16:00</b><p>아래에서 부스를 고르거나 3D 화면의 천막을 눌러보세요. (12:00~13:00 쉬는 시간)</p></div>`;
+  if (b.name === '은행') {
+    // 옥상의 기둥 있는 은행 건물
+    const y0 = h + 1.0;
+    [[-2, -4], [2, -4], [-2, 4], [2, 4]].forEach(([x, z]) => add(new THREE.CylinderGeometry(0.25, 0.25, 2.2, 10), 0xffffff, x, y0 + 1.1, z));
+    add(new THREE.BoxGeometry(5.2, 0.3, 9.2), 0xe5e7eb, 0, y0 + 2.35, 0);
+    add(new THREE.ConeGeometry(4.6, 1.8, 4), 0x2b59c3, 0, y0 + 3.4, 0).rotation.y = Math.PI / 4;
+  }
+  if (b.name === '마트') {
+    // 옥상의 쇼핑 카트
+    const y0 = h + 1.0;
+    add(new THREE.BoxGeometry(3.0, 1.2, 2.0), 0xf0a32f, 0, y0 + 1.3, 0);
+    add(new THREE.BoxGeometry(0.2, 1.6, 0.2), 0x9ca3af, -1.6, y0 + 1.6, 0.8);
+    add(new THREE.BoxGeometry(0.2, 1.6, 0.2), 0x9ca3af, -1.6, y0 + 1.6, -0.8);
+    add(new THREE.BoxGeometry(0.2, 0.2, 1.8), 0x9ca3af, -1.6, y0 + 2.4, 0);
+    [[1.0, 0.9], [1.0, -0.9], [-1.0, 0.9], [-1.0, -0.9]].forEach(([x, z]) => {
+      const w = add(new THREE.CylinderGeometry(0.25, 0.25, 0.2, 10), 0x111827, x, y0 + 0.25, z);
+      w.rotation.x = Math.PI / 2;
+    });
+  }
+  if (b.name === '도서관') {
+    // 옥상에 세워진 책 세 권
+    const y0 = h + 1.0;
+    add(new THREE.BoxGeometry(0.9, 2.4, 2.4), 0xdc2626, -1.0, y0 + 1.2, 0);
+    add(new THREE.BoxGeometry(0.9, 2.2, 2.4), 0x2563eb, 0.1, y0 + 1.1, 0);
+    add(new THREE.BoxGeometry(0.9, 2.3, 2.4), 0x16a34a, 1.2, y0 + 1.15, 0);
+  }
+  if (b.name === '식당') {
+    // 옥상의 도시락 (그릇 + 덮개)
+    add(new THREE.CylinderGeometry(2.0, 1.3, 0.9, 20), 0xffffff, 0, h + 0.45, 0);
+    add(new THREE.SphereGeometry(1.6, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), 0xd1d5db, 0, h + 0.9, 0);
+  }
+  if (b.name === '시민공원') {
+    // 둥근 지붕 위의 나무
+    add(new THREE.CylinderGeometry(0.35, 0.45, 1.6, 10), 0x8b5a2b, 0, h + 0.8, 0);
+    add(new THREE.SphereGeometry(1.5, 16, 12), 0x16a34a, 0, h + 2.4, 0);
+  }
+  if (b.name === '유치원') {
+    // 지붕 꼭대기의 곰 인형 (2배 크기)
+    add(new THREE.SphereGeometry(2.0, 16, 12), 0xb45309, 0, h + 5.2, 0);
+    add(new THREE.SphereGeometry(1.4, 14, 10), 0xb45309, 0, h + 8.4, 0);
+    add(new THREE.SphereGeometry(0.5, 8, 6), 0xb45309, -0.9, h + 9.7, 0);
+    add(new THREE.SphereGeometry(0.5, 8, 6), 0xb45309, 0.9, h + 9.7, 0);
+  }
+  if (b.name === '관공서') {
+    // 지붕 꼭대기의 깃대와 태극기 모양 깃발
+    add(new THREE.CylinderGeometry(0.12, 0.12, 4.5, 8), 0x374151, 0, h + 6.25, 0);
+    add(new THREE.BoxGeometry(2.2, 0.6, 0.06), 0x1d4ed8, 1.1, h + 7.6, 0);
+    add(new THREE.BoxGeometry(2.2, 0.6, 0.06), 0xffffff, 1.1, h + 7.0, 0);
+  }
+  if (b.name === '아파트') {
+    // 옥상의 물탱크와 안테나
+    const y0 = h + 1.0;
+    add(new THREE.CylinderGeometry(1.2, 1.2, 1.8, 14), 0x92400e, -wx / 4, y0 + 0.9, 0);
+    add(new THREE.ConeGeometry(1.4, 0.8, 14), 0x6b3410, -wx / 4, y0 + 2.2, 0);
+    add(new THREE.CylinderGeometry(0.08, 0.08, 3, 6), 0x374151, wx / 4, y0 + 1.5, 0);
+  }
+  if (b.name === '병원') {
+    // 옥상에 세워진 빨간 십자
+    add(new THREE.BoxGeometry(0.9, 4.4, 0.9), 0xdc2626, 0, h + 2.2, 0);
+    add(new THREE.BoxGeometry(3.0, 0.9, 0.9), 0xdc2626, 0, h + 3.0, 0);
+  }
+  if (b.name === '카페') {
+    // 옥상의 커피 잔 (잔·받침·커피·손잡이)
+    add(new THREE.CylinderGeometry(1.6, 1.6, 0.2, 16), 0xffffff, 0, h + 0.1, 0);
+    add(new THREE.CylinderGeometry(1.1, 0.8, 1.8, 16), 0xffffff, 0, h + 1.1, 0);
+    add(new THREE.CylinderGeometry(1.12, 1.12, 0.35, 16), 0x9a3412, 0, h + 1.0, 0);
+    add(new THREE.CylinderGeometry(1.0, 1.0, 0.15, 16), 0x6b3e1e, 0, h + 1.95, 0);
+    add(new THREE.TorusGeometry(0.5, 0.14, 8, 14), 0xffffff, 1.2, h + 1.1, 0);
+  }
+  if (b.name === '우체국') {
+    // 옥상의 빨간 우체통
+    const x = 0;
+    add(new THREE.BoxGeometry(2.2, 1.4, 1.4), 0xd64545, x, h + 0.7, 0);
+    const top = add(new THREE.CylinderGeometry(0.7, 0.7, 2.2, 14, 1, false, 0, Math.PI), 0xd64545, x, h + 1.4, 0);
+    top.rotation.z = Math.PI / 2;
+    add(new THREE.BoxGeometry(0.2, 0.3, 0.9), 0x1c2433, x + 1.12, h + 0.9, 0);
+  }
+  if (b.name === '약국') {
+    // 옥상의 캡슐 약 (왼쪽 빨강, 오른쪽 흰색)
+    const cy = h + 1.8, r = 0.8;
+    add(new THREE.CylinderGeometry(r, r, 0.7, 16), 0xdc2626, -0.35, cy, 0).rotation.z = Math.PI / 2;
+    add(new THREE.CylinderGeometry(r, r, 0.7, 16), 0xffffff, 0.35, cy, 0).rotation.z = Math.PI / 2;
+    add(new THREE.SphereGeometry(r, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), 0xdc2626, -0.7, cy, 0).rotation.z = Math.PI / 2;
+    add(new THREE.SphereGeometry(r, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), 0xffffff, 0.7, cy, 0).rotation.z = -Math.PI / 2;
+  }
+  if (b.name === '소방서') {
+    // 옥상의 소방차 (2배 크기, 빨간 차체·운전석·사다리)
+    const vg = new THREE.Group();
+    vg.position.set(0, h + 1.0, 0); vg.scale.setScalar(2); g.add(vg);
+    const addV = (geo, color, x, y, z) => {
+      const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
+      m.position.set(x, y, z); vg.add(m); return m;
+    };
+    addV(new THREE.BoxGeometry(3.6, 1.4, 1.9), 0xdc2626, -0.2, 0.7, 0);
+    addV(new THREE.BoxGeometry(1.4, 1.1, 1.9), 0xb91c1c, 2.0, 0.55, 0);
+    addV(new THREE.BoxGeometry(3.8, 0.25, 0.6), 0xd1d5db, -0.4, 1.53, 0);
+    [[-1.3, 0.95], [-1.3, -0.95], [1.5, 0.95], [1.5, -0.95]].forEach(([x, z]) => {
+      const w = addV(new THREE.CylinderGeometry(0.45, 0.45, 0.35, 12), 0x111827, x, 0.45, z);
+      w.rotation.x = Math.PI / 2;
+    });
+  }
+  if (b.name === '경찰서') {
+    // 옥상의 경찰차 (2배 크기, 흰 차체·파란 경광등)
+    const vg = new THREE.Group();
+    vg.position.set(0, h + 1.0, 0); vg.scale.setScalar(2); g.add(vg);
+    const addV = (geo, color, x, y, z) => {
+      const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
+      m.position.set(x, y, z); vg.add(m); return m;
+    };
+    addV(new THREE.BoxGeometry(2.2, 0.7, 1.1), 0xffffff, -0.1, 0.35, 0);
+    addV(new THREE.BoxGeometry(1.0, 0.25, 0.7), 0x1d4ed8, -0.1, 0.85, 0);
+    [[-0.7, 0.6], [-0.7, -0.6], [0.6, 0.6], [0.6, -0.6]].forEach(([x, z]) => {
+      const w = addV(new THREE.CylinderGeometry(0.25, 0.25, 0.2, 10), 0x111827, x, 0.1, z);
+      w.rotation.x = Math.PI / 2;
+    });
+  }
 }
-function select(b){
-  document.querySelectorAll('#booths button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.no==(b&&b.no)));
-  document.getElementById('all').setAttribute('aria-pressed',!b);
-  showInfo(b);sel=b;applyLabels();
-  if(!b){ring.visible=false;flyTo(HOME.pos.clone(),HOME.tgt.clone());return;}
-  const g=b.group,fwd=new THREE.Vector3(0,0,1).applyQuaternion(g.quaternion);
-  ring.visible=true;ring.position.set(g.position.x,.03,g.position.z);
-  const near=innerWidth<innerHeight?12.5:7.5;
-  flyTo(g.position.clone().add(fwd.multiplyScalar(near)).add(new THREE.Vector3(2.5,near*.55,0)),g.position.clone().add(new THREE.Vector3(0,near<10?1.2:-.6,0)));
+
+/* ── 3D 이동 수단 생성 ── */
+function createVehicleGroup(type) {
+  const g = new THREE.Group();
+
+  if (type === 'walk') {
+    // 사람 (걷기 모드)
+    const skin = new THREE.MeshLambertMaterial({ color: 0xfcd9b6 });
+    const shirt = new THREE.MeshLambertMaterial({ color: 0xf97316 });
+    const pants = new THREE.MeshLambertMaterial({ color: 0x1e3a8a });
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.0, 0.8), shirt);
+    body.position.y = 3.0; g.add(body);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.6, 14, 14), skin);
+    head.position.y = 4.6; g.add(head);
+    // 다리: 엉덩이 높이(y=2)를 축으로 흔들리도록 그룹으로 감쌈
+    const legs = [-0.35, 0.35].map(x => {
+      const pivot = new THREE.Group();
+      pivot.position.set(x, 2.0, 0);
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2.0, 0.6), pants);
+      leg.position.y = -1.0;
+      pivot.add(leg); g.add(pivot);
+      return pivot;
+    });
+    // 팔: 어깨 높이(y=3.8)를 축으로 흔들리도록 그룹으로 감쌈
+    const arms = [-0.95, 0.95].map(x => {
+      const pivot = new THREE.Group();
+      pivot.position.set(x, 3.8, 0);
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.8, 0.4), skin);
+      arm.position.y = -0.9;
+      pivot.add(arm); g.add(pivot);
+      return pivot;
+    });
+    g.userData.walk = { legs, arms, body, head };
+    return g;
+  }
+
+  if (type === 'bicycle') {
+    const wGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.2, 16);
+    const wMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+    const w1 = new THREE.Mesh(wGeo, wMat); w1.rotation.z = Math.PI/2; w1.position.set(0, 0.8, -1.4);
+    const w2 = new THREE.Mesh(wGeo, wMat); w2.rotation.z = Math.PI/2; w2.position.set(0, 0.8, 1.4);
+    g.add(w1); g.add(w2);
+
+    const frameMat = new THREE.MeshLambertMaterial({ color: 0xef4444 });
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 2.8), frameMat);
+    bar.position.set(0, 1.3, 0); g.add(bar);
+
+    const rider = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.5, 1.4), new THREE.MeshLambertMaterial({ color: 0x3b82f6 }));
+    rider.position.set(0, 2.3, 0.1); g.add(rider);
+    const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.5, 12, 12), new THREE.MeshLambertMaterial({ color: 0xfacc15 }));
+    helmet.position.set(0, 3.2, 0.1); g.add(helmet);
+
+  } else if (type === 'bus') {
+    const busBody = new THREE.Mesh(
+      new THREE.BoxGeometry(3.6, 2.8, 9.5),
+      new THREE.MeshLambertMaterial({ color: 0x059669 })
+    );
+    busBody.position.y = 1.8; busBody.castShadow = true; g.add(busBody);
+
+    const winMat = new THREE.MeshLambertMaterial({ color: 0xbae6fd });
+    const winSide = new THREE.Mesh(new THREE.BoxGeometry(3.7, 1.0, 7.5), winMat);
+    winSide.position.set(0, 2.3, -0.2); g.add(winSide);
+
+    const wGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.6, 14);
+    const wMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+    [[-1.8,-3],[1.8,-3],[-1.8,0],[1.8,0],[-1.8,3],[1.8,3]].forEach(([wx, wz]) => {
+      const w = new THREE.Mesh(wGeo, wMat);
+      w.rotation.z = Math.PI / 2;
+      w.position.set(wx, 0.8, wz);
+      g.add(w);
+    });
+
+  } else {
+    // 승용차
+    const carBody = new THREE.Mesh(
+      new THREE.BoxGeometry(3.6, 1.6, 6.5),
+      new THREE.MeshLambertMaterial({ color: 0x2b59c3 })
+    );
+    carBody.position.y = 1.2; carBody.castShadow = true; g.add(carBody);
+
+    const cabin = new THREE.Mesh(
+      new THREE.BoxGeometry(3.1, 1.2, 3.2),
+      new THREE.MeshLambertMaterial({ color: 0xcfe2ff })
+    );
+    cabin.position.set(0, 2.3, 0.1); cabin.castShadow = true; g.add(cabin);
+
+    const wheelGeo = new THREE.CylinderGeometry(0.7, 0.7, 0.6, 14);
+    const wheelMat = new THREE.MeshLambertMaterial({ color: 0x222831 });
+    [[-1.8, -2], [1.8, -2], [-1.8, 2], [1.8, 2]].forEach(([wx, wz]) => {
+      const w = new THREE.Mesh(wheelGeo, wheelMat);
+      w.rotation.z = Math.PI / 2;
+      w.position.set(wx, 0.7, wz);
+      g.add(w);
+    });
+  }
+
+  return g;
 }
-[...ON].sort((a,b)=>a.no-b.no).forEach(b=>{
-  const bt=document.createElement('button');bt.dataset.no=b.no;bt.setAttribute('aria-pressed','false');
-  bt.textContent=`${b.no} ${b.name}`;bt.onclick=()=>select(b);boothsEl.appendChild(bt);
-});
-document.getElementById('all').onclick=()=>select(null);
-showInfo(null);
 
-// click booth in 3D
-const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();let down=null;
-renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);
-renderer.domElement.addEventListener('pointerup',e=>{
-  if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;
-  const r=renderer.domElement.getBoundingClientRect();
-  mouse.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
-  ray.setFromCamera(mouse,camera);
-  const hit=ray.intersectObjects(booths,true)[0];
-  if(hit&&!walking){let o=hit.object;while(o&&!o.userData.no)o=o.parent;if(o)select(o.userData);}
-});
+/* 탈것 변경 함수 */
+window.selectVehicle = function(type) {
+  if (!VEHICLE_SPECS[type]) return;
+  vehicleType = type;
+  MAX_SPEED = VEHICLE_SPECS[type].maxSpeed;
+  ACCEL = VEHICLE_SPECS[type].accel;
+  TURN = VEHICLE_SPECS[type].turn;
 
-// time of day
-const SKY={day:{top:'#9cc9ec',bot:'#f7efe2',sun:0xffffff,si:.8,hi:.6,pos:[14,22,12]},
-           dusk:{top:'#4b3a6b',bot:'#f2a066',sun:0xffa060,si:.75,hi:.45,pos:[-20,8,10]}};
-const skyCv=document.createElement('canvas');skyCv.width=2;skyCv.height=256;
-const skyTex=new THREE.CanvasTexture(skyCv);skyTex.encoding=THREE.sRGBEncoding;scene.background=skyTex;
-function setTime(k){
-  const s=SKY[k],c=skyCv.getContext('2d'),g=c.createLinearGradient(0,0,0,256);
-  g.addColorStop(0,s.top);g.addColorStop(1,s.bot);c.fillStyle=g;c.fillRect(0,0,2,256);skyTex.needsUpdate=true;
-  sun.color.set(s.sun);sun.intensity=s.si;hemi.intensity=s.hi;sun.position.set(...s.pos);
-  scene.fog=new THREE.Fog(s.bot,75,170);
-  document.getElementById('tDay').setAttribute('aria-pressed',k==='day');
-  document.getElementById('tDusk').setAttribute('aria-pressed',k==='dusk');
+  document.querySelectorAll('.v-btn, .nv-v').forEach(btn => btn.classList.remove('active'));
+  const targetId = { car: 'vbtn-car', bicycle: 'vbtn-bike', bus: 'vbtn-bus', walk: 'vbtn-walk' }[type];
+  const targetBtn = document.getElementById(targetId);
+  if (targetBtn) targetBtn.classList.add('active');
+  const nvBtn = document.getElementById('nv-' + targetId);
+  if (nvBtn) nvBtn.classList.add('active');
+
+  if (scene && car) {
+    const curX = car.position.x;
+    const curZ = car.position.z;
+    const curAng = car.rotation.y;
+    scene.remove(car);
+
+    car = createVehicleGroup(type);
+    car.position.set(curX, 0, curZ);
+    car.rotation.y = curAng;
+    scene.add(car);
+    if (!isAllowedPosition(curX, curZ)) resetCar();
+  }
+  if (type === 'walk') resetCar();   // 사람은 인도 출발점에서 시작
+  toast(`${VEHICLE_SPECS[type].name}(으)로 변경되었습니다! 🚦`);
+};
+
+
+/* ── 3D 씬 초기화 ── */
+function init3DWorld() {
+  const canvas = document.getElementById('game-canvas');
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xcfe3f7);
+
+  camera = new THREE.PerspectiveCamera(55, 1, 0.1, 500);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const sun = new THREE.DirectionalLight(0xfff3dd, 0.9);
+  sun.position.set(80, 120, 60);
+  sun.castShadow = true;
+  scene.add(sun);
+
+  // 잔디 땅
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(400, 400),
+    new THREE.MeshLambertMaterial({ color: 0x9fce8f })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // 도로망
+  const roadMat = new THREE.MeshLambertMaterial({ color: 0x434b59 });
+  const dashMat = new THREE.MeshLambertMaterial({ color: 0xf5d469 });
+
+  // 중앙공원 둘레 원형 길 (안쪽 17 ~ 바깥쪽 25)
+  const ring = new THREE.Mesh(new THREE.RingGeometry(17, 25, 64), roadMat);
+  ring.rotation.x = -Math.PI/2; ring.position.set(0, 0.02, 0); scene.add(ring);
+  // 4갈래길: 북·남·동·서 방향으로 중앙공원에서 바깥까지
+  [[0,-72.5,10,95],[0,72.5,10,95],[72.5,0,95,10],[-72.5,0,95,10]].forEach(([x,z,w,d]) => {
+    const r = new THREE.Mesh(new THREE.PlaneGeometry(w, d), roadMat);
+    r.rotation.x = -Math.PI/2; r.position.set(x, 0.02, z); scene.add(r);
+  });
+  // 자전거 전용도로: 원형 길 바깥쪽과 4갈래길 양쪽 가장자리의 초록 띠
+  const bikeMat = new THREE.MeshLambertMaterial({ color: 0x4ade80 });
+  const bikeRing = new THREE.Mesh(new THREE.RingGeometry(21, 25, 64), bikeMat);
+  bikeRing.rotation.x = -Math.PI / 2; bikeRing.position.set(0, 0.04, 0); scene.add(bikeRing);
+  [-1, 1].forEach(sg => {
+    const ns = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 95), bikeMat);   // 남북 길 (x 방향 양쪽)
+    ns.rotation.x = -Math.PI / 2; ns.position.set(sg * 4.25, 0.04, sg * 72.5); scene.add(ns);
+    const ew = new THREE.Mesh(new THREE.PlaneGeometry(95, 2.5), bikeMat);   // 동서 길 (z 방향 양쪽)
+    ew.rotation.x = -Math.PI / 2; ew.position.set(sg * 72.5, 0.04, sg * 4.25); scene.add(ew);
+  });
+
+  // 중앙 공원: 진한 테두리, 밝은 잔디, 산책로, 분수, 나무, 이름표
+  const parkGroup = new THREE.Group();
+  const parkEdge = new THREE.Mesh(new THREE.CylinderGeometry(14.8, 14.8, 0.5, 40), new THREE.MeshLambertMaterial({ color: 0x166534 }));
+  parkEdge.position.y = 0.25; parkGroup.add(parkEdge);
+  const lawn = new THREE.Mesh(new THREE.CylinderGeometry(13.5, 13.5, 0.2, 40), new THREE.MeshLambertMaterial({ color: 0x4ade80 }));
+  lawn.position.y = 0.6; parkGroup.add(lawn);
+  const parkPath = new THREE.Mesh(new THREE.RingGeometry(4.5, 5.5, 40), new THREE.MeshLambertMaterial({ color: 0xf5f0e1 }));
+  parkPath.rotation.x = -Math.PI / 2; parkPath.position.y = 0.72; parkGroup.add(parkPath);
+  // 분수: 돌 받침 + 물 + 가운데 기둥 + 위쪽 그릇 (공원 한가운데)
+  const stoneMat = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 });
+  const waterMat = new THREE.MeshLambertMaterial({ color: 0x38bdf8 });
+  const basin = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.8, 0.8, 32), stoneMat);
+  basin.position.y = 1.0; parkGroup.add(basin);
+  const basinWater = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.2, 0.1, 32), waterMat);
+  basinWater.position.y = 1.45; parkGroup.add(basinWater);
+  const column = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 2.2, 12), stoneMat);
+  column.position.y = 2.5; parkGroup.add(column);
+  const bowl = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 0.8, 0.5, 24), stoneMat);
+  bowl.position.y = 3.85; parkGroup.add(bowl);
+  const bowlWater = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.08, 24), waterMat);
+  bowlWater.position.y = 4.12; parkGroup.add(bowlWater);
+  poleObstacles.push({ x: 0, z: 0, r: 4.0 });   // 분수 둘레는 통과 불가
+
+  // 나무 (가운데 x≈0 쪽은 도로가 지나므로 비워 둠)
+  const trunkMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
+  const leafMat = new THREE.MeshLambertMaterial({ color: 0x15803d });
+  [[30, 11], [150, 11], [210, 11], [330, 11], [60, 13], [120, 13], [240, 13], [300, 13]].forEach(([deg, r]) => {
+    const a = deg * Math.PI / 180;
+    const tx = Math.cos(a) * r, tz = Math.sin(a) * r;
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 2, 8), trunkMat);
+    trunk.position.set(tx, 1.6, tz); parkGroup.add(trunk);
+    const crown = new THREE.Mesh(new THREE.SphereGeometry(1.8, 12, 12), leafMat);
+    crown.position.set(tx, 3.6, tz); parkGroup.add(crown);
+  });
+  parkGroup.position.set(0, 0, 0);
+  scene.add(parkGroup);
+
+
+  // 건물 배치 (건물마다 크기·높이·모양이 다름)
+  BUILDINGS.forEach(b => {
+    const g = new THREE.Group();
+    const wx = b.w || BUILD_SIZE;          // 길 방향 폭
+    const wz = b.d || wx;                  // 안쪽 깊이
+    const shape = b.shape || (b.style === 'house' ? 'house' : 'box');
+    const h = (b.h || 12) * BUILD_HEIGHT_SCALE;
+    const mat = new THREE.MeshLambertMaterial({ color: b.color });
+    const accentMat = new THREE.MeshLambertMaterial({ color: b.accent });
+    // 길 쪽 방향: 반원형·사다리꼴의 평평한 면이나 좁은 면이 길을 향하도록 맞춤
+    const out = Math.abs(b.z) > Math.abs(b.x) ? { x: Math.sign(b.x) || 1, z: 0 } : { x: 0, z: Math.sign(b.z) || 1 };
+    const rotY = Math.atan2(out.x, out.z);
+    let body;
+
+    if (shape === 'half') {
+      // 정반원형: 평평한 면이 길 쪽, 둥근 면이 바깥쪽
+      const R = wx / 2;
+      body = new THREE.Mesh(new THREE.CylinderGeometry(R, R, h, 28, 1, false, 0, Math.PI), mat);
+      body.rotation.y = rotY;
+      body.position.set(-out.x * R / 2, h / 2, -out.z * R / 2);
+      // 열려 있던 평평한 면을 얇은 판으로 막음 (뒤에서 봐도 깜빡임 없이 건물이 보이도록)
+      const closeMat = new THREE.MeshLambertMaterial({ color: b.color, side: THREE.DoubleSide });
+      const closePlate = new THREE.Mesh(new THREE.PlaneGeometry(wx, h), closeMat);
+      closePlate.position.copy(body.position);
+      closePlate.rotation.set(0, rotY + Math.PI / 2, 0);
+      g.add(closePlate);
+    } else if (shape === 'dome') {
+      // 낮은 반원형: 낮은 반구 모양
+      const R = wx / 2;
+      body = new THREE.Mesh(new THREE.SphereGeometry(R, 28, 12, 0, Math.PI * 2, 0, Math.PI / 2), mat);
+      body.scale.y = h / R;
+      body.position.set(0, 0, 0);
+    } else if (shape === 'trapezoid') {
+      // 사다리꼴: 넓은 쪽이 안쪽(도로 반대), 좁은 쪽이 바깥쪽
+      const s = new THREE.Shape();
+      s.moveTo(-wx / 2,  wz / 2);
+      s.lineTo( wx / 2,  wz / 2);
+      s.lineTo( wx * 0.3, -wz / 2);
+      s.lineTo(-wx * 0.3, -wz / 2);
+      s.closePath();
+      const geo = new THREE.ExtrudeGeometry(s, { depth: h, bevelEnabled: false });
+      geo.rotateX(-Math.PI / 2);
+      body = new THREE.Mesh(geo, mat);
+      body.rotation.y = rotY;
+    } else if (shape === 'tower') {
+      // 원형 건물 위에 첨탑
+      const R = wx / 2;
+      body = new THREE.Mesh(new THREE.CylinderGeometry(R, wx * 0.24, h, 28), mat);   // 원뿔 모양 (꼭대기는 평평)
+      body.position.set(0, h / 2, 0);
+    } else {
+      // 직사각형·정사각형 (집 모양 포함)
+      body = new THREE.Mesh(new THREE.BoxGeometry(wx, h, wz), mat);
+      body.position.set(0, h / 2, 0);
+    }
+    body.castShadow = true; body.receiveShadow = true;
+    g.add(body);
+
+    if (b.style === 'house') {
+      // 집: 뾰족한 지붕
+      const roof = new THREE.Mesh(
+        new THREE.ConeGeometry((wx + 1) / Math.SQRT2, 4, 4),
+        accentMat
+      );
+      roof.rotation.y = Math.PI / 4;
+      roof.position.y = h + 2;
+      g.add(roof);
+    } else if (shape === 'box') {
+      // 건물: 평평한 옥상
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(wx + 0.6, 1, wz + 0.6), accentMat);
+      roof.position.y = h + 0.5;
+      g.add(roof);
+    }
+
+    // 학교: 가운데 종탑(뾰족 지붕) 하나
+    if (b.name === "학교") {
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(4, 5, 4), mat);
+      tower.position.set(0, h + 3.5, 0); g.add(tower);
+      const cap = new THREE.Mesh(new THREE.ConeGeometry(3.2, 3.5, 4), accentMat);
+      cap.rotation.y = Math.PI / 4; cap.position.set(0, h + 7.75, 0); g.add(cap);
+    }
+
+    // 소방서: 빨간 소방 망루 + 차고 문 (길 쪽 면)
+    if (b.name === "소방서") {
+      const door = new THREE.Mesh(
+        out.x !== 0 ? new THREE.BoxGeometry(0.3, 4, 6) : new THREE.BoxGeometry(6, 4, 0.3),
+        new THREE.MeshLambertMaterial({ color: 0x7f1d1d })
+      );
+      door.position.set(-out.x * (wx / 2 + 0.1), 2, -out.z * (wz / 2 + 0.1)); g.add(door);
+    }
+
+    // 경찰서: 파란 띠 + 깃대와 파란 깃발
+    if (b.name === "경찰서") {
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 6, 8), new THREE.MeshLambertMaterial({ color: 0x374151 }));
+      pole.position.set(wx / 4, h + 3.5, 0); g.add(pole);
+      const flag = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.4, 0.08), accentMat);
+      flag.position.set(wx / 4 + 1.2, h + 5.6, 0); g.add(flag);
+    }
+
+    // 옥상 장식 (병원 십자, 카페 잔, 우체국 우체통, 약국 약, 소방차, 경찰차)
+    addRooftopDecor(g, b, wx, wz, h);
+    // 건물 벽 간판 (동서남북 4면)
+    if (!b.noSign) addBuildingSigns(g, b, wx, wz, h);
+
+    g.position.set(b.x, 0, b.z);
+    scene.add(g);
+
+    const boxInfo = {
+      name: b.name,
+      minX: b.x - wx/2 - 1.5, maxX: b.x + wx/2 + 1.5,
+      minZ: b.z - wz/2 - 1.5, maxZ: b.z + wz/2 + 1.5,
+      cx: b.x, cz: b.z, hw: wx/2, hd: wz/2
+    };
+    buildingBoxes.push(boxInfo);
+    g.userData.box = boxInfo;
+    buildingGroups.push(g);
+  });
+
+  buildCrosswalks();
+  buildLabelOverlay();
+
+  car = createVehicleGroup('car');
+  scene.add(car);
+
+  resetCar();
+  resize();
+  tick();
 }
-document.getElementById('tDay').onclick=()=>setTime('day');
-document.getElementById('tDusk').onclick=()=>setTime('dusk');
-const spinBtn=document.getElementById('spin');
-spinBtn.onclick=()=>{controls.autoRotate=!controls.autoRotate;spinBtn.setAttribute('aria-pressed',controls.autoRotate);};
-const lblBtn=document.getElementById('labels');
-let sel=null;
-function applyLabels(){const on=lblBtn.getAttribute('aria-pressed')==='true';
-  const tall=innerWidth<innerHeight;ON.forEach(b=>{b.label.visible=on&&b===sel&&!tall&&!walking;b.badge.visible=on&&b!==sel;});areaLabels.forEach(s=>s.visible=on);}
-lblBtn.onclick=()=>{lblBtn.setAttribute('aria-pressed',lblBtn.getAttribute('aria-pressed')!=='true');applyLabels();};
-setTime('day');
 
-// ===== 걸어서 둘러보기 =====
-const me=person(0,0,0xd9541e,0,0);
-const pin=new THREE.Mesh(new THREE.ConeGeometry(.16,.3,4),new THREE.MeshBasicMaterial({color:0xf2b85a}));
-pin.rotation.x=Math.PI;pin.position.y=1.85;me.add(pin);me.visible=false;
-// 부딪히는 곳: 천막·나무(원), 무대·화장실·관람석(네모)
-const circles=BOOTHS.map(b=>({x:b.group.position.x,z:b.group.position.z,r:1.75}));
-[[40,40],[95,25],[330,22],[975,430],[790,28],[980,250],[20,440],[990,720]].forEach(([x,y])=>{const p=P(x,y);circles.push({x:p.x,z:p.z,r:.5});});
-const boxes=[];
-function boxAt(x1,y1,x2,y2){const a=P(x1,y1),b=P(x2,y2);boxes.push({x1:Math.min(a.x,b.x),x2:Math.max(a.x,b.x),z1:Math.min(a.z,b.z),z2:Math.max(a.z,b.z)});}
-boxAt(360,95,800,215);       // 무대 + 스크린
-boxAt(16,236,116,333);       // 화장실
-boxAt(462,262,768,402);      // 관람석
-const LIM={x:18.5,z:13.5};
-function blocked(x,z){
-  if(Math.abs(x)>LIM.x||Math.abs(z)>LIM.z)return true;
-  for(const c of circles){if((x-c.x)**2+(z-c.z)**2<(c.r+.25)**2)return true;}
-  for(const b of boxes){if(x>b.x1-.25&&x<b.x2+.25&&z>b.z1-.25&&z<b.z2+.25)return true;}
+window.resetCar = function() {
+  if (!car) return;
+  car.position.set(START.x + (vehicleType === 'walk' ? 7.5 : vehicleType === 'bicycle' ? 4.25 : 0), 0, START.z);
+  angle = START.angle; speed = 0;
+  car.rotation.y = angle;
+};
+
+const ROAD_HALF = 5;   // 길 폭의 절반 (길 폭 10)
+
+// 자동차·버스·자전거: 원형 길과 4갈래길 위에서만 이동 (pad = 길 가장자리를 넘어 걸칠 수 있는 여유)
+// 자전거: 자전거 전용도로 띠와 그 옆 인도(건물 앞까지 갈 수 있도록)에서 이동
+function onBikeLane(x, z) {
+  if (onDrivableRoad(x, z, 0)) return true;                // 차도 (자전거도 차도를 조금 쓸 수 있게 허용)
+  const r = Math.hypot(x, z);
+  if (r >= 20.5 && r <= 25.5) return true;                 // 원형 길 자전거 띠
+  if (r >= 25 && r <= 36) return true;                     // 원형 길 바깥 인도
+  const ax = Math.abs(x), az = Math.abs(z);
+  if (ax >= 3 && ax <= 10.5 && az >= 20 && az <= 120) return true;   // 남북 길 자전거 띠 + 옆 인도
+  if (az >= 3 && az <= 10.5 && ax >= 20 && ax <= 120) return true;   // 동서 길 자전거 띠 + 옆 인도
   return false;
 }
-let walking=false,stepT=0,nearB=null;
-const keys={},joyV={x:0,y:0};
-addEventListener('keydown',e=>{if(!walking)return;keys[e.key.toLowerCase()]=true;if(e.key.startsWith('Arrow'))e.preventDefault();});
-addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
-const joy=document.getElementById('joy'),knob=joy.firstElementChild;let joyId=null;
-function joyMove(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
-  let dx=e.clientX-cx,dy=e.clientY-cy;const m=Math.hypot(dx,dy),max=r.width/2-10;if(m>max){dx*=max/m;dy*=max/m;}
-  knob.style.transform=`translate(${dx}px,${dy}px)`;joyV.x=dx/max;joyV.y=dy/max;}
-joy.addEventListener('pointerdown',e=>{joyId=e.pointerId;joy.setPointerCapture(joyId);joyMove(e);});
-joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e);});
-const joyEnd=()=>{joyId=null;joyV.x=joyV.y=0;knob.style.transform='';};
-joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
 
-const walkBtn=document.getElementById('walk'),panelEl=document.querySelector('.panel');
-function walkInfo(){
-  if(nearB)showInfo(nearB);
-  else infoEl.innerHTML=`<div><b>천막 앞으로 걸어가 보세요</b><p class="walk-tip">${matchMedia('(pointer:fine)').matches?'키보드 W A S D 또는 방향키로 걷기 · 마우스로 끌어 둘러보기':'왼쪽 아래 동그라미를 밀어서 걷기 · 화면을 밀어서 둘러보기'}</p></div>`;
+function onDrivableRoad(x, z, pad) {
+  const r = Math.hypot(x, z);
+  if (r >= Math.max(15, 17 - pad) && r <= 25 + pad) return true;      // 원형 길 (공원 바로 바깥까지)
+  if (Math.abs(x) <= ROAD_HALF + pad && Math.abs(z) >= 20 && Math.abs(z) <= 120) return true;   // 남북 길
+  if (Math.abs(z) <= ROAD_HALF + pad && Math.abs(x) >= 20 && Math.abs(x) <= 120) return true;   // 동서 길
+  return false;
 }
-function setWalk(on){
-  walking=on;document.body.classList.toggle('walking',on);walkBtn.setAttribute('aria-pressed',on);
-  walkBtn.textContent=on?'걷기 끝내기':'걸어서 둘러보기';joy.hidden=!on;me.visible=on;fly=null;
-  controls.autoRotate=false;spinBtn.setAttribute('aria-pressed','false');spinBtn.hidden=on;
-  if(on){
-    sel=null;applyLabels();ring.visible=false;nearB=null;
-    const s=P(40,515);me.position.set(s.x,0,s.z);me.rotation.y=Math.PI/2;
-    controls.minDistance=3;controls.maxDistance=12;controls.maxPolarAngle=Math.PI*.46;controls.enablePan=false;
-    controls.target.set(me.position.x,1.3,me.position.z);
-    camera.position.set(me.position.x-6,4,me.position.z+1.5);
-    walkInfo();
-  }else{
-    controls.minDistance=4;controls.maxDistance=110;controls.maxPolarAngle=Math.PI*.48;controls.enablePan=true;
-    select(null);
+
+// 사람: 인도(길 옆 5칸, 원형 길 바깥 인도)와 횡단보도 위에서만 이동
+function onSidewalkOrCrosswalk(x, z) {
+  const r = Math.hypot(x, z);
+  if (r >= 25 && r <= 36) return true;                                                             // 원형 길 바깥 인도
+  if (Math.abs(x) > ROAD_HALF && Math.abs(x) <= 10.5 && Math.abs(z) >= 25 && Math.abs(z) <= 120) return true;  // 남북 길 옆 인도
+  if (Math.abs(z) > ROAD_HALF && Math.abs(z) <= 10.5 && Math.abs(x) >= 25 && Math.abs(x) <= 120) return true;  // 동서 길 옆 인도
+  for (const cw of CROSSWALKS) {
+    if (cw.axis === 'z' && Math.abs(x) <= ROAD_HALF && Math.abs(z - cw.z) <= 6) return true;   // 남북 길 횡단보도
+    if (cw.axis === 'x' && Math.abs(z) <= ROAD_HALF && Math.abs(x - cw.x) <= 6) return true;   // 동서 길 횡단보도
   }
-  requestAnimationFrame(()=>document.documentElement.style.setProperty('--panel-h',panelEl.offsetHeight+'px'));
+  return false;
 }
-walkBtn.onclick=()=>setWalk(!walking);
-const _v=new THREE.Vector3(),_f=new THREE.Vector3(),_r=new THREE.Vector3();
-function walkStep(dt){
-  let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyV.x;
-  let iy=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)-joyV.y;
-  const m=Math.hypot(ix,iy);
-  if(m>.08){
-    if(m>1){ix/=m;iy/=m;}
-    camera.getWorldDirection(_f);_f.y=0;_f.normalize();_r.set(-_f.z,0,_f.x);
-    _v.copy(_f).multiplyScalar(iy).addScaledVector(_r,ix).multiplyScalar(3.4*dt*(keys.shift?1.7:1));
-    const nx=me.position.x+_v.x,nz=me.position.z+_v.z;
-    let mx=0,mz=0;
-    if(!blocked(nx,nz)){mx=_v.x;mz=_v.z;}else if(!blocked(nx,me.position.z))mx=_v.x;else if(!blocked(me.position.x,nz))mz=_v.z;
-    me.position.x+=mx;me.position.z+=mz;camera.position.x+=mx;camera.position.z+=mz;
-    controls.target.set(me.position.x,1.3,me.position.z);
-    me.rotation.y=Math.atan2(_v.x,_v.z);
-    stepT+=dt*10;me.children[0].position.y=.75+Math.abs(Math.sin(stepT))*.05;
-    me.children[3].rotation.x=Math.sin(stepT)*.5;me.children[4].rotation.x=-Math.sin(stepT)*.5;
+
+// 지금 고른 탈것이 이 위치에 있을 수 있는지
+function isAllowedPosition(x, z) {
+  if (vehicleType === 'walk') return Math.abs(x) <= 190 && Math.abs(z) <= 190;   // 사람은 어디나 (건물은 충돌 검사로 막힘)
+  if (vehicleType === 'bus') return onDrivableRoad(x, z, 2);
+  if (vehicleType === 'bicycle') return onBikeLane(x, z);
+  return onDrivableRoad(x, z, 2.5);   // 자동차
+}
+
+function collides(x, z) {
+  if (!isAllowedPosition(x, z)) return true;   // 허용된 길·인도 밖이면 막힘
+  if (poleObstacles.some(p => Math.hypot(x - p.x, z - p.z) < p.r)) return true;   // 신호등 기둥·분수
+  const margin = vehicleType === 'walk' ? 0.6 : 1.5;   // 사람은 건물 벽에 조금 더 가까이 갈 수 있음
+  return buildingBoxes.some(b => Math.abs(x - b.cx) < b.hw + margin && Math.abs(z - b.cz) < b.hd + margin);
+}
+
+/* ── 횡단보도 + 신호등 ──
+   axis: 'z' = 남북 도로 위 횡단보도, 'x' = 동서 도로 위 횡단보도
+   x, z: 횡단보도 중심 / pole: 신호등 기둥 위치 (길가)
+   green, yellow, red: 신호 길이(초) / offset: 신호 시작 시점 차이 */
+const CROSSWALKS = [
+  { axis:'z', x:0,   z:55,  ped:{ x:-7.5, z:55,  fx:1, fz:0 }, green:7, yellow:2, red:6, offset:0 },
+  { axis:'z', x:0,   z:-88, ped:{ x:-7.5, z:-88, fx:1, fz:0 }, green:7, yellow:2, red:6, offset:4 },
+  { axis:'x', x:-55, z:0,   ped:{ x:-58,  z:-7.5, fx:0, fz:1 }, green:7, yellow:2, red:6, offset:8 }
+];
+const SIGNAL_COLORS = { red: 0xef4444, yellow: 0xfacc15, green: 0x22c55e };
+const SIGNAL_DIM    = { red: 0x4a1d1d, yellow: 0x4a4119, green: 0x17402a };
+const signalLamps = [];
+const poleObstacles = [];   // 신호등 기둥·분수: 차와 사람이 통과할 수 없는 원형 장애물 {x, z, r}
+let signalHudText = '';
+let lastRedWarn = 0;
+
+function signalState(cw, nowMs) {
+  const cycle = cw.green + cw.yellow + cw.red;
+  const t = ((nowMs / 1000) + cw.offset) % cycle;
+  if (t < cw.green) return 'green';
+  if (t < cw.green + cw.yellow) return 'yellow';
+  return 'red';
+}
+
+// 자동차 중심이 횡단보도 구역 안에 있는지 (차 앞부분이 횡단보도 밖에 멈추도록 여유를 둠)
+function inCrosswalkZone(cw, x, z) {
+  if (cw.axis === 'z') return Math.abs(x - cw.x) < 5.5 && Math.abs(z - cw.z) < 7;
+  return Math.abs(z - cw.z) < 5.5 && Math.abs(x - cw.x) < 7;
+}
+
+// 빨간불인데 구역 밖에서 구역 안으로 들어가려 하면 그 횡단보도를 돌려줌
+// 사람은 사람 신호(초록일 때만 건넘), 차는 차량 신호(빨간불에 멈춤)를 따름
+function crosswalkBlockedBy(x0, z0, x1, z1, walking) {
+  const now = performance.now();
+  for (const cw of CROSSWALKS) {
+    const stopForPeople = signalState(cw, now) !== 'red';   // 차가 빨간불이 아니면 사람 신호는 빨강
+    const stop = walking ? stopForPeople : signalState(cw, now) === 'red';
+    if (!stop) continue;
+    if (!inCrosswalkZone(cw, x0, z0) && inCrosswalkZone(cw, x1, z1)) return cw;
   }
-  pin.position.y=1.85+Math.sin(performance.now()/300)*.06;
-  // 가까운 부스 찾기 (천막 앞 2.5m 안)
-  let best=null,bd=2.5;
-  ON.forEach(b=>{const g=b.group;_v.set(0,0,2.3).applyQuaternion(g.quaternion).add(g.position);
-    const d=Math.hypot(me.position.x-_v.x,me.position.z-_v.z);if(d<bd){bd=d;best=b;}});
-  if(best!==nearB){nearB=best;sel=best;applyLabels();walkInfo();
-    ring.visible=!!best;if(best)ring.position.set(best.group.position.x,.03,best.group.position.z);}
+  return null;
 }
 
-if(document.fonts){Promise.all([document.fonts.load(`60px ${FD}`),document.fonts.load(`40px ${FB}`)]).then(()=>textures.forEach(t=>t.redraw())).catch(()=>{});}
+function buildCrosswalks() {
+  const whiteMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+  const poleMat = new THREE.MeshLambertMaterial({ color: 0x64748b });
+  const boxMat = new THREE.MeshLambertMaterial({ color: 0x1f2937 });
 
-function resize(){
-  const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;
-  const k=w<h?Math.min(1.9,h/w):1;HOME.pos.set(0,26*k,30*k);camera.updateProjectionMatrix();
+  CROSSWALKS.forEach(cw => {
+    // 줄무늬: 차가 달리는 방향과 같은 흰 막대를 나란히 배치
+    for (let o = -4; o <= 4; o += 2) {
+      const geo = cw.axis === 'z' ? new THREE.BoxGeometry(1, 0.05, 6) : new THREE.BoxGeometry(6, 0.05, 1);
+      const m = new THREE.Mesh(geo, whiteMat);
+      if (cw.axis === 'z') m.position.set(cw.x + o, 0.07, cw.z);
+      else m.position.set(cw.x, 0.07, cw.z + o);
+      scene.add(m);
+    }
+    // 정지선 (양쪽)
+    [-4, 4].forEach(d => {
+      const geo = cw.axis === 'z' ? new THREE.BoxGeometry(10, 0.05, 0.6) : new THREE.BoxGeometry(0.6, 0.05, 10);
+      const m = new THREE.Mesh(geo, whiteMat);
+      if (cw.axis === 'z') m.position.set(cw.x, 0.08, cw.z + d);
+      else m.position.set(cw.x + d, 0.08, cw.z);
+      scene.add(m);
+    });
+
+    const g = new THREE.Group();
+    // 차량 신호등: 빨강·노랑·초록 3개가 가로로 놓인 머리, 길 옆 기둥에서 팔이 뻗어 도로 위에 매달림
+    const isZ = cw.axis === 'z';
+    const hx = isZ ? 0 : cw.x + 5, hz = isZ ? cw.z + 5 : 0;      // 신호 머리 위치 (차가 올라오는 쪽)
+    const sx = isZ ? 7 : cw.x + 5, sz = isZ ? cw.z + 5 : 7;      // 지지 기둥 위치 (길 옆 인도)
+    const pole2 = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 7.2, 8), poleMat);
+    pole2.position.set(sx, 3.6, sz); g.add(pole2);
+    poleObstacles.push({ x: sx, z: sz, r: 0.8 });
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 7, 6), poleMat);
+    arm.position.set((hx + sx) / 2, 7.2, (hz + sz) / 2);
+    if (isZ) arm.rotation.z = Math.PI / 2; else arm.rotation.x = Math.PI / 2;
+    g.add(arm);
+    const head = new THREE.Mesh(isZ ? new THREE.BoxGeometry(5.2, 1.6, 1.2) : new THREE.BoxGeometry(1.2, 1.6, 5.2), boxMat);
+    head.position.set(hx, 7.2, hz); g.add(head);
+    const lamps = {};
+    [['red', -1.6], ['yellow', 0], ['green', 1.6]].forEach(([k, off]) => {
+      const mat = new THREE.MeshLambertMaterial({ color: SIGNAL_DIM[k], emissive: 0x000000 });
+      // 앞·뒤 양쪽에 같은 등을 달아서 어느 방향에서 봐도 신호가 보이도록 함
+      [1, -1].forEach(side => {
+        const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.4, 12, 12), mat);
+        lamp.position.set(isZ ? hx + off : hx + 0.65 * side, 7.2, isZ ? hz + 0.65 * side : hz + off);
+        g.add(lamp);
+      });
+      lamps[k] = mat;
+    });
+
+    // 사람 신호등: 빨강·초록 2개만 있는 작은 신호 (횡단보도 앞 인도)
+    const pd = cw.ped;
+    const pedPole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 4, 8), poleMat);
+    pedPole.position.set(pd.x, 2, pd.z); g.add(pedPole);
+    poleObstacles.push({ x: pd.x, z: pd.z, r: 0.8 });
+    const pedBox = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.9, 0.9), boxMat);
+    pedBox.position.set(pd.x, 4.4, pd.z); g.add(pedBox);
+    const pedLamps = {};
+    [['red', 4.9], ['green', 3.9]].forEach(([k, y]) => {
+      const mat = new THREE.MeshLambertMaterial({ color: SIGNAL_DIM[k], emissive: 0x000000 });
+      [1, -1].forEach(side => {   // 양쪽 면에 등을 달아 뒤에서도 보이도록 함
+        const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), mat);
+        lamp.position.set(pd.x + pd.fx * 0.5 * side, y, pd.z + pd.fz * 0.5 * side);
+        g.add(lamp);
+      });
+      pedLamps[k] = mat;
+    });
+
+    g.position.set(0, 0, 0);
+    scene.add(g);
+    signalLamps.push({ cw, lamps, pedLamps, last: '' });
+  });
 }
-addEventListener('resize',resize);resize();camera.position.copy(HOME.pos);
 
-const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-let lastT=performance.now();
-renderer.setAnimationLoop(()=>{
-  const now=performance.now(),dt=Math.min(.05,(now-lastT)/1000);lastT=now;
-  if(walking)walkStep(dt);
-  if(fly){const k=Math.min(1,(performance.now()-fly.s)/1200),e=ease(k);
-    camera.position.lerpVectors(fly.p0,fly.p1,e);controls.target.lerpVectors(fly.t0,fly.t1,e);if(k>=1)fly=null;}
-  controls.update();renderer.render(scene,camera);
+// 매 프레임: 등 색 갱신 + 화면 왼쪽 위 신호 안내 갱신
+function updateSignals() {
+  const now = performance.now();
+  signalLamps.forEach(s => {
+    const st = signalState(s.cw, now);
+    if (st === s.last) return;
+    s.last = st;
+    ['red', 'yellow', 'green'].forEach(k => {
+      const on = k === st;
+      s.lamps[k].color.setHex(on ? SIGNAL_COLORS[k] : SIGNAL_DIM[k]);
+      s.lamps[k].emissive.setHex(on ? SIGNAL_COLORS[k] : 0x000000);
+    });
+    // 사람 신호: 차량이 빨간불일 때만 초록(건너기), 그 밖에는 빨강(정지)
+    const walkOk = st === 'red';
+    [['green', walkOk], ['red', !walkOk]].forEach(([k, on]) => {
+      s.pedLamps[k].color.setHex(on ? SIGNAL_COLORS[k] : SIGNAL_DIM[k]);
+      s.pedLamps[k].emissive.setHex(on ? SIGNAL_COLORS[k] : 0x000000);
+    });
+  });
+
+  let best = null, bd = Infinity;
+  CROSSWALKS.forEach(cw => {
+    const d = Math.hypot(car.position.x - cw.x, car.position.z - cw.z);
+    if (d < bd) { bd = d; best = cw; }
+  });
+  const hud = document.getElementById('signal-hud');
+  if (best && hud) {
+    const st = signalState(best, now);
+    const label = { red: '빨간불 (정지)', yellow: '노란불 (주의)', green: '초록불 (통과)' }[st];
+    const emoji = { red: '🔴', yellow: '🟡', green: '🟢' }[st];
+    const txt = `🚦 가까운 횡단보도: ${emoji} ${label}`;
+    if (txt !== signalHudText) { signalHudText = txt; hud.textContent = txt; }
+    hud.className = st;
+  }
+}
+
+function warnRedLight(walking) {
+  const now = performance.now();
+  if (now - lastRedWarn < 1500) return;
+  lastRedWarn = now;
+  toast(walking ? '🚶 지금은 건너면 안 됩니다. 초록불이 켜질 때까지 기다리세요.'
+                : '🚦 빨간불입니다! 신호가 바뀔 때까지 기다리세요.');
+}
+
+/* ── 건물 이름표: 3D 간판 대신 화면 위 글씨로 표시 (건물에 가까이 가도 화면을 가리지 않음) ── */
+const labelEls = [];
+
+function buildLabelOverlay() {
+  const layer = document.getElementById('label-layer');
+  if (!layer) return;
+  const add = (icon, name, x, y, z) => {
+    const el = document.createElement('div');
+    el.className = 'bld-label';
+    el.textContent = `${icon} ${name}`;
+    layer.appendChild(el);
+    labelEls.push({ el, pos: new THREE.Vector3(x, y, z) });
+  };
+  // 건물 이름은 건물 벽의 3D 간판으로 표시 (addBuildingSigns)
+}
+
+// 매 프레임: 건물 위치를 화면 좌표로 바꿔서 이름표를 옮김
+function updateLabels() {
+  const wrap = document.getElementById('game-wrap');
+  if (!wrap || !camera) return;
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  const v = new THREE.Vector3();
+  labelEls.forEach(({ el, pos }) => {
+    v.copy(pos).project(camera);
+    const dist = camera.position.distanceTo(pos);
+    const visible = v.z < 1 && dist < 200 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05;
+    if (!visible) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    const sx = (v.x + 1) / 2 * w;
+    const sy = (1 - v.y) / 2 * h;
+    el.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -100%)`;
+  });
+}
+
+/* ── 메인 프레임 루프 ── */
+// 걷기 동작: 속도가 있을 때만 다리·팔을 앞뒤로 흔들고 몸을 살짝 위아래로 움직임
+let walkPhase = 0;
+function animateWalker(g, amount) {
+  const w = g.userData.walk;
+  if (!w) return;
+  walkPhase += amount * 0.35;
+  const swing = Math.sin(walkPhase) * 0.6 * amount;
+  w.legs[0].rotation.x = swing;
+  w.legs[1].rotation.x = -swing;
+  w.arms[0].rotation.x = -swing * 0.8;
+  w.arms[1].rotation.x = swing * 0.8;
+  const bob = Math.abs(Math.sin(walkPhase)) * 0.12 * amount;
+  w.body.position.y = 3.0 + bob;
+  w.head.position.y = 4.6 + bob;
+}
+
+function tick() {
+  if (keys.up)   speed = Math.min(speed + ACCEL,  MAX_SPEED);
+  if (keys.down) speed = Math.max(speed - ACCEL, -MAX_SPEED*0.55);
+  if (!keys.up && !keys.down) speed *= FRICTION;
+  if (Math.abs(speed) < 0.002) speed = 0;
+
+  if (keys.left)  angle += TURN;
+  if (keys.right) angle -= TURN;
+
+  const fx = car.position.x + Math.sin(angle) * -speed;
+  const fz = car.position.z + Math.cos(angle) * -speed;
+  const walking = vehicleType === 'walk';
+  const blocked = crosswalkBlockedBy(car.position.x, car.position.z, fx, fz, walking);
+  if (!collides(fx, fz) && !blocked) {
+    car.position.x = fx;
+    car.position.z = fz;
+  } else {
+    if (blocked && (keys.up || keys.down)) warnRedLight(walking);
+    speed = 0;
+  }
+  car.rotation.y = angle;
+  updateSignals();
+
+  // 추적 카메라
+  const spec = VEHICLE_SPECS[vehicleType] || VEHICLE_SPECS.car;
+  // 카메라 높이: 건물 꼭대기보다 살짝 위 (하늘에서 내려다보지 않도록 낮게 유지)
+  const CAM_HEIGHT = 26;
+  // 자동차와의 수평 거리 (높이가 낮아진 만큼 뒤로 물러나서 차가 화면에 들어오게 함)
+  const camDist = spec.camDist * 2.5;
+  const cx = car.position.x + Math.sin(angle) * camDist;
+  const cz = car.position.z + Math.cos(angle) * camDist;
+  camera.position.lerp(new THREE.Vector3(cx, CAM_HEIGHT, cz), 0.08);
+  // 카메라는 자동차 중심(높이 3)을 바라봄
+  const LOOK_AHEAD = 0;   // 차가 화면 아래쪽에 계속 보이도록 차 중심을 바라봄
+  // 화면 기울기: 위로 20도 (양수 = 위로, 음수 = 아래로)
+  const CAM_TILT_UP = 20 * Math.PI / 180;
+  const aimY = 3 + Math.tan(CAM_TILT_UP) * (camDist + LOOK_AHEAD);
+  camera.lookAt(car.position.x - Math.sin(angle) * LOOK_AHEAD, aimY, car.position.z - Math.cos(angle) * LOOK_AHEAD);
+  updateLabels();
+
+  // 빌보드 간판 카메라 동기화 (항상 화면을 정면으로 바라봄)
+  billboardSprites.forEach(sp => sp.quaternion.copy(camera.quaternion));
+
+  // 동서남북 방위계 갱신
+  const compassDial = document.getElementById('compass-dial');
+  if (compassDial) {
+    const deg = (angle * 180 / Math.PI) % 360;
+    compassDial.style.transform = `rotate(${deg}deg)`;
+  }
+
+  if (vehicleType === 'walk') animateWalker(car, Math.min(1, Math.abs(speed) / MAX_SPEED));
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+
+function resize() {
+  const wrap = document.getElementById('game-wrap');
+  if (!wrap || !renderer || !camera) return;
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+
+
+/* ── 조작 이벤트 ── */
+window.addEventListener('keydown', e => {
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+  if (e.key === 'ArrowUp') keys.up = true;
+  if (e.key === 'ArrowDown') keys.down = true;
+  if (e.key === 'ArrowLeft') keys.left = true;
+  if (e.key === 'ArrowRight') keys.right = true;
+});
+window.addEventListener('keyup', e => {
+  if (e.key === 'ArrowUp') keys.up = false;
+  if (e.key === 'ArrowDown') keys.down = false;
+  if (e.key === 'ArrowLeft') keys.left = false;
+  if (e.key === 'ArrowRight') keys.right = false;
+});
+
+[['tp-up','up'],['tp-down','down'],['tp-left','left'],['tp-right','right']].forEach(([id,k]) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const on  = e => { e.preventDefault(); keys[k] = true; };
+  const off = e => { e.preventDefault(); keys[k] = false; };
+  el.addEventListener('pointerdown', on);
+  el.addEventListener('pointerup', off);
+  el.addEventListener('pointerleave', off);
+  el.addEventListener('pointercancel', off);
+});
+
+/* ── 학습 진행 ── */
+let qIndex = 0;
+
+window.loadQuestion = async function(i) {
+  if (i < 0 || i >= QUESTIONS.length) return;
+  qIndex = i;
+  const q = QUESTIONS[i];
+
+  document.getElementById('qnum').textContent = `문제 ${i+1} / ${QUESTIONS.length}`;
+  document.getElementById('question-text').textContent = q.question;
+  const hintEl = document.getElementById('hint-text');
+  hintEl.textContent = q.directions;
+  hintEl.classList.remove('show');
+
+  const vBox = document.getElementById('video-box');
+  vBox.innerHTML = '';
+  const start = Math.max(0, Math.floor(Number(q.start) || 0));
+  const end = Math.max(0, Math.floor(Number(q.end) || 0));
+
+  if (playMode === 'novideo') {
+    renderNoVideoGuide();
+    resetCar();
+    return;
+  }
+
+  if (q.videoType === 'youtube') {
+    // 유튜브: start/end 값으로 구간 재생
+    const ytId = parseYouTubeId(q.youtubeUrl);
+    if (ytId) {
+      const params = new URLSearchParams({ autoplay: '1', start: String(start), rel: '0', playsinline: '1' });
+      if (end > start) params.set('end', String(end));
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube.com/embed/${ytId}?${params.toString()}`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.style.cssText = 'width:100%;height:100%;border:0;';
+      vBox.appendChild(f);
+    } else {
+      vBox.innerHTML = `<div class="placeholder">📹<br>유튜브 주소가 올바르지 않습니다.<br>(강사 관리 모드에서 주소 확인)</div>`;
+    }
+  } else {
+    // 파일: IndexedDB에 저장된 영상 사용, start/end 구간만 재생
+    const vidData = await getDBStore('videos', q.id);
+    if (vidData) {
+      const v = document.createElement('video');
+      v.src = URL.createObjectURL(vidData);
+      v.controls = true; v.playsInline = true;
+      v.addEventListener('loadedmetadata', () => {
+        if (start > 0) v.currentTime = start;
+        v.play().catch(() => {});
+      });
+      if (end > start) {
+        v.addEventListener('timeupdate', () => {
+          if (v.currentTime >= end) { v.pause(); v.currentTime = end; }
+        });
+      }
+      vBox.appendChild(v);
+    } else {
+      vBox.innerHTML = `<div class="placeholder">📹<br>등록된 수어 영상이 없습니다.<br>(강사 관리 모드에서 영상 파일 업로드)</div>`;
+    }
+  }
+
+  resetCar();
+};
+
+document.getElementById('btn-hint').onclick = () => {
+  document.getElementById('hint-text').classList.toggle('show');
+};
+document.getElementById('btn-reset').onclick = () => resetCar();
+
+/* ── 영상 없는 버전: 길 안내 글 + 실시간 약도(빨간 화살표가 내 위치) ── */
+let playMode = 'video';   // 'video' = 영상 버전, 'novideo' = 영상 없는 버전
+if (window.matchMedia('(max-width:820px)').matches) {   // 휴대폰 화면: 지도만 보이는 화면으로 시작
+  playMode = 'novideo';
+  document.body.classList.add('novideo');
+}
+
+function renderNoVideoGuide() {
+  document.getElementById('video-box').innerHTML = '';
+}
+
+function toggleNvFullscreen() {
+  const wrap = document.getElementById('game-wrap');
+  if (document.fullscreenElement) { document.exitFullscreen(); return; }
+  if (!wrap.requestFullscreen) { toast('이 브라우저는 전체 화면을 지원하지 않습니다'); return; }
+  wrap.requestFullscreen().catch(() => toast('전체 화면을 열 수 없습니다'));
+}
+// 전체 화면으로 들어가거나 나올 때 3D 화면 크기를 다시 맞춤 (나가기: 키보드 Esc)
+document.addEventListener('fullscreenchange', () => setTimeout(resize, 50));
+
+window.setPlayMode = function(m) {
+  playMode = m;
+  document.body.classList.toggle('novideo', m === 'novideo');
+  resize();
+  document.getElementById('mode-video').classList.toggle('active', m === 'video');
+  document.getElementById('mode-novideo').classList.toggle('active', m === 'novideo');
+  document.getElementById('video-label').textContent = m === 'novideo' ? '길 안내 (영상 없음)' : '수어 지시 영상';
+  loadQuestion(qIndex);
+  toast(m === 'novideo' ? '영상 없는 버전으로 바뀌었습니다 🗺' : '영상 버전으로 바뀌었습니다 🎬');
+};
+
+window.toggleGuide = function(show) {
+  document.getElementById('guide-modal').style.display = show ? 'flex' : 'none';
+};
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+document.getElementById('btn-arrive').onclick = () => {
+  let best = null, bestD = Infinity;
+  buildingBoxes.forEach(b => {
+    const d = Math.hypot(car.position.x - b.cx, car.position.z - b.cz);
+    if (d < bestD) { bestD = d; best = b; }
+  });
+
+  if (!best || bestD > ARRIVE_DISTANCE) {
+    toast('건물 가까이 도착해서 눌러주세요! 🚗');
+    return;
+  }
+
+  const q = QUESTIONS[qIndex];
+  if (best.name === q.answer) {
+    showResult(true, q);
+  } else {
+    showResult(false, q, best.name);
+  }
+};
+
+// 영상 버전: 목표 건물을 마우스로 직접 눌러 정답 확인 (건물 가까이 있을 때만 인정)
+document.getElementById('game-canvas').addEventListener('click', (e) => {
+  if (!camera || !car) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const ndc = new THREE.Vector2(
+    ((e.clientX - rect.left) / rect.width) * 2 - 1,
+    -((e.clientY - rect.top) / rect.height) * 2 + 1
+  );
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(ndc, camera);
+  const hit = raycaster.intersectObjects(buildingGroups, true)[0];
+  if (!hit) return;
+  let obj = hit.object;
+  while (obj && !obj.userData.box) obj = obj.parent;
+  if (!obj) return;
+
+  const box = obj.userData.box;
+  const d = Math.hypot(car.position.x - box.cx, car.position.z - box.cz);
+  if (d > ARRIVE_DISTANCE) {
+    toast('건물 가까이 가서 눌러주세요! 🚗');
+    return;
+  }
+  const q = QUESTIONS[qIndex];
+  if (box.name === q.answer) {
+    showResult(true, q);
+  } else {
+    toast(`여기는 ${box.name}입니다. 다시 찾아보세요.`);
+  }
+});
+
+function showResult(ok, q, picked) {
+  const overlay = document.getElementById('result-overlay');
+  const icon = document.getElementById('r-icon');
+  const title = document.getElementById('r-title');
+  const desc = document.getElementById('r-desc');
+  const btn = document.getElementById('r-btn');
+
+  if (ok) {
+    icon.textContent = '🎉';
+    title.textContent = `정답! ${q.answer}에 도착했습니다.`;
+    title.className = 'ok';
+    desc.style.display = 'none';
+    const isLast = qIndex === QUESTIONS.length - 1;
+    btn.textContent = isLast ? '처음부터 다시 ↺' : '다음 문제 ▶';
+    btn.onclick = () => {
+      overlay.classList.remove('show');
+      loadQuestion(isLast ? 0 : qIndex + 1);
+    };
+  } else {
+    icon.textContent = '🤔';
+    title.textContent = `여기는 ${picked}입니다.`;
+    title.className = 'no';
+    desc.style.display = '';
+    desc.textContent = '수어 지시 영상을 다시 한 번 잘 보고 방향을 확인해보세요.';
+    btn.textContent = '다시 도전 💪';
+    btn.onclick = () => overlay.classList.remove('show');
+  }
+  overlay.classList.add('show');
+}
+
+
+/* ── 강사 전용 관리자 기능 ── */
+window.toggleTeacherModal = function(show) {
+  const modal = document.getElementById('teacher-overlay');
+  if (show) {
+    renderTeacherQuestionsUI();
+    modal.classList.add('show');
+  } else {
+    modal.classList.remove('show');
+  }
+};
+
+window.toggleMapGuide = function() {
+  const content = document.getElementById('map-guide-content');
+  const arrow = document.getElementById('map-guide-arrow');
+  if (content.style.display === 'none') {
+    content.style.display = 'block';
+    arrow.textContent = '▲ 접기';
+  } else {
+    content.style.display = 'none';
+    arrow.textContent = '▼ 펼치기';
+  }
+};
+
+function renderTeacherQuestionsUI() {
+  const container = document.getElementById('teacher-questions-list');
+  container.innerHTML = '';
+
+  QUESTIONS.forEach((q, idx) => {
+    const isYt = q.videoType === 'youtube';
+    const card = document.createElement('div');
+    card.className = 'q-edit-card';
+    card.innerHTML = `
+      <div class="q-edit-header">
+        <span>문제 #${idx + 1}</span>
+        <button class="btn-del-q" onclick="deleteQuestion(${idx})">🗑 삭제</button>
+      </div>
+      <div class="form-group">
+        <label>영상 종류:</label>
+        <select onchange="updateQuestionField(${idx}, 'videoType', this.value); renderTeacherQuestionsUI();">
+          <option value="file" ${isYt ? '' : 'selected'}>로컬 파일 (MP4/WebM)</option>
+          <option value="youtube" ${isYt ? 'selected' : ''}>유튜브 링크</option>
+        </select>
+      </div>
+      ${isYt ? `
+      <div class="form-group">
+        <label>유튜브 주소 (주소창의 링크를 그대로 붙여넣기):</label>
+        <input type="text" value="${escAttr(q.youtubeUrl)}" placeholder="https://www.youtube.com/watch?v=..." onchange="updateQuestionField(${idx}, 'youtubeUrl', this.value)">
+      </div>` : `
+      <div class="form-group">
+        <label>수어 동영상 파일 선택 (선택하면 바로 저장됩니다):</label>
+        <input type="file" accept="video/*" onchange="handleVideoUpload(event, ${q.id})">
+      </div>`}
+      <div class="form-group">
+        <label>재생 구간 (시작 ~ 끝, 초 단위 / 끝을 0으로 두면 끝까지):</label>
+        <div class="range-row">
+          <input type="number" min="0" step="1" value="${q.start || 0}" onchange="updateQuestionField(${idx}, 'start', Math.max(0, Number(this.value) || 0))">
+          <span>~</span>
+          <input type="number" min="0" step="1" value="${q.end || 0}" onchange="updateQuestionField(${idx}, 'end', Math.max(0, Number(this.value) || 0))">
+          <span class="unit">초</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>문제 설명 글:</label>
+        <input type="text" value="${escAttr(q.question)}" onchange="updateQuestionField(${idx}, 'question', this.value)">
+      </div>
+      <div class="form-group">
+        <label>정답 건물 선택:</label>
+        <select onchange="updateQuestionField(${idx}, 'answer', this.value)">
+          ${BUILDINGS.map(b => `<option value="${b.name}" ${b.name === q.answer ? 'selected' : ''}>${b.icon} ${b.name}</option>`).join('')}
+        </select>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+window.addQuestion = function() {
+  QUESTIONS.push({
+    id: Date.now(),
+    question: "수어 영상을 보고 정답 건물을 찾아 이동하세요.",
+    directions: "",
+    answer: "식당",
+    explain: "기본 방향 수어 표현을 복습하세요.",
+    videoType: 'file',
+    youtubeUrl: '',
+    start: 0,
+    end: 0
+  });
+  renderTeacherQuestionsUI();
+};
+
+/* ── 보조 함수: 입력칸 안전 처리, 유튜브 주소 해석, 파일 변환 ── */
+function escAttr(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function parseYouTubeId(input) {
+  const s = String(input || '').trim();
+  if (!s) return null;
+  const m = s.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([A-Za-z0-9_-]{11})/);
+  if (m) return m[1];
+  return /^[A-Za-z0-9_-]{11}$/.test(s) ? s : null;
+}
+
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+
+/* ── 백업 파일 받기 / 불러오기 (문제 + 업로드한 영상을 하나의 .json 파일로) ── */
+window.downloadBackup = async function() {
+  try {
+    const videos = {};
+    for (const q of QUESTIONS) {
+      const v = await getDBStore('videos', q.id);
+      if (v instanceof Blob) videos[q.id] = await blobToDataURL(v);
+    }
+    const data = {
+      app: 'SignLanguage3D',
+      version: 1,
+      savedAt: new Date().toISOString(),
+      questions: QUESTIONS,
+      videos
+    };
+    const d = new Date();
+    const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `수어길찾기_백업_${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    toast('백업 파일을 받았습니다! 💾');
+  } catch (e) {
+    console.error('백업 실패:', e);
+    toast('백업 파일을 만들지 못했습니다.');
+  }
+};
+
+window.restoreBackup = async function(event) {
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  if (!confirm('현재 문제와 영상을 백업 파일 내용으로 바꿉니다. 계속할까요?')) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!data || !Array.isArray(data.questions) || data.questions.length === 0) {
+      throw new Error('올바른 백업 파일이 아닙니다.');
+    }
+    for (const q of data.questions) {
+      const dataUrl = data.videos && data.videos[q.id];
+      if (dataUrl) {
+        const blob = await (await fetch(dataUrl)).blob();
+        await saveDBStore('videos', q.id, blob);
+      }
+    }
+    QUESTIONS = data.questions;
+    await saveDBStore('questions', undefined, { id: 'current_list', items: QUESTIONS });
+    renderTeacherQuestionsUI();
+    loadQuestion(0);
+    toast('백업을 불러왔습니다! 📂');
+  } catch (e) {
+    console.error('복원 실패:', e);
+    toast('백업 불러오기 실패: ' + e.message);
+  }
+};
+
+window.deleteQuestion = function(idx) {
+  if (QUESTIONS.length <= 1) {
+    alert('최소 1개 이상의 문제가 필요합니다.');
+    return;
+  }
+  QUESTIONS.splice(idx, 1);
+  renderTeacherQuestionsUI();
+};
+
+window.updateQuestionField = function(idx, field, val) {
+  QUESTIONS[idx][field] = val;
+};
+
+window.handleVideoUpload = async function(event, qId) {
+  const file = event.target.files[0];
+  if (!file) return;
+  await saveDBStore('videos', qId, file);
+  toast('영상이 성공적으로 저장되었습니다!');
+};
+
+window.saveTeacherQuestions = async function() {
+  try {
+    // 저장소의 id 칸에 'current_list'를 넣고, 문제 목록은 items 칸에 담아 저장
+    await saveDBStore('questions', undefined, { id: 'current_list', items: QUESTIONS });
+  } catch (e) {
+    console.error('문제 저장 실패:', e);
+    toast('저장에 실패했습니다. 브라우저 저장 공간을 확인해 주세요.');
+    return;
+  }
+  toggleTeacherModal(false);
+  loadQuestion(0);
+  toast('문제 데이터가 반영되었습니다! 💾');
+};
+
+
+/* ── 강사용 약도: 3D 화면과 같은 데이터(BUILDINGS, 도로 좌표)로 위에서 본 배치도를 그림 ── */
+
+function hexColor(c) { return '#' + c.toString(16).padStart(6, '0'); }
+
+function mapInnerSVG() {
+  let s = '';
+  // 땅과 도로
+  s += `<rect x="-120" y="-120" width="240" height="260" fill="#9fce8f"/>`;
+  s += `<circle cx="0" cy="0" r="21" fill="none" stroke="#434b59" stroke-width="8"/>`;
+  s += `<rect x="-5" y="-120" width="10" height="95" fill="#434b59"/>`;
+  s += `<rect x="-5" y="25" width="10" height="95" fill="#434b59"/>`;
+  s += `<rect x="25" y="-5" width="95" height="10" fill="#434b59"/>`;
+  s += `<rect x="-120" y="-5" width="95" height="10" fill="#434b59"/>`;
+  // 중앙공원
+  s += `<circle cx="0" cy="0" r="14" fill="#4ade80" stroke="#166534" stroke-width="1.2"/>`;
+  s += `<text x="0" y="1.5" font-size="3.6" text-anchor="middle" font-weight="bold" fill="#14532d">🌳 중앙공원</text>`;
+  // 횡단보도와 신호등 위치
+  CROSSWALKS.forEach(cw => {
+    for (let o = -4; o <= 4; o += 2) {
+      if (cw.axis === 'z') s += `<rect x="${cw.x + o - 0.5}" y="${cw.z - 3}" width="1" height="6" fill="#ffffff"/>`;
+      else s += `<rect x="${cw.x - 3}" y="${cw.z + o - 0.5}" width="6" height="1" fill="#ffffff"/>`;
+    }
+    s += `<circle cx="${cw.x}" cy="${cw.z}" r="1.3" fill="#facc15" stroke="#1c2433" stroke-width="0.4"/>`;
+  });
+  // 건물 (실제 위치와 크기)
+  BUILDINGS.forEach(b => {
+    const W = b.w || 11, D = b.d || W;
+    s += `<rect x="${b.x - W/2}" y="${b.z - D/2}" width="${W}" height="${D}" rx="1" fill="${hexColor(b.color)}" stroke="${hexColor(b.accent)}" stroke-width="1.2"/>`;
+    s += `<text x="${b.x}" y="${b.z + 1}" font-size="5" text-anchor="middle">${b.icon}</text>`;
+    s += `<text x="${b.x}" y="${b.z + 4.6}" font-size="2.8" text-anchor="middle" font-weight="bold" fill="#1c2433">${b.name}</text>`;
+  });
+  // 출발지와 북쪽 표시
+  s += `<circle cx="0" cy="115" r="2.2" fill="#dc2626"/>`;
+  s += `<text x="0" y="123" font-size="3.6" text-anchor="middle" font-weight="bold" fill="#1c2433">출발</text>`;
+  s += `<text x="-105" y="-103" font-size="5" font-weight="bold" fill="#e11d48">N ↑</text>`;
+
+  return s;
+}
+
+function renderMapGuide() {
+  const box = document.getElementById('map-svg-box');
+  if (!box) return;
+  box.innerHTML = `<svg viewBox="-120 -120 240 260" style="width:100%;max-width:560px;display:block;margin:0 auto;border-radius:10px;border:1px solid #cbd5e1;">${mapInnerSVG()}</svg>`;
+}
+
+/* ── 우리 지역 지도 (구글 지도, 내 위치 기준) ──
+   GOOGLE_MAPS_KEY 를 비워두면 기본 구글 지도 화면을 보여줌.
+   구글 지도 API 키를 넣으면 건물과 길 중심의 단순한 지도 스타일을 적용함. */
+const GOOGLE_MAPS_KEY = '';
+const FALLBACK_LOCATION = { lat: 37.8813, lng: 127.7298 };   // 내 위치를 못 찾을 때 보여줄 기본 지역 (춘천 시내)
+const SIMPLE_MAP_STYLE = [
+  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'road', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+  { featureType: 'administrative', stylers: [{ visibility: 'off' }] },
+  { featureType: 'landscape', stylers: [{ color: '#eef2ee' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] }
+];
+
+window.openRegionMap = function() {
+  document.getElementById('region-modal').style.display = 'flex';
+  const useLocation = (pos, note) => {
+    if (note) toast(note);
+    showRegionMap(pos.lat, pos.lng);
+  };
+  if (!navigator.geolocation) {
+    return useLocation(FALLBACK_LOCATION, '위치 기능을 쓸 수 없어 기본 지역을 보여줍니다.');
+  }
+  navigator.geolocation.getCurrentPosition(
+    p => useLocation({ lat: p.coords.latitude, lng: p.coords.longitude }, ''),
+    () => useLocation(FALLBACK_LOCATION, '내 위치를 찾지 못해 기본 지역을 보여줍니다.'),
+    { enableHighAccuracy: false, timeout: 8000 }
+  );
+};
+
+window.closeRegionMap = function() {
+  document.getElementById('region-modal').style.display = 'none';
+};
+
+function showRegionMap(lat, lng) {
+  const box = document.getElementById('region-map');
+  box.innerHTML = '';
+  if (!GOOGLE_MAPS_KEY) {
+    box.innerHTML = `<iframe src="https://maps.google.com/maps?q=${lat},${lng}&z=17&t=m&output=embed" style="width:100%;height:100%;border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
+    return;
+  }
+  loadGoogleMaps(() => {
+    const map = new google.maps.Map(box, { center: { lat, lng }, zoom: 17, disableDefaultUI: true, styles: SIMPLE_MAP_STYLE });
+    new google.maps.Marker({ position: { lat, lng }, map, title: '내 위치' });
+  });
+}
+
+function loadGoogleMaps(cb) {
+  if (window.google && google.maps) return cb();
+  const s = document.createElement('script');
+  s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}`;
+  s.onload = cb;
+  document.head.appendChild(s);
+}
+
+/* ── 앱 시작 로드 ── */
+window.addEventListener('load', async () => {
+  try {
+    await initDB();
+    const saved = await getDBStore('questions', 'current_list');
+    if (saved && Array.isArray(saved.items) && saved.items.length > 0) {
+      QUESTIONS = saved.items;
+    }
+  } catch (e) {
+    console.warn('IndexedDB Init warning:', e);
+  }
+
+  renderMapGuide();
+  // 문제는 먼저 보여주고, 3D 화면은 따로 준비 (3D 로딩이 실패해도 문제는 보이도록)
+  loadQuestion(0);
+  try {
+    init3DWorld();
+  } catch (e) {
+    console.error('3D 초기화 실패:', e);
+    toast('3D 화면을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.');
+  }
 });
 </script>
+</body>
+</html>
