@@ -942,9 +942,9 @@ const BUILDINGS = [
   { name:"아파트", x:-45, z: 22, color:0xd1d5db, accent:0x374151, icon:"🏢", w:13, h:24 },
   { name:"아파트", x:-75, z: 22, color:0xe9d5ff, accent:0x7c3aed, icon:"🏢", w:8,  h:16 },
   // 새로 추가한 건물 3개
-  { name:"교회", x:-42, z: 58, color:0xffffff, accent:0x2563eb, icon:"⛪", w:5.5, h:7, noSign:true },   // 아파트와 카페 사이
+  { name:"교회", x:-42, z: 58, color:0xffffff, accent:0x1e3a8a, icon:"⛪", w:5.5, h:7, shape:"church", noSign:true },   // 아파트와 카페 사이
   { name:"절",   x:-42, z:-44, color:0xf25f6b, accent:0x84d165, icon:"🛕", w:11, h:10, noSign:true },   // 유치원과 병원 사이
-  { name:"성당", x: 92, z: -22, color:0xf5f5f4, accent:0x7c2d12, icon:"⛪", w:11, h:18, shape:"tower", noSign:true }   // 도서관 뒤쪽
+  { name:"성당", x: 92, z: -22, color:0xa3543a, accent:0x4b5563, icon:"⛪", w:11, h:18, shape:"cathedral", noSign:true }   // 도서관 뒤쪽
 ];
 
 const BUILD_SIZE = 11;
@@ -1275,18 +1275,86 @@ function addRooftopDecor(g, b, wx, wz, h) {
     add(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 20), 0xfacc15, 1.6, y0 + 0.3, 1.9);
   }
   if (b.name === '교회') {
-    // 옥상의 갈색 십자가 (병원에서 옮겨 온 십자가, 작게 줄임). 아랫부분이 보이도록 지붕 위에 기둥을 세움
-    const base = h + 1;                                // 지붕 윗면 (지붕 두께 1)
-    const cy = base + 1.75;
-    add(new THREE.BoxGeometry(0.7, 3.5, 0.7), 0x92400e, 0, cy, 0);              // 세로
-    add(new THREE.BoxGeometry(2.4, 0.7, 0.7), 0x92400e, 0, cy + 0.7, 0);        // 가로
+    // 교회 (아이콘 참고): 흰 벽, 남색 삼각 지붕, 정면 가운데 종탑(둥근 창) + 뾰족 첨탑 + 십자가, 아치 창문과 아치 문
+    const NAVY = 0x1e3a8a, DARK = 0x1f2937;
+    const hb = h * 0.75;                  // 본채 벽 높이
+    const out = Math.abs(b.z) > Math.abs(b.x) ? { x: 0, z: Math.sign(b.z) || 1 } : { x: Math.sign(b.x) || 1, z: 0 };
+    const cg = new THREE.Group();          // 정면(+z)이 길 쪽을 향하도록 돌린 그룹
+    cg.rotation.y = Math.atan2(out.x, out.z);
+    g.add(cg);
+    const addL = (geo, color, x, y, z) => {
+      const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
+      m.position.set(x, y, z); cg.add(m); return m;
+    };
+    const archGeo = (w, hgt, depth) => {
+      const sh = new THREE.Shape();
+      sh.moveTo(-w / 2, 0); sh.lineTo(w / 2, 0); sh.lineTo(w / 2, hgt - w / 2);
+      sh.absarc(0, hgt - w / 2, w / 2, 0, Math.PI, false);
+      sh.lineTo(-w / 2, 0);
+      return new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false });
+    };
+
+    // 삼각 지붕 (앞·뒤가 삼각형으로 보임)
+    const roofShape = new THREE.Shape();
+    roofShape.moveTo(-wx / 2 - 0.3, hb); roofShape.lineTo(wx / 2 + 0.3, hb); roofShape.lineTo(0, hb + 2.4); roofShape.closePath();
+    const roofGeo = new THREE.ExtrudeGeometry(roofShape, { depth: wx + 0.6, bevelEnabled: false });
+    roofGeo.translate(0, 0, -(wx + 0.6) / 2);
+    addL(roofGeo, NAVY, 0, 0, 0);
+
+    // 정면 종탑 (가운데, 본채 앞쪽)
+    const tz = wx / 2 - 0.2, tH = hb + 2.2;
+    addL(new THREE.BoxGeometry(2.0, tH, 2.0), 0xffffff, 0, tH / 2, tz);
+    addL(new THREE.TorusGeometry(0.45, 0.08, 8, 20), DARK, 0, hb + 1.0, tz + 1.02);   // 둥근 창 (아이콘의 원)
+    // 뾰족 첨탑 + 십자가
+    addL(new THREE.ConeGeometry(1.45, 3.0, 4), NAVY, 0, tH + 1.5, tz).rotation.y = Math.PI / 4;
+    addL(new THREE.BoxGeometry(0.16, 1.0, 0.16), DARK, 0, tH + 3.5, tz);
+    addL(new THREE.BoxGeometry(0.6, 0.16, 0.16), DARK, 0, tH + 3.7, tz);
+
+    // 아치 창문 (양옆 벽에 두 개씩)
+    [-1, 1].forEach(sx => [-1.4, 1.4].forEach(zc => {
+      const w = addL(archGeo(0.9, 1.9, 0.1), DARK, sx * (wx / 2 + 0.02), 0.6, zc - 0.45);
+      w.rotation.y = sx * Math.PI / 2;
+    }));
+    // 정면 아치 문
+    addL(archGeo(0.9, 1.7, 0.1), DARK, 0, 0.3, wx / 2 + 0.02 + 0.8);
   }
   if (b.name === '성당') {
-    // 옥상의 십자가 (4번째 그림처럼 끝이 넓은 검은 십자가, 두 방향으로 세움)
-    const A = 2.4;
-    const shape = flaredCrossShape(A, 0.32, 0.7, 0.5);
-    const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.4, bevelEnabled: false });
-    add(geo, 0x1f2937, 0, h + A, -0.2);
+    // 성당 (참고 사진): 가운데 높은 종탑 + 양옆 작은 탑, 탑 꼭대기는 회색 돔과 검은 십자가
+    const BRICK = 0xa3543a, SLATE = 0x4b5563, DARK = 0x1f2937;
+    const hc = h, hs = h * 0.72;   // 가운데 탑 높이, 양옆 탑 높이
+
+    // 가운데 탑: 벽돌 기둥 → 팔각 드럼 → 회색 돔
+    add(new THREE.BoxGeometry(3.4, hc, 3.4), BRICK, 0, hc / 2, 0);
+    add(new THREE.CylinderGeometry(2.0, 2.0, 1.6, 8), BRICK, 0, hc + 0.8, 0);
+    add(new THREE.SphereGeometry(2.0, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), SLATE, 0, hc + 1.6, 0);
+    [-0.7, 0.7].forEach(x => [-1, 1].forEach(sz => add(new THREE.BoxGeometry(0.5, 1.6, 0.1), DARK, x, hc * 0.55, sz * 1.72)));
+
+    // 가운데 탑 위 십자가 (위·왼쪽·오른쪽 화살촉, 아래는 평평함)
+    const T = 0.32, ARM = 1.4, BAR = 0.4, TOP = 1.95, BOTTOM = -3.0;
+    const AH = 0.5, F = 0.6;
+    const pts = [
+      [-T, TOP - AH], [-F, TOP - AH], [0, TOP], [F, TOP - AH], [T, TOP - AH],
+      [T, BAR + T], [ARM - AH, BAR + T], [ARM - AH, BAR + F], [ARM, BAR], [ARM - AH, BAR - F], [ARM - AH, BAR - T],
+      [T, BAR - T], [T, BOTTOM], [-T, BOTTOM],
+      [-T, BAR - T], [-(ARM - AH), BAR - T], [-(ARM - AH), BAR - F], [-ARM, BAR], [-(ARM - AH), BAR + F], [-(ARM - AH), BAR + T], [-T, BAR + T]
+    ];
+    const crossShapeArrow = new THREE.Shape();
+    crossShapeArrow.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) crossShapeArrow.lineTo(pts[i][0], pts[i][1]);
+    crossShapeArrow.closePath();
+    const crossGeo = new THREE.ExtrudeGeometry(crossShapeArrow, { depth: 0.4, bevelEnabled: false });
+    add(crossGeo, DARK, 0, hc + 3.6 - BOTTOM, -0.2);   // 아래 끝이 돔 꼭대기에 닿도록
+
+    // 양옆 작은 탑 (왼쪽·오른쪽): 기둥 → 작은 돔 → 작은 십자가
+    [-1, 1].forEach(sx => {
+      const X = sx * 3.9;
+      add(new THREE.BoxGeometry(2.4, hs, 2.4), BRICK, X, hs / 2, 0);
+      add(new THREE.CylinderGeometry(1.4, 1.4, 1.0, 10), BRICK, X, hs + 0.5, 0);
+      add(new THREE.SphereGeometry(1.4, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), SLATE, X, hs + 1.0, 0);
+      add(new THREE.BoxGeometry(0.4, 1.2, 0.08), DARK, X, hs * 0.5, 1.22);
+      const small = new THREE.ExtrudeGeometry(crossShape(0.8, 0.16), { depth: 0.2, bevelEnabled: false });
+      add(small, DARK, X, hs + 1.0 + 1.4 + 0.8, -0.1);
+    });
   }
   if (b.name === '절') {
     // 절 모양 (참고 그림): 회색 기와지붕, 초록 처마 띠, 붉은 벽, 창문 4칸, 노란 현판, 돌 기단
@@ -1926,6 +1994,14 @@ function init3DWorld() {
       const R = wx / 2;
       body = new THREE.Mesh(new THREE.CylinderGeometry(R, wx * 0.24, h, 28), mat);   // 원뿔 모양 (꼭대기는 평평)
       body.position.set(0, h / 2, 0);
+    } else if (shape === 'church') {
+      // 교회 본채: 흰 벽 상자 (지붕 삼각형과 종탑은 옥상 장식 코드에서 정면 방향에 맞춰 세움)
+      body = new THREE.Mesh(new THREE.BoxGeometry(wx, h * 0.75, wz), mat);
+      body.position.set(0, h * 0.375, 0);
+    } else if (shape === 'cathedral') {
+      // 성당 몸체: 낮은 벽돌 본당 (높은 탑들은 옥상 장식 코드에서 세움)
+      body = new THREE.Mesh(new THREE.BoxGeometry(7.5, h * 0.55, 6), mat);
+      body.position.set(0, h * 0.275, 0);
     } else {
       // 직사각형·정사각형 (집 모양 포함)
       body = new THREE.Mesh(new THREE.BoxGeometry(wx, h, wz), mat);
