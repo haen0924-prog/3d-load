@@ -612,6 +612,7 @@
     aside { display: none; }   /* 모바일: 지도(3D 화면)만 보이게 문제·영상 숨김 */
     .header-right, #btn-qr, #qr-box { display: none !important; }
     #nv-video-on { display: none !important; }
+    #btn-guide, #guide-modal { display: none !important; }   /* 모바일: 사용법(강사용 안내) 숨김 */
     #nv-actions .fs-btn { display: none; }
     #game-wrap { flex: 1 1 auto; min-height: 70vh; }
     #touch-pad { display: grid; }
@@ -679,27 +680,53 @@
       <button onclick="toggleGuide(false)" style="border:none;border-radius:8px;padding:8px 14px;background:#eef1f6;font-weight:700;cursor:pointer;">닫기 ✕</button>
     </div>
     <div style="padding:14px 18px;overflow-y:auto;font-size:15px;line-height:1.7;color:#1c2433;">
-      <p style="margin:0 0 8px;"><b>1. 이동 수단 고르기</b></p>
-      <p style="margin:0 0 12px;">🚗 자동차 · 🚲 자전거 · 🚌 버스 · 🚶 사람 중 하나를 누릅니다. 영상 없는 버전에서는 지도 왼쪽 위에 있습니다.</p>
-
-      <p style="margin:0 0 8px;"><b>2. 움직이기</b></p>
-      <p style="margin:0 0 12px;">컴퓨터는 방향키(↑ 앞으로, ↓ 뒤로, ← → 핸들)를 씁니다. 휴대폰은 화면 아래의 방향 버튼을 누릅니다.</p>
-
-      <p style="margin:0 0 8px;"><b>3. 신호 지키기</b></p>
-      <p style="margin:0 0 12px;">🚗 차는 <b>차량 신호</b>(가로로 놓인 빨강·노랑·초록)를 따릅니다. 빨간불이면 멈춥니다.<br>
-      🚶 사람은 <b>사람 신호</b>(빨강·초록)를 따릅니다. 초록불일 때만 횡단보도를 건널 수 있습니다.</p>
-
-      <p style="margin:0 0 8px;"><b>4. 목표 건물 찾아가기</b></p>
-      <p style="margin:0 0 12px;">강사가 알려준 목표 건물을 찾아 가까이 갑니다. 건물 가까이에서 <b>건물을 마우스로 누르면(휴대폰은 터치)</b> 정답을 확인합니다. 틀리면 "여기는 ○○입니다. 다시 찾아보세요."라고 나옵니다.</p>
-
-      <p style="margin:0 0 8px;"><b>5. 막히거나 길을 잃었을 때</b></p>
-      <p style="margin:0 0 12px;">↩ <b>출발점</b> 버튼을 누르면 처음 출발 위치로 돌아갑니다.</p>
-
-      <p style="margin:0 0 8px;"><b>6. 참고</b></p>
-      <p style="margin:0;">· 자전거는 자전거 전용도로(초록 띠)와 인도, 차도 일부로 다닐 수 있습니다.<br>
-      · 사람은 인도와 횡단보도로 다닙니다.<br>
-      · 컴퓨터에서는 🎬 영상 버전과 🗺 영상 없는 버전을 고를 수 있습니다.<br>
-      · 강사 관리 모드(컴퓨터)에서 문제와 목표 건물을 정하고, 반드시 "저장하고 반영하기"를 눌러야 저장됩니다.</p>
+<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>👩‍🏫 강사용 안내</b></p>
+<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>🔧 수업 전 준비 (강사 관리 모드, 컴퓨터)</b></p>
+<p style="margin:0 0 4px;"><b>1. 문제 만들기</b></p>
+<p style="margin:0 0 8px;">· 문제마다 "이 문제가 속한 단계"(1·2·3단계)를 고릅니다. 수강생이 해당 단계를 누르면 그 단계 문제만 나옵니다.</p>
+<p style="margin:0 0 8px;">· 정답 건물을 고르고, 문제 설명 글을 씁니다.</p>
+<p style="margin:0 0 4px;"><b>2. 수어 영상 올리기</b></p>
+<p style="margin:0 0 8px;">· 문제마다 수어 영상을 파일로 올리거나 유튜브 주소를 넣습니다. 필요하면 재생 구간(시작·끝 초)을 정합니다.</p>
+<p style="margin:0 0 8px;">· 영상은 이 컴퓨터에 저장됩니다. 다른 컴퓨터에서 쓰려면 파일을 옮겨야 합니다.</p>
+<p style="margin:0 0 4px;"><b>3. 저장하기</b></p>
+<p style="margin:0 0 8px;">· 반드시 "저장하고 반영하기"를 눌러야 수강생 화면에 적용됩니다.</p>
+<p style="margin:0 0 4px;"><b>4. 수업 중 화면 설정</b></p>
+<p style="margin:0 0 8px;">· 🎬 영상 버전은 수어 영상을 보고 길을 찾는 연습입니다. 🗺 영상 없는 버전은 지도만 보고 수어 설명을 떠올리는 연습입니다.</p>
+<p style="margin:0 0 8px;">· 탈것 그림(수어 그림)은 3단계에서 탈것 버튼 아래에 나타납니다.</p>
+<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>1단계: 건물 모양과 방향 표현</b></p>
+<p style="margin:0 0 4px;"><b>가르치는 것</b></p>
+<p style="margin:0 0 8px;">· 건물의 모양(사각형, 둥근 건물, 탑, 집 모양 등)과 그 수어 표현을 익힙니다.</p>
+<p style="margin:0 0 8px;">· 앞·뒤·왼쪽·오른쪽, 직진·좌회전·우회전 같은 방향 표현을 건물 위치와 연결합니다.</p>
+<p style="margin:0 0 4px;"><b>진행 순서</b></p>
+<p style="margin:0 0 8px;">· ① 건물 모양과 이름을 먼저 보여 줍니다. ② 방향 수어를 보여 주고 따라 하게 합니다. ③ 영상을 보고 목표 건물을 찾게 합니다.</p>
+<p style="margin:0 0 4px;"><b>수강생이 이해했는지 확인하는 방법</b></p>
+<p style="margin:0 0 8px;">· 수어를 보고 건물을 바로 찾는지, 방향을 헷갈리지 않는지 봅니다. 틀리면 "여기는 ○○입니다" 안내가 나오므로, 그 건물과 방향을 다시 설명합니다.</p>
+<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>2단계: 다양한 사물과 숫자 표현 (1단계 내용 포함)</b></p>
+<p style="margin:0 0 4px;"><b>가르치는 것</b></p>
+<p style="margin:0 0 8px;">· 1단계 내용에 더해, 여러 사물의 모양과 수어 표현을 익힙니다.</p>
+<p style="margin:0 0 8px;">· 경찰서·소방서·유치원·카페 앞에 차와 사람이 추가되어, 사물이 있는 장소를 표현하는 연습을 합니다.</p>
+<p style="margin:0 0 8px;">· 주차장의 경찰차, 소방차, 택시, 버스, 자전거, 오토바이 등 다양한 탈것을 익힙니다.</p>
+<p style="margin:0 0 8px;">· 숫자 표현을 함께 익힙니다. (숫자 문제는 게임 기능이 아니라 수업 활동으로 진행합니다.)</p>
+<p style="margin:0 0 4px;"><b>진행 순서</b></p>
+<p style="margin:0 0 8px;">· ① 1단계 복습 ② 새 사물 모양과 수어 보여 주기 ③ 장소를 표현하고 찾기 ④ 숫자 수어를 보여 주고 숫자와 연결해 보기</p>
+<p style="margin:0 0 4px;"><b>수강생이 이해했는지 확인하는 방법</b></p>
+<p style="margin:0 0 8px;">· 사물 모양을 보고 그 이름과 장소를 함께 말하는지, 숫자 수어를 정확히 읽는지 확인합니다.</p>
+<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>3단계: 충돌 상황 표현 (1·2단계 내용 포함)</b></p>
+<p style="margin:0 0 4px;"><b>가르치는 것</b></p>
+<p style="margin:0 0 8px;">· 사고가 나는 상황을 수어로 표현하고 이해합니다. 누가, 어느 방향에서, 어떻게 움직여 부딪혔는지를 설명하는 것이 핵심입니다.</p>
+<p style="margin:0 0 4px;"><b>수업 방법</b></p>
+<p style="margin:0 0 8px;">· 수강생이 탈것 2개를 고릅니다. 예: 🚗 자동차와 🚲 자전거.</p>
+<p style="margin:0 0 8px;">· 수강생이 조종할 탈것을 마우스로 클릭하고 방향키로 움직입니다. 다른 탈것을 클릭하면 그 탈것을 조종합니다.</p>
+<p style="margin:0 0 8px;">· 두 탈것을 부딪혀 보게 합니다. 부딪히면 멈추고 불꽃과 흔들림 효과가 나오며 "쾅! 충돌했습니다"가 뜹니다.</p>
+<p style="margin:0 0 8px;">· 3단계에서는 사람, 자동차, 자전거 모두 어디든 이동할 수 있습니다. 신호등에 멈추지 않으므로, 사고 상황을 자유롭게 만들어 볼 수 있습니다.</p>
+<p style="margin:0 0 4px;"><b>진행 순서</b></p>
+<p style="margin:0 0 8px;">· ① 1·2단계 복습 ② 탈것 2개 고르고 움직여 보기 ③ 충돌 장면 만들기 ④ 수강생이 수어로 사고 장면을 설명하고, 강사가 맞는지 확인하기</p>
+<p style="margin:0 0 4px;"><b>수강생이 이해했는지 확인하는 방법</b></p>
+<p style="margin:0 0 8px;">· 누가 어디서 어떻게 움직여 부딪혔는지 수어로 설명할 수 있는지 확인합니다. 설명이 어려우면 장면을 천천히 다시 만들어 봅니다.</p>
+<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>📝 수업 팁</b></p>
+<p style="margin:0 0 8px;">· 1단계에서 충분히 익힌 뒤 2단계, 2단계 뒤 3단계로 넘어가는 것이 좋습니다.</p>
+<p style="margin:0 0 8px;">· 단계를 바꾸면 그 단계의 첫 문제가 나오므로, 수업 전에 각 단계에 문제가 있는지 확인하세요. 문제가 없으면 "이 단계에 등록된 문제가 없습니다"가 나옵니다.</p>
+<p style="margin:0 0 8px;">· 자전거는 자전거 전용도로(초록 띠)와 인도, 차도 일부로 다닐 수 있습니다. 사람은 인도와 횡단보도로 다닙니다. (3단계에서는 예외입니다.)</p>
     </div>
   </div>
 </div>
