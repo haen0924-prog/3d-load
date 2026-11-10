@@ -614,6 +614,9 @@
   <!-- 영상 버전 / 영상 없는 버전 선택 -->
   <button class="btn-teacher" id="btn-qr" style="background:#ecfdf5;color:#047857;margin-left:8px" onclick="toggleQr()">📱 QR 보이기/숨기기</button>
   <button class="btn-teacher" id="btn-guide" style="background:#fff7ed;color:#9a3412;margin-left:8px" onclick="toggleGuide(true)">📖 사용법</button>
+  <span id="level-switch" style="display:inline-flex;gap:4px;margin-left:8px;background:#f1f5f9;padding:3px;border-radius:999px;vertical-align:middle">
+    <button id="lv-1" onclick="setLevel(1)">1단계</button><button id="lv-2" onclick="setLevel(2)">2단계</button>
+  </span>
 
   <div class="vehicle-selector" id="mode-selector" style="margin-left:8px">
     <button class="v-btn active" id="mode-video" onclick="setPlayMode('video')">🎬 영상 버전</button>
@@ -871,25 +874,25 @@ let QUESTIONS = [
 const BUILDINGS = [
   // 중앙공원 주변 4갈래길 양쪽에 건물 2개씩 배치 (길 위에는 건물이 없음)
   // 북쪽 길 (x=0): 왼쪽 x=-18, 오른쪽 x=18
-  { name:"병원",   x:-18, z:-45, color:0xe8eef7, accent:0xd64545, icon:"🏥" },
-  { name:"마트",   x:-18, z:-75, color:0xf7e0a3, accent:0xf0a32f, icon:"🛒" },
-  { name:"학교",   x: 18, z:-45, color:0xf2d8b0, accent:0x8a6b4f, icon:"🏫" },
-  { name:"은행",   x: 18, z:-75, color:0xcfd8e6, accent:0x2b59c3, icon:"🏦", w:9, d:15 },
+  { name:"병원",   x:-22, z:-45, color:0xe8eef7, accent:0xd64545, icon:"🏥" },
+  { name:"마트",   x:-22, z:-75, color:0xf7e0a3, accent:0xf0a32f, icon:"🛒" },
+  { name:"학교",   x: 22, z:-45, color:0xf2d8b0, accent:0x8a6b4f, icon:"🏫" },
+  { name:"은행",   x: 22, z:-75, color:0xcfd8e6, accent:0x2b59c3, icon:"🏦", w:9, d:15 },
   // 남쪽 길 (x=0): 왼쪽 x=-18, 오른쪽 x=18
-  { name:"식당",   x:-18, z: 45, color:0xf7c8b8, accent:0xd6712b, icon:"🍱", w:12, d:10, shape:"trapezoid" },
-  { name:"카페",   x:-18, z: 75, color:0xfed7aa, accent:0x9a3412, icon:"☕", w:12, shape:"half", signScale:0.5 },
-  { name:"우체국", x: 18, z: 45, color:0xfde3e3, accent:0xd64545, icon:"📮", w:10, shape:"tower" },
-  { name:"경찰서", x: 18, z: 75, color:0xd6dff0, accent:0x2b59c3, icon:"🚔" },
+  { name:"식당",   x:-22, z: 45, color:0xf7c8b8, accent:0xd6712b, icon:"🍱", w:12, d:10, shape:"trapezoid" },
+  { name:"카페",   x:-22, z: 75, color:0xfed7aa, accent:0x9a3412, icon:"☕", w:12, shape:"half", signScale:0.5 },
+  { name:"우체국", x: 22, z: 45, color:0xfde3e3, accent:0xd64545, icon:"📮", w:10, shape:"tower" },
+  { name:"경찰서", x: 22, z: 75, color:0xd6dff0, accent:0x2b59c3, icon:"🚔" },
   // 동쪽 길 (z=0): 북쪽 z=-18, 남쪽 z=18
-  { name:"소방서", x: 45, z:-18, color:0xe2e8f0, accent:0xef4444, icon:"🚒" },
-  { name:"도서관", x: 75, z:-18, color:0xd8e6d4, accent:0x1f9d55, icon:"📚", w:15, d:9 },
-  { name:"약국",   x: 45, z: 18, color:0xffffff, accent:0x1f9d55, icon:"💊" },
-  { name:"시민공원", x: 75, z: 18, color:0xdcfce7, accent:0x16a34a, icon:"🌳", w:12, h:6, shape:"dome" },
+  { name:"소방서", x: 45, z:-22, color:0xe2e8f0, accent:0xef4444, icon:"🚒" },
+  { name:"도서관", x: 75, z:-22, color:0xd8e6d4, accent:0x1f9d55, icon:"📚", w:15, d:9 },
+  { name:"약국",   x: 45, z: 22, color:0xffffff, accent:0x1f9d55, icon:"💊" },
+  { name:"시민공원", x: 75, z: 22, color:0xdcfce7, accent:0x16a34a, icon:"🌳", w:12, h:6, shape:"dome" },
   // 서쪽 길 (z=0): 북쪽 z=-18, 남쪽 z=18 (새 건물 4개는 간판 없음)
-  { name:"유치원", x:-45, z:-18, color:0xfde68a, icon:"🧸", w:13, h:9,  style:"house", accent:0xfacc15 },
-  { name:"관공서", x:-75, z:-18, color:0xbfdbfe, accent:0x1d4ed8, icon:"🏛️", w:8,  h:7,  style:"house" },
-  { name:"아파트", x:-45, z: 18, color:0xd1d5db, accent:0x374151, icon:"🏢", w:13, h:24 },
-  { name:"아파트", x:-75, z: 18, color:0xe9d5ff, accent:0x7c3aed, icon:"🏢", w:8,  h:16 }
+  { name:"유치원", x:-45, z:-22, color:0xfde68a, icon:"🧸", w:13, h:9,  style:"house", accent:0xfacc15 },
+  { name:"관공서", x:-75, z:-22, color:0xbfdbfe, accent:0x1d4ed8, icon:"🏛️", w:8,  h:7,  style:"house" },
+  { name:"아파트", x:-45, z: 22, color:0xd1d5db, accent:0x374151, icon:"🏢", w:13, h:24 },
+  { name:"아파트", x:-75, z: 22, color:0xe9d5ff, accent:0x7c3aed, icon:"🏢", w:8,  h:16 }
 ];
 
 const BUILD_SIZE = 11;
@@ -1069,14 +1072,16 @@ function addRooftopDecor(g, b, wx, wz, h) {
     // 옥상의 캐시 (지폐 다발과 동전)
     const y0 = h + 1.0;
     // 지폐 4장을 세로로 세워 쌓은 다발 (가로 4, 세로 2.2, 두께 0.25)
-    [['4ade80', -0.375], ['22c55e', -0.125], ['4ade80', 0.125], ['16a34a', 0.375]].forEach(([c, z]) =>
-      add(new THREE.BoxGeometry(4.0, 2.2, 0.25), parseInt(c, 16), 0, y0 + 1.1, z));
+    // 지폐 다발: 앞뒤 면을 $$$ 그림으로 직접 입힘 (그림을 따로 띄워 붙이면 깜박여서 제거)
     const moneyTex = makeMoneyTexture();
-    [1, -1].forEach(sz => {                       // 앞뒤 면에 $$$ 지폐 그림
-      const bill = new THREE.Mesh(new THREE.PlaneGeometry(4.0, 2.2), new THREE.MeshLambertMaterial({ map: moneyTex }));
-      bill.position.set(0, y0 + 1.1, sz * 0.52);
-      if (sz < 0) bill.rotation.y = Math.PI;
-      g.add(bill);
+    const plain = c => new THREE.MeshLambertMaterial({ color: c });
+    [['4ade80', -0.375], ['22c55e', -0.125], ['4ade80', 0.125], ['16a34a', 0.375]].forEach(([c, z]) => {
+      const mats = [plain(parseInt(c, 16)), plain(parseInt(c, 16)), plain(parseInt(c, 16)),
+                    plain(parseInt(c, 16)), plain(parseInt(c, 16)), plain(parseInt(c, 16))];
+      if (z === 0.375) mats[4] = new THREE.MeshLambertMaterial({ map: moneyTex });   // 앞면 (+z)
+      if (z === -0.375) mats[5] = new THREE.MeshLambertMaterial({ map: moneyTex });  // 뒷면 (-z)
+      const m = new THREE.Mesh(new THREE.BoxGeometry(4.0, 2.2, 0.25), mats);
+      m.position.set(0, y0 + 1.1, z); g.add(m);
     });
     add(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 20), 0xfacc15, 1.6, y0 + 0.1, 1.9);  // 동전
     add(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 20), 0xfacc15, 1.6, y0 + 0.3, 1.9);
@@ -1224,6 +1229,20 @@ function addRooftopDecor(g, b, wx, wz, h) {
       const w = addV(new THREE.CylinderGeometry(0.45, 0.45, 0.35, 12), 0x111827, x, 0.45, z);
       w.rotation.x = Math.PI / 2;
     });
+    // 사다리: 오른쪽(앞쪽) 끝이 차에 붙어 있고, 왼쪽 끝이 35도 들려 있음
+    const ladder = new THREE.Group();
+    ladder.position.set(1.8, 1.7, 0);
+    ladder.rotation.z = Math.PI - 35 * Math.PI / 180;   // 사다리 방향을 왼쪽 위로 35도
+    vg.add(ladder);
+    const ladMat = new THREE.MeshLambertMaterial({ color: 0xd1d5db });
+    [-0.5, 0.5].forEach(z => {                     // 사다리 양쪽 기둥
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.18, 0.12), ladMat);
+      rail.position.set(2.1, 0, z); ladder.add(rail);
+    });
+    for (let i = 0; i < 7; i++) {                  // 가로대
+      const rung = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.0), ladMat);
+      rung.position.set(0.4 + i * 0.55, 0, 0); ladder.add(rung);
+    }
   }
   if (b.name === '경찰서') {
     // 옥상의 경찰차 (2배 크기, 흰 차체·파란 경광등)
@@ -1390,7 +1409,7 @@ window.selectVehicle = function(type) {
     scene.add(car);
     if (!isAllowedPosition(curX, curZ)) resetCar();
   }
-  if (type === 'walk') resetCar();   // 사람은 인도 출발점에서 시작
+  if (type === 'walk' || type === 'bicycle') resetCar();   // 사람은 인도, 자전거는 자전거길에서 시작
   toast(`${VEHICLE_SPECS[type].name}(으)로 변경되었습니다! 🚦`);
 };
 
@@ -1430,20 +1449,32 @@ function init3DWorld() {
   const ring = new THREE.Mesh(new THREE.RingGeometry(17, 25, 64), roadMat);
   ring.rotation.x = -Math.PI/2; ring.position.set(0, 0.02, 0); scene.add(ring);
   // 4갈래길: 북·남·동·서 방향으로 중앙공원에서 바깥까지
-  [[0,-72.5,10,95],[0,72.5,10,95],[72.5,0,95,10],[-72.5,0,95,10]].forEach(([x,z,w,d]) => {
+  [[0,-70,10,100],[0,70,10,100],[70,0,100,10],[-70,0,100,10]].forEach(([x,z,w,d]) => {
     const r = new THREE.Mesh(new THREE.PlaneGeometry(w, d), roadMat);
     r.rotation.x = -Math.PI/2; r.position.set(x, 0.02, z); scene.add(r);
   });
-  // 자전거 전용도로: 원형 길 바깥쪽과 4갈래길 양쪽 가장자리의 초록 띠
-  const bikeMat = new THREE.MeshLambertMaterial({ color: 0x4ade80 });
-  const bikeRing = new THREE.Mesh(new THREE.RingGeometry(21, 25, 64), bikeMat);
-  bikeRing.rotation.x = -Math.PI / 2; bikeRing.position.set(0, 0.04, 0); scene.add(bikeRing);
-  [-1, 1].forEach(sg => {
-    const ns = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 95), bikeMat);   // 남북 길 (x 방향 양쪽)
-    ns.rotation.x = -Math.PI / 2; ns.position.set(sg * 4.25, 0.04, sg * 72.5); scene.add(ns);
-    const ew = new THREE.Mesh(new THREE.PlaneGeometry(95, 2.5), bikeMat);   // 동서 길 (z 방향 양쪽)
-    ew.rotation.x = -Math.PI / 2; ew.position.set(sg * 72.5, 0.04, sg * 4.25); scene.add(ew);
+  // 자전거길: 차도 바로 옆 양쪽 (안쪽 6.2 ~ 바깥쪽 11.2), 횡단보도 자리에서는 끊김
+  const bikeMat = new THREE.MeshLambertMaterial({ color: 0x722f37 });
+  const bikeStrip = (xc, zc, w, h) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), bikeMat);
+    m.rotation.x = -Math.PI / 2; m.position.set(xc, 0.04, zc); scene.add(m);
+  };
+  const BL_C = 8.7;   // 자전거길 가운데 (폭 5)
+  // 남북 길 자전거길 (횡단보도 z=55, -88 주변 ±4는 비움)
+  // 원형 길(반지름 25) 바깥에서 시작해 길이 겹치지 않게 함 (z 24.8 이상)
+  [[24.8, 51], [59, 120]].forEach(([z0, z1]) => [-1, 1].forEach(sa => bikeStrip(sa * BL_C, (z0 + z1) / 2, 5, z1 - z0)));
+  [[-120, -92], [-84, -24.8]].forEach(([z0, z1]) => [-1, 1].forEach(sa => bikeStrip(sa * BL_C, (z0 + z1) / 2, 5, z1 - z0)));
+  // 동서 길 자전거길 (서쪽 횡단보도 x=-55 주변 ±4는 비움)
+  [-1, 1].forEach(sa => {
+    bikeStrip((24.8 + 120) / 2, sa * BL_C, 120 - 24.8, 5);                // 동쪽
+    [[-120, -59], [-51, -24.8]].forEach(([x0, x1]) => bikeStrip((x0 + x1) / 2, sa * BL_C, x1 - x0, 5));   // 서쪽
   });
+  // 원형 길 바깥 자전거길: 네 방향 자전거길을 이어 중앙공원 바깥을 한 바퀴 잇기
+  const bikeRing = new THREE.Mesh(new THREE.RingGeometry(25.5, 30.5, 64), bikeMat);
+  bikeRing.rotation.x = -Math.PI / 2; bikeRing.position.set(0, 0.04, 0); scene.add(bikeRing);
+  // 바깥 큰 원 자전거길 (반지름 118~123): 네 방향 자전거길 끝을 한 바퀴로 이음
+  const bikeOuterRing = new THREE.Mesh(new THREE.RingGeometry(118, 123, 128), bikeMat);
+  bikeOuterRing.rotation.x = -Math.PI / 2; bikeOuterRing.position.set(0, 0.04, 0); scene.add(bikeOuterRing);
 
   // 중앙 공원: 진한 테두리, 밝은 잔디, 산책로, 분수, 나무, 이름표
   const parkGroup = new THREE.Group();
@@ -1601,6 +1632,8 @@ function init3DWorld() {
   });
 
   buildCrosswalks();
+  buildFootbridge();
+  buildLevelTwo();
   buildLabelOverlay();
 
   car = createVehicleGroup('car');
@@ -1613,7 +1646,7 @@ function init3DWorld() {
 
 window.resetCar = function() {
   if (!car) return;
-  car.position.set(START.x + (vehicleType === 'walk' ? 7.5 : vehicleType === 'bicycle' ? 4.25 : 0), 0, START.z);
+  car.position.set(START.x + (vehicleType === 'walk' ? 13.5 : vehicleType === 'bicycle' ? 8.7 : 0), 0, START.z);
   angle = START.angle; speed = 0;
   car.rotation.y = angle;
 };
@@ -1622,15 +1655,51 @@ const ROAD_HALF = 5;   // 길 폭의 절반 (길 폭 10)
 
 // 자동차·버스·자전거: 원형 길과 4갈래길 위에서만 이동 (pad = 길 가장자리를 넘어 걸칠 수 있는 여유)
 // 자전거: 자전거 전용도로 띠와 그 옆 인도(건물 앞까지 갈 수 있도록)에서 이동
+// 자전거: 자전거길 + 차도 가장자리 20%(안쪽 3~5 구간), 인도 쪽 20%(12.2까지)
 function onBikeLane(x, z) {
-  if (onDrivableRoad(x, z, 0)) return true;                // 차도 (자전거도 차도를 조금 쓸 수 있게 허용)
-  const r = Math.hypot(x, z);
-  if (r >= 20.5 && r <= 25.5) return true;                 // 원형 길 자전거 띠
-  if (r >= 25 && r <= 36) return true;                     // 원형 길 바깥 인도
-  const ax = Math.abs(x), az = Math.abs(z);
-  if (ax >= 3 && ax <= 10.5 && az >= 20 && az <= 120) return true;   // 남북 길 자전거 띠 + 옆 인도
-  if (az >= 3 && az <= 10.5 && ax >= 20 && ax <= 120) return true;   // 동서 길 자전거 띠 + 옆 인도
+  const r = Math.hypot(x, z), ax = Math.abs(x), az = Math.abs(z);
+  if (r >= 23 && r <= 31.5) return true;                                // 원형 길 바깥 자전거길 (+차도 가장자리)
+  if (r >= 117 && r <= 124) return true;                                // 바깥 큰 원 자전거길 (+가장자리 20%)
+  if (ax >= 3 && ax <= 12.2 && az >= 23.8 && az <= 120) return true;    // 남북 길 옆 자전거길
+  if (az >= 3 && az <= 12.2 && ax >= 23.8 && ax <= 120) return true;    // 동서 길 옆 자전거길
   return false;
+}
+
+// 육교 바닥·계단 위의 높이 (육교 밖이면 null)
+function footbridgeHeight(x, z) {
+  const Y = FOOT_Y, BX = FOOT_BX, HW = FOOT_HALF_W;
+  const az = Math.abs(z);
+  if (Math.abs(x - BX) <= HW && az <= FOOT_DECK_Z) return Y + 0.25;             // 다리 바닥
+  if (az >= FOOT_STAIR_Z - 1.7 && az <= FOOT_STAIR_Z + 1.7) {                    // 계단 (남·북 끝)
+    let k = -1;
+    if (x < BX - HW && x >= BX - HW - 4.5) k = Math.floor((BX - HW - x) / 0.3);  // 서쪽 계단
+    else if (x > BX + HW && x <= BX + HW + 4.5) k = Math.floor((x - BX - HW) / 0.3); // 동쪽 계단
+    if (k >= 0 && k < 15) {
+      const hgt = Y - k * 0.5;
+      return hgt <= 0.5 ? 0 : hgt;                                              // 맨 아래 칸은 땅과 같은 높이
+    }
+  }
+  return null;
+}
+
+// 사람: 인도 기본, 차도와 자전거길은 가장자리 20%만 허용 (횡단보도 위는 항상 가능)
+function onWalkable(x, z) {
+  if (Math.abs(x) > 190 || Math.abs(z) > 190) return false;
+  if (footbridgeHeight(x, z) !== null) return true;                              // 육교·계단 위는 통과
+  if (car && car.position.y > 0.01) return false;                                // 육교 위에 있을 때는 육교 밖으로 못 나감
+  if (CROSSWALKS.some(cw => inCrosswalkZone(cw, x, z))) return true;
+  // 횡단보도 앞뒤: 자전거길이 끊긴 자리(횡단보도 중심 ±4)는 사람이 자전거길을 건널 수 있게 허용
+  if (CROSSWALKS.some(cw => cw.axis === 'z' ? (Math.abs(z - cw.z) < 4 && Math.abs(x - cw.x) < 12)
+                                           : (Math.abs(x - cw.x) < 4 && Math.abs(z - cw.z) < 12))) return true;
+  const r = Math.hypot(x, z), ax = Math.abs(x), az = Math.abs(z);
+  if (ax < 3 && az >= 20 && az <= 120) return false;                    // 남북 차도 가운데
+  if (az < 3 && ax >= 20 && ax <= 120) return false;                    // 동서 차도 가운데
+  if (r >= 19 && r <= 23) return false;                                 // 원형 차도 가운데
+  if (ax >= 7.2 && ax <= 10.2 && az >= 20 && az <= 120) return false;   // 남북 자전거길 가운데
+  if (az >= 7.2 && az <= 10.2 && ax >= 20 && ax <= 120) return false;   // 동서 자전거길 가운데
+  if (r >= 26.5 && r <= 29.5) return false;                             // 원형 자전거길 가운데
+  if (r >= 119 && r <= 122) return false;                               // 바깥 큰 원 자전거길 가운데
+  return true;
 }
 
 function onDrivableRoad(x, z, pad) {
@@ -1656,17 +1725,185 @@ function onSidewalkOrCrosswalk(x, z) {
 
 // 지금 고른 탈것이 이 위치에 있을 수 있는지
 function isAllowedPosition(x, z) {
-  if (vehicleType === 'walk') return Math.abs(x) <= 190 && Math.abs(z) <= 190;   // 사람은 어디나 (건물은 충돌 검사로 막힘)
-  if (vehicleType === 'bus') return onDrivableRoad(x, z, 2);
-  if (vehicleType === 'bicycle') return onBikeLane(x, z);
-  return onDrivableRoad(x, z, 2.5);   // 자동차
+  if (vehicleType === 'walk') return onWalkable(x, z);                  // 사람: 인도 (차도·자전거길은 가장자리 20%)
+  if (vehicleType === 'bicycle') return onBikeLane(x, z);               // 자전거: 자전거길 (차도·인도는 20%)
+  return onDrivableRoad(x, z, 1);                                       // 버스·자동차: 차도 (자전거길은 20%)
 }
 
 function collides(x, z) {
   if (!isAllowedPosition(x, z)) return true;   // 허용된 길·인도 밖이면 막힘
   if (poleObstacles.some(p => Math.hypot(x - p.x, z - p.z) < p.r)) return true;   // 신호등 기둥·분수
   const margin = vehicleType === 'walk' ? 0.6 : 1.5;   // 사람은 건물 벽에 조금 더 가까이 갈 수 있음
-  return buildingBoxes.some(b => Math.abs(x - b.cx) < b.hw + margin && Math.abs(z - b.cz) < b.hd + margin);
+  if (buildingBoxes.some(b => Math.abs(x - b.cx) < b.hw + margin && Math.abs(z - b.cz) < b.hd + margin)) return true;
+  // 2단계 물체 (주차된 차, 버스, 아이들, 테라스 손님): 건물처럼 피해 다님
+  return gameLevel >= 2 && levelTwoBoxes.some(b => Math.abs(x - b.cx) < b.hw + margin && Math.abs(z - b.cz) < b.hd + margin);
+}
+
+// ── 2단계: 건물 앞 주차장과 주변 차·사람 (레벨업 버튼을 누르면 나타남, 움직이지 않음) ──
+let gameLevel = 1;
+const levelTwoGroup = new THREE.Group();
+levelTwoGroup.visible = false;
+const levelTwoBoxes = [];   // 사람·차가 피해 다니는 상자 {cx, cz, hw, hd}
+
+// 1단계 / 2단계 전환 (상단 두 버튼, 켜진 단계만 배경색)
+function refreshLevelButtons() {
+  [1, 2].forEach(n => {
+    const b = document.getElementById('lv-' + n);
+    if (!b) return;
+    const on = gameLevel === n;
+    b.style.cssText = 'border:none;cursor:pointer;font-weight:700;font-size:14px;padding:6px 14px;border-radius:999px;'
+      + 'background:' + (on ? '#3730a3' : 'transparent') + ';color:' + (on ? '#ffffff' : '#3730a3') + ';';
+  });
+}
+window.setLevel = function(n) {
+  gameLevel = n;
+  levelTwoGroup.visible = n >= 2;
+  refreshLevelButtons();
+  toast(n >= 2
+    ? '2단계: 경찰서·소방서·유치원·카페 앞에 차와 사람이 추가되었습니다!'
+    : '1단계로 돌아왔습니다. 추가 물체가 사라졌습니다.');
+};
+
+// 2단계: 아파트 벽에 창문 그리기 (건물 벽 바로 앞에 얇은 그림 판을 붙임)
+// 판과 벽이 같은 자리에 겹쳐 깜박이지 않도록 polygonOffset 사용, 간판 자리는 비워 둠
+function buildApartmentWindows() {
+  BUILDINGS.forEach(b => {
+    if (b.name !== '아파트') return;
+    const W = b.w || 11, D = b.d || W;
+    const h = (b.h || 12) * BUILD_HEIGHT_SCALE;
+    const bandY = Math.max(2.6, h * 0.6);             // 간판 높이 (addBuildingSigns 와 같은 식)
+    const cols = Math.max(2, Math.round(W / 2.5));
+    const rows = Math.max(3, Math.round(h / 2.5));
+    const CW = 256, CH = Math.round(256 * h / W);
+    const cv = document.createElement('canvas');
+    cv.width = CW; cv.height = CH;
+    const c = cv.getContext('2d');                    // 배경은 투명 (벽이 그대로 보임)
+    const cw = CW / cols, rh = CH / rows;
+    for (let r = 0; r < rows; r++) {
+      const yc = h - (r + 0.5) * h / rows;           // 캔버스 첫 행이 건물 맨 위
+      if (Math.abs(yc - bandY) < 3.2) continue;       // 간판 자리는 창문을 그리지 않음 (글씨 위아래 여유 포함)
+      for (let k = 0; k < cols; k++) {
+        const lit = (r * 3 + k * 5) % 4 === 0;
+        c.fillStyle = '#0f172a';
+        c.fillRect(k * cw + cw * 0.2, r * rh + rh * 0.2, cw * 0.6, rh * 0.6);      // 창틀
+        c.fillStyle = lit ? '#fde68a' : '#4b5563';   // 불 켜진 창은 노랑, 꺼진 창은 진회색
+        c.fillRect(k * cw + cw * 0.26, r * rh + rh * 0.26, cw * 0.48, rh * 0.48);  // 유리
+      }
+    }
+    const tex = new THREE.CanvasTexture(cv);
+    const mat = new THREE.MeshLambertMaterial({
+      map: tex, alphaTest: 0.5,
+      polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1
+    });
+    const faces = [
+      { pos: [b.x, h / 2, b.z + D / 2 + 0.02], ry: 0,            w: W },
+      { pos: [b.x, h / 2, b.z - D / 2 - 0.02], ry: Math.PI,      w: W },
+      { pos: [b.x + W / 2 + 0.02, h / 2, b.z], ry: Math.PI / 2,  w: D },
+      { pos: [b.x - W / 2 - 0.02, h / 2, b.z], ry: -Math.PI / 2, w: D },
+    ];
+    faces.forEach(f => {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(f.w, h), mat);
+      m.position.set(f.pos[0], f.pos[1], f.pos[2]);
+      m.rotation.y = f.ry;
+      levelTwoGroup.add(m);
+    });
+  });
+}
+
+function buildLevelTwo() {
+  const padMat = new THREE.MeshLambertMaterial({ color: 0x4b5563 });
+  const lineMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
+  const put = (geo, color, x, y, z) => {
+    const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
+    m.position.set(x, y, z); levelTwoGroup.add(m); return m;
+  };
+  // 주차장 바닥과 흰 주차선
+  const lot = (x0, x1, z0, z1, slots) => {
+    const w = x1 - x0, d = z1 - z0, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
+    const pad = new THREE.Mesh(new THREE.PlaneGeometry(w, d), padMat);
+    pad.rotation.x = -Math.PI / 2; pad.position.set(cx, 0.03, cz); levelTwoGroup.add(pad);
+    for (let i = 0; i <= slots; i++) {
+      const ln = new THREE.Mesh(new THREE.PlaneGeometry(0.15, d * 0.8), lineMat);
+      ln.rotation.x = -Math.PI / 2; ln.position.set(x0 + (w / slots) * i, 0.05, cz); levelTwoGroup.add(ln);
+    }
+  };
+  // 차 한 대 (차체·지붕·바퀴 네 개, 옆면 줄무늬). 충돌 상자도 함께 등록
+  const car = (x, z, color, w, l, h, stripe, trim) => {
+    put(new THREE.BoxGeometry(w, h, l), color, x, h / 2 + 0.2, z);
+    put(new THREE.BoxGeometry(w * 0.82, 0.8, l * 0.5), color, x, h + 0.6, z);
+    if (stripe) put(new THREE.BoxGeometry(w + 0.06, 0.16, l * 0.9), stripe, x, 1.0, z);
+    // 모서리 파란 기둥: 차체 표면에서 살짝 바깥으로 나오게 하고 윗면은 차체보다 낮게 해서 깜박이지 않게 함
+    if (trim) [-1, 1].forEach(sx => [-1, 1].forEach(sz =>
+      put(new THREE.BoxGeometry(0.2, 0.7, 0.2), trim, x + sx * w / 2, 0.7, z + sz * l / 2)));
+    [-1, 1].forEach(sx => [-1, 1].forEach(sz => {
+      const wh = put(new THREE.CylinderGeometry(0.45, 0.45, 0.3, 10), 0x111827, x + sx * (w / 2), 0.45, z + sz * l * 0.32);
+      wh.rotation.z = Math.PI / 2;
+    }));
+    levelTwoBoxes.push({ cx: x, cz: z, hw: w / 2, hd: l / 2 });
+  };
+
+  // 경찰서 앞 주차장: 경찰차 3대
+  lot(29, 41, 67, 83, 3);
+  [31, 35, 39].forEach(x => {
+    car(x, 75, 0xcbd5e1, 2.4, 4.6, 1.0, 0x1d4ed8, 0x1d4ed8);
+  });
+
+  // 소방서 앞 주차장: 소방차 2대
+  lot(37, 53, -42, -30, 2);
+  // 소방차: 뒤쪽 짐칸 위에 사다리를 얹고, 앞쪽에 운전석 칸
+  const fireTruck = (x, z) => {
+    const red = 0xdc2626;
+    put(new THREE.BoxGeometry(2.8, 1.5, 4.2), red, x, 0.95, z - 0.8);            // 짐칸
+    put(new THREE.BoxGeometry(2.8, 1.4, 1.6), red, x, 0.9, z + 2.2);             // 운전석 칸
+    put(new THREE.BoxGeometry(2.5, 0.6, 0.06), 0x1e3a8a, x, 1.4, z + 3.02);      // 앞 유리
+    put(new THREE.BoxGeometry(2.92, 0.16, 4.2), 0xffffff, x, 0.5, z - 0.8);      // 흰 줄무늬
+    [-1, 1].forEach(sx => [z - 1.8, z + 2.2].forEach(wz => {                     // 바퀴 4개
+      const wh = put(new THREE.CylinderGeometry(0.45, 0.45, 0.3, 10), 0x111827, x + sx * 1.45, 0.45, wz);
+      wh.rotation.z = Math.PI / 2;
+    }));
+    put(new THREE.BoxGeometry(1.4, 0.3, 1.4), 0x374151, x, 1.85, z - 0.8);       // 사다리 받침대
+    // 사다리: 짐칸 위에 눕혀 살짝 앞으로 기울임
+    const lad = new THREE.Group();
+    lad.position.set(x, 2.1, z - 0.8);
+    lad.rotation.x = -0.2;
+    const add = (geo, color, px, py, pz) => {
+      const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
+      m.position.set(px, py, pz); lad.add(m);
+    };
+    add(new THREE.BoxGeometry(0.15, 0.15, 5.4), 0xe5e7eb, -0.5, 0, 0);           // 왼쪽 난간
+    add(new THREE.BoxGeometry(0.15, 0.15, 5.4), 0xe5e7eb, 0.5, 0, 0);            // 오른쪽 난간
+    for (let i = 0; i <= 8; i++) add(new THREE.BoxGeometry(1.2, 0.1, 0.1), 0xe5e7eb, 0, 0, -2.4 + i * 0.6); // 가로대
+    levelTwoGroup.add(lad);
+    levelTwoBoxes.push({ cx: x, cz: z, hw: 1.4, hd: 3.0 });                       // 차 크기만큼 피해 다님
+  };
+  fireTruck(41, -36);
+  fireTruck(49, -36);
+
+  // 유치원 앞 주차장: 유치원 버스 1대
+  lot(-68, -54, -28, -16, 1);
+  car(-61, -22, 0xfacc15, 2.8, 7.0, 1.8, 0x111827);
+
+  // 카페 테라스: 탁자 2개 (1.5배 크기)
+  const S = 1.5;
+  [72, 78].forEach(z => {
+    put(new THREE.CylinderGeometry(0.12 * S, 0.12 * S, 1.0 * S, 8), 0x78350f, -33, 0.7 * S, z);   // 탁자 다리
+    put(new THREE.CylinderGeometry(0.9 * S, 0.9 * S, 0.12 * S, 14), 0xfef3c7, -33, 1.3 * S, z);   // 탁자 윗면
+    put(new THREE.CylinderGeometry(0.12 * S, 0.1 * S, 0.25 * S, 8), 0xffffff, -33 - 0.3 * S, 1.5 * S, z); // 찻잔
+    levelTwoBoxes.push({ cx: -33, cz: z, hw: 0.9 * S, hd: 0.9 * S });
+    // 의자 2개 (탁자 서쪽·동쪽에 하나씩): 등받이 + 앉는 면
+    [-1, 1].forEach(dir => {
+      const cx = -33 + dir * 1.9;
+      const wood = 0x92400e;
+      put(new THREE.BoxGeometry(0.7, 0.1, 0.7), wood, cx, 0.9, z);                       // 앉는 면
+      put(new THREE.BoxGeometry(0.1, 0.9, 0.7), wood, cx + dir * 0.3, 1.4, z);           // 등받이 (바깥쪽, 세로로 세움)
+      [-0.28, 0.28].forEach(ox => [-0.28, 0.28].forEach(oz =>                          // 다리 4개
+        put(new THREE.BoxGeometry(0.08, 0.85, 0.08), wood, cx + ox, 0.425, z + oz)));
+      levelTwoBoxes.push({ cx, cz: z, hw: 0.4, hd: 0.4 });
+    });
+  });
+  buildApartmentWindows();
+  refreshLevelButtons();
+  scene.add(levelTwoGroup);
 }
 
 /* ── 횡단보도 + 신호등 ──
@@ -1674,9 +1911,10 @@ function collides(x, z) {
    x, z: 횡단보도 중심 / pole: 신호등 기둥 위치 (길가)
    green, yellow, red: 신호 길이(초) / offset: 신호 시작 시점 차이 */
 const CROSSWALKS = [
-  { axis:'z', x:0,   z:55,  ped:{ x:-7.5, z:55,  fx:1, fz:0 }, green:7, yellow:2, red:6, offset:0 },
-  { axis:'z', x:0,   z:-88, ped:{ x:-7.5, z:-88, fx:1, fz:0 }, green:7, yellow:2, red:6, offset:4 },
-  { axis:'x', x:-55, z:0,   ped:{ x:-58,  z:-7.5, fx:0, fz:1 }, green:7, yellow:2, red:6, offset:8 }
+  // 사람 신호등: 횡단보도 줄무늬의 양 끝, 도로 가장자리 모서리에 대각선으로 한 쌍씩
+  { axis:'z', x:0,   z:55,  ped:{ x:5.6,  z:52.5, fx:1, fz:0 }, ped2:{ x:-5.6, z:57.5, fx:-1, fz:0 }, green:7, yellow:2, red:6, offset:0 },
+  { axis:'z', x:0,   z:-88, ped:{ x:5.6,  z:-90.5, fx:1, fz:0 }, ped2:{ x:-5.6, z:-85.5, fx:-1, fz:0 }, green:7, yellow:2, red:6, offset:4 },
+  { axis:'x', x:-55, z:0,   ped:{ x:-58.5, z:-5.6, fx:0, fz:-1 }, ped2:{ x:-51.5, z:5.6, fx:0, fz:1 }, green:7, yellow:2, red:6, offset:8 }
 ];
 const SIGNAL_COLORS = { red: 0xef4444, yellow: 0xfacc15, green: 0x22c55e };
 const SIGNAL_DIM    = { red: 0x4a1d1d, yellow: 0x4a4119, green: 0x17402a };
@@ -1712,6 +1950,58 @@ function crosswalkBlockedBy(x0, z0, x1, z1, walking) {
   return null;
 }
 
+// 육교: 약국(x 45)과 시민공원(x 75) 사이, 동쪽 길 위를 남북으로 가로지름
+// 양 끝(남·북)에서 계단을 타고 동쪽·서쪽 어느 쪽으로도 오르내릴 수 있음
+const FOOT_BX = 60;      // 육교 가운데 x
+const FOOT_Y = 7.5;      // 다리 바닥 높이
+const FOOT_HALF_W = 3;   // 다리 반너비 (너비 6)
+const FOOT_DECK_Z = 14.9;
+const FOOT_STAIR_Z = 13.2;
+
+function buildFootbridge() {
+  const deckMat = new THREE.MeshLambertMaterial({ color: 0x9ca3af });
+  const railMat = new THREE.MeshLambertMaterial({ color: 0xe5e7eb });
+  const stairMat = new THREE.MeshLambertMaterial({ color: 0xcbd5e1 });
+  const pillarMat = new THREE.MeshLambertMaterial({ color: 0x6b7280 });
+  const Y = FOOT_Y;
+  const W = FOOT_HALF_W * 2;
+  // 다리 바닥
+  const deck = new THREE.Mesh(new THREE.BoxGeometry(W, 0.5, FOOT_DECK_Z * 2), deckMat);
+  deck.position.set(FOOT_BX, Y, 0); deck.castShadow = true; scene.add(deck);
+  // 옆 난간: 계단이 붙는 구간(|z| 11.5 이상)은 비워 두고, 그 바깥 끝에 가로 난간을 둠
+  const RAIL_END = FOOT_STAIR_Z - 1.7;             // 11.5
+  [-1, 1].forEach(sx => {
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.2, RAIL_END * 2), railMat);
+    rail.position.set(FOOT_BX + sx * (FOOT_HALF_W - 0.1), Y + 0.85, 0); scene.add(rail);
+    [-6, 0, 6].forEach(z => {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.9, 0.15), railMat);
+      post.position.set(FOOT_BX + sx * (FOOT_HALF_W - 0.1), Y + 0.6, z); scene.add(post);
+    });
+  });
+  [-1, 1].forEach(sz => {                          // 다리 끝 가로 난간 (남·북 끝)
+    const endRail = new THREE.Mesh(new THREE.BoxGeometry(W, 1.2, 0.2), railMat);
+    endRail.position.set(FOOT_BX, Y + 0.85, sz * FOOT_DECK_Z); scene.add(endRail);
+  });
+  // 기둥 네 개: 차도 가장자리 옆 (너비 방향 두 개씩)
+  [-5.6, 5.6].forEach(z => {
+    [-2, 2].forEach(dx => {
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.8, Y - 0.25, 0.8), pillarMat);
+      pillar.position.set(FOOT_BX + dx, (Y - 0.25) / 2, z); scene.add(pillar);
+    });
+  });
+  // 계단: 남·북 두 끝에서, 동쪽과 서쪽 두 방향 모두 (칸 높이 0.5, 칸 폭 0.3, 15칸)
+  [-1, 1].forEach(sz => {
+    [-1, 1].forEach(dir => {
+      for (let k = 0; k < 15; k++) {
+        const h = Y - k * 0.5;
+        const xc = dir < 0 ? FOOT_BX - FOOT_HALF_W - (k + 0.5) * 0.3 : FOOT_BX + FOOT_HALF_W + (k + 0.5) * 0.3;
+        const step = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, 3.4), stairMat);
+        step.position.set(xc, h / 2, sz * FOOT_STAIR_Z); scene.add(step);
+      }
+    });
+  });
+}
+
 function buildCrosswalks() {
   const whiteMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
   const poleMat = new THREE.MeshLambertMaterial({ color: 0x64748b });
@@ -1739,7 +2029,7 @@ function buildCrosswalks() {
     // 차량 신호등: 빨강·노랑·초록 3개가 가로로 놓인 머리, 길 옆 기둥에서 팔이 뻗어 도로 위에 매달림
     const isZ = cw.axis === 'z';
     const hx = isZ ? 0 : cw.x + 5, hz = isZ ? cw.z + 5 : 0;      // 신호 머리 위치 (차가 올라오는 쪽)
-    const sx = isZ ? 7 : cw.x + 5, sz = isZ ? cw.z + 5 : 7;      // 지지 기둥 위치 (길 옆 인도)
+    const sx = isZ ? 5.6 : cw.x + 5, sz = isZ ? cw.z + 5 : 5.6;      // 지지 기둥 위치 (길 옆 인도)
     const pole2 = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 7.2, 8), poleMat);
     pole2.position.set(sx, 3.6, sz); g.add(pole2);
     poleObstacles.push({ x: sx, z: sz, r: 0.8 });
@@ -1752,7 +2042,7 @@ function buildCrosswalks() {
     const lamps = {};
     [['red', -1.6], ['yellow', 0], ['green', 1.6]].forEach(([k, off]) => {
       const mat = new THREE.MeshLambertMaterial({ color: SIGNAL_DIM[k], emissive: 0x000000 });
-      // 앞·뒤 양쪽에 같은 등을 달아서 어느 방향에서 봐도 신호가 보이도록 함
+      // 차량 신호: 앞·뒤 양쪽 면에 같은 등을 달아 양방향 차에서 모두 보이도록 함
       [1, -1].forEach(side => {
         const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.4, 12, 12), mat);
         lamp.position.set(isZ ? hx + off : hx + 0.65 * side, 7.2, isZ ? hz + 0.65 * side : hz + off);
@@ -1761,22 +2051,23 @@ function buildCrosswalks() {
       lamps[k] = mat;
     });
 
-    // 사람 신호등: 빨강·초록 2개만 있는 작은 신호 (횡단보도 앞 인도)
-    const pd = cw.ped;
-    const pedPole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 4, 8), poleMat);
-    pedPole.position.set(pd.x, 2, pd.z); g.add(pedPole);
-    poleObstacles.push({ x: pd.x, z: pd.z, r: 0.8 });
-    const pedBox = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.9, 0.9), boxMat);
-    pedBox.position.set(pd.x, 4.4, pd.z); g.add(pedBox);
+    // 사람 신호등: 빨강·초록 2개만 있는 작은 신호 (횡단보도 양쪽 인도에 하나씩)
     const pedLamps = {};
-    [['red', 4.9], ['green', 3.9]].forEach(([k, y]) => {
-      const mat = new THREE.MeshLambertMaterial({ color: SIGNAL_DIM[k], emissive: 0x000000 });
-      [1, -1].forEach(side => {   // 양쪽 면에 등을 달아 뒤에서도 보이도록 함
-        const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), mat);
-        lamp.position.set(pd.x + pd.fx * 0.5 * side, y, pd.z + pd.fz * 0.5 * side);
-        g.add(lamp);
+    [['red'], ['green']].forEach(([k]) => { pedLamps[k] = new THREE.MeshLambertMaterial({ color: SIGNAL_DIM[k], emissive: 0x000000 }); });
+    [cw.ped, cw.ped2].forEach(pd => {
+      const pedPole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 4, 8), poleMat);
+      pedPole.position.set(pd.x, 2, pd.z); g.add(pedPole);
+      poleObstacles.push({ x: pd.x, z: pd.z, r: 0.8 });
+      const pedBox = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.9, 0.9), boxMat);
+      pedBox.position.set(pd.x, 4.4, pd.z); g.add(pedBox);
+      [['red', 4.9], ['green', 3.9]].forEach(([k, y]) => {
+        // 앞·뒤 양쪽 면에 등을 달아, 어느 쪽에서 봐도 두 신호가 함께 켜져 보이도록 함
+        [1, -1].forEach(side => {
+          const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), pedLamps[k]);
+          lamp.position.set(pd.x + pd.fx * 0.5 * side, y, pd.z + pd.fz * 0.5 * side);
+          g.add(lamp);
+        });
       });
-      pedLamps[k] = mat;
     });
 
     g.position.set(0, 0, 0);
@@ -1902,6 +2193,9 @@ function tick() {
   }
   car.rotation.y = angle;
   updateSignals();
+
+  // 사람: 육교·계단 위에 있으면 그 높이로 올라감
+  car.position.y = vehicleType === 'walk' ? (footbridgeHeight(car.position.x, car.position.z) ?? 0) : 0;
 
   // 추적 카메라
   const spec = VEHICLE_SPECS[vehicleType] || VEHICLE_SPECS.car;
