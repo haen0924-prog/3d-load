@@ -608,6 +608,9 @@
   .range-row .unit { font-size: 12px; color: #64748b; }
 
   @media (max-width:820px) {
+    /* 휴대폰 주소창이 차지한 만큼 뺀 실제 화면 높이에 맞춤 (아래 방향키가 잘리지 않게) */
+    body { height: 100vh; height: 100dvh; }
+    #toast { bottom: auto; top: 118px; }   /* 알림이 방향키 위를 가리지 않게 위쪽으로 */
     main { flex-direction: column; }
     aside { display: none; }   /* 모바일: 지도(3D 화면)만 보이게 문제·영상 숨김 */
     .header-right, #btn-qr, #qr-box { display: none !important; }
