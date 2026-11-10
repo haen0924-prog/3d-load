@@ -687,11 +687,17 @@
 <p style="margin:0 0 8px;">· 정답 건물을 고르고, 문제 설명 글을 씁니다.</p>
 <p style="margin:0 0 4px;"><b>2. 수어 영상 올리기</b></p>
 <p style="margin:0 0 8px;">· 문제마다 수어 영상을 파일로 올리거나 유튜브 주소를 넣습니다. 필요하면 재생 구간(시작·끝 초)을 정합니다.</p>
-<p style="margin:0 0 8px;">· 영상은 이 컴퓨터에 저장됩니다. 다른 컴퓨터에서 쓰려면 파일을 옮겨야 합니다.</p>
+<p style="margin:0 0 8px;">· 영상은 이 컴퓨터(브라우저)에만 저장됩니다. 다른 컴퓨터로 옮기려면 아래 순서를 따릅니다.</p>
+<p style="margin:0 0 8px;">&nbsp;&nbsp;① 보내는 컴퓨터: 강사 관리 모드에서 <b>💾 백업 파일 받기</b>를 누르면 문제와 영상이 모두 든 .json 파일이 저장됩니다.<br>
+&nbsp;&nbsp;② 받는 컴퓨터: 같은 화면에서 <b>📂 백업 불러오기</b>를 누르고 그 .json 파일을 고릅니다.<br>
+&nbsp;&nbsp;③ 불러온 뒤 <b>저장하고 반영하기</b>를 눌러 수강생 화면에 적용합니다.</p>
 <p style="margin:0 0 4px;"><b>3. 저장하기</b></p>
 <p style="margin:0 0 8px;">· 반드시 "저장하고 반영하기"를 눌러야 수강생 화면에 적용됩니다.</p>
 <p style="margin:0 0 4px;"><b>4. 수업 중 화면 설정</b></p>
-<p style="margin:0 0 8px;">· 🎬 영상 버전은 수어 영상을 보고 길을 찾는 연습입니다. 🗺 영상 없는 버전은 지도만 보고 수어 설명을 떠올리는 연습입니다.</p>
+<p style="margin:0 0 8px;">· 🎬 영상 버전: 수어 영상을 보고 길을 찾는 연습입니다.</p>
+<p style="margin:0 0 8px;">· 🗺 영상 없는 버전: 지도만 보고 수어 설명을 떠올리는 연습입니다.</p>
+<p style="margin:0 0 8px;">· 영상 버전 → 영상 없는 버전: 영상 칸 오른쪽 위의 <b>✕</b> 버튼을 누릅니다. 영상이 사라지고 지도 화면으로 바뀝니다.</p>
+<p style="margin:0 0 8px;">· 영상 없는 버전 → 영상 버전: 지도 왼쪽 아래의 <b>🎬 영상 보기</b> 버튼을 누릅니다.</p>
 <p style="margin:0 0 8px;">· 탈것 그림(수어 그림)은 3단계에서 탈것 버튼 아래에 나타납니다.</p>
 <p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>1단계: 건물 모양과 방향 표현</b></p>
 <p style="margin:0 0 4px;"><b>가르치는 것</b></p>
@@ -2503,6 +2509,37 @@ function buildLevelTwo() {
   };
   // 소방차 5대: 주차선 칸 가운데에 맞춰 세움
   [37.35, 42.05, 46.75, 51.45, 56.15].forEach(x => fireTruck(x, -46.75));
+
+  // 2단계 사람: 경찰서·소방서·유치원 앞에 서 있는 사람, 카페 테라스에 앉은 사람 (지나다닐 수 있게 충돌 상자는 두지 않음)
+  const person = (x, z, shirt, sitting, rotY) => {
+    const pg = new THREE.Group();
+    const addP = (geo, color, px, py, pz) => {
+      const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
+      m.position.set(px, py, pz); pg.add(m);
+    };
+    const skin = 0xfcd9b6, pants = 0x1f2937;
+    if (sitting) {
+      addP(new THREE.BoxGeometry(0.45, 0.3, 0.9), pants, -0.2, 0.15, 0.3);   // 허벅지 (의자 위)
+      addP(new THREE.BoxGeometry(0.45, 0.3, 0.9), pants, 0.2, 0.15, 0.3);
+      addP(new THREE.BoxGeometry(0.95, 0.85, 0.5), shirt, 0, 0.85, 0);       // 몸통
+      addP(new THREE.SphereGeometry(0.3, 12, 10), skin, 0, 1.5, 0);          // 머리
+    } else {
+      addP(new THREE.BoxGeometry(0.5, 1.0, 0.45), pants, -0.2, 0.5, 0);     // 다리
+      addP(new THREE.BoxGeometry(0.5, 1.0, 0.45), pants, 0.2, 0.5, 0);
+      addP(new THREE.BoxGeometry(0.95, 0.85, 0.5), shirt, 0, 1.4, 0);        // 몸통
+      addP(new THREE.BoxGeometry(0.3, 0.8, 0.3), shirt, -0.65, 1.4, 0);      // 팔
+      addP(new THREE.BoxGeometry(0.3, 0.8, 0.3), shirt, 0.65, 1.4, 0);
+      addP(new THREE.SphereGeometry(0.3, 12, 10), skin, 0, 2.0, 0);          // 머리
+    }
+    pg.position.set(x, sitting ? 0.95 : 0, z);
+    pg.rotation.y = rotY || 0;
+    levelTwoGroup.add(pg);
+  };
+  person(40.5, 54, 0x2563eb, false, 0);          // 경찰서 앞
+  person(40.5, -38.5, 0xdc2626, false, 0);       // 소방서 앞
+  person(-56, -20, 0x10b981, false, 0);          // 유치원 앞
+  person(-24.1, 82, 0xf59e0b, true, Math.PI / 2);   // 카페 테라스: 의자에 앉은 사람
+  person(-19.9, 82, 0xdb2777, true, -Math.PI / 2);
 
   // 유치원 앞 주차장: 유치원 버스 1대
   lot(-68, -54, -28, -16, 1);
