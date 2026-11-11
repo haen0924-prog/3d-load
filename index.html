@@ -233,7 +233,10 @@
   .side-actions button:active { transform: scale(.97); }
   #btn-arrive { background: var(--accent); color: #fff; }
   body:not(.novideo) #btn-arrive { display: none; }   /* 영상 버전에서는 '여기예요!' 버튼 숨김 */
-  #btn-reset { background: #eef1f6; color: var(--muted); flex: 0 0 110px; }
+  .start-pick { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; }
+  .start-pick span { font-size: 13px; color: var(--muted); font-weight: 700; margin-right: 2px; }
+  .start-pick button { flex: 1; padding: 7px 0; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; color: #334155; font-size: 14px; font-weight: 800; cursor: pointer; }
+  .start-pick button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
 
   /* ── 3D Canvas 영역 ── */
   #game-wrap { flex: 2; position: relative; min-width: 0; }
@@ -274,6 +277,9 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   }
   #nv-actions button.sub { background: #eef1f6; color: var(--muted); }
+  #nv-actions .start-pick { margin: 0; }
+  #nv-actions .start-pick button { flex: 0 0 auto; padding: 10px 12px; background: #fff; color: #334155; box-shadow: none; border: 1px solid #cbd5e1; }
+  #nv-actions .start-pick button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
   #nv-vehicles { position: absolute; left: 12px; top: 12px; display: none; gap: 4px; z-index: 20; background: #fff; padding: 4px; border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
   body.novideo #nv-vehicles { display: flex; }
   body.novideo #vehicle-main { display: none; }
@@ -712,7 +718,7 @@
 <p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>2단계: 다양한 사물과 숫자 표현 (1단계 내용 포함)</b></p>
 <p style="margin:0 0 4px;"><b>가르치는 것</b></p>
 <p style="margin:0 0 8px;">· 1단계 내용에 더해, 여러 사물의 모양과 수어 표현을 익힙니다.</p>
-<p style="margin:0 0 8px;">· 경찰서·소방서·유치원·카페 앞에 차와 사람이 추가되어, 사물이 있는 장소를 표현하는 연습을 합니다.</p>
+<p style="margin:0 0 8px;">· 경찰서·소방서·유치원·카페 앞에 차와 사람이 있어, 사물이 있는 장소를 표현하는 연습을 합니다.</p>
 <p style="margin:0 0 8px;">· 주차장의 경찰차, 소방차, 택시, 버스, 자전거, 오토바이 등 다양한 탈것을 익힙니다.</p>
 <p style="margin:0 0 8px;">· 숫자 표현을 함께 익힙니다. (숫자 문제는 게임 기능이 아니라 수업 활동으로 진행합니다.)</p>
 <p style="margin:0 0 4px;"><b>진행 순서</b></p>
@@ -771,9 +777,15 @@
       </div>
     </section>
 
+    <div class="start-pick">
+      <span>출발점</span>
+      <button data-start="동">동</button>
+      <button data-start="서">서</button>
+      <button data-start="남" class="on">남</button>
+      <button data-start="북">북</button>
+    </div>
     <div class="side-actions">
       <button id="btn-arrive">📍 여기예요!</button>
-      <button id="btn-reset">↩ 출발점</button>
     </div>
   </aside>
 
@@ -801,7 +813,13 @@
     </div>
     <div id="nv-actions">
       <button id="nv-video-on" onclick="setPlayMode('video')">🎬 영상 보기</button>
-      <button class="sub" onclick="document.getElementById('btn-reset').click()">↩ 출발점</button>
+      <div class="start-pick nv-start">
+        <span>출발점</span>
+        <button data-start="동">동</button>
+        <button data-start="서">서</button>
+        <button data-start="남" class="on">남</button>
+        <button data-start="북">북</button>
+      </div>
       <button class="fs-btn" onclick="toggleNvFullscreen()">⛶ 전체 화면</button>
     </div>
     
@@ -959,24 +977,24 @@ const BUILDINGS = [
   // 북쪽 길 (x=0): 왼쪽 x=-18, 오른쪽 x=18
   { name:"병원",   x:-25, z:-75, color:0xe8eef7, accent:0xd64545, icon:"🏥", scale:2 },
   { name:"마트",   x: 75, z: 22, color:0xf7e0a3, accent:0xf0a32f, icon:"🛒" },
-  { name:"학교",   x: 22, z:-45, color:0xf2d8b0, accent:0x8a6b4f, icon:"🏫" },
-  { name:"은행",   x: 75, z: 40, color:0xcfd8e6, accent:0x2b59c3, icon:"🏦", w:9, d:15, scale:0.7 },
+  { name:"학교",   x: 22, z:-75, color:0xf2d8b0, accent:0x8a6b4f, icon:"🏫", signLift:1 },
+  { name:"은행",   x: 75, z: 65, color:0xf1f5f9, accent:0x2b59c3, icon:"🏦", w:10.8, d:15, scale:0.7, front:{ x:0, z:-1 } },
   // 남쪽 길 (x=0): 왼쪽 x=-18, 오른쪽 x=18
   { name:"식당",   x:-22, z: 50, color:0xf5f5f4, accent:0xa16a45, icon:"🍱", w:12, d:10, shape:"box", signLift:2, front:{ x:0, z:1 } },   // 참고 그림: 흰 벽, 갈색 지붕
   { name:"카페",   x:-40, z: 50, color:0xfef3c7, accent:0x16a34a, icon:"☕", w:12, d:8, scale:0.8, signScale:0.5 },   // 참고 그림: 크림색 가게 + 초록·흰 차양
-  { name:"경찰서", x: 22, z: 45, color:0xd6dff0, accent:0x2b59c3, icon:"🚔" },
-  { name:"우체국", x: 22, z: 75, color:0xd64545, accent:0x1c2433, icon:"📮", w:5, h:7, shape:"mailbox", noSign:true },
+  { name:"경찰서", x: 22, z: 45, color:0xf3f4f6, accent:0x2b59c3, icon:"🚔", h:8 },
+  { name:"우체국", x: 56, z: 65, color:0xd64545, accent:0x1c2433, icon:"📮", w:5, h:7, shape:"mailbox", noSign:true, scale:2/3 },   // 관공서 서쪽 옆
   // 동쪽 길 (z=0): 북쪽 z=-18, 남쪽 z=18
-  { name:"소방서", x: 45, z:-22, color:0xe2e8f0, accent:0xef4444, icon:"🚒" },
-  { name:"도서관", x: 22, z:-75, color:0xd8e6d4, accent:0x1f9d55, icon:"📚", w:15, d:9, scale:2/3 },
+  { name:"소방서", x: 45, z:-22, color:0xf0dcb0, accent:0xef4444, icon:"🚒", h:8 },
+  { name:"도서관", x: 22, z:-43, color:0xd8e6d4, accent:0x8a6b4f, icon:"📚", w:15, d:9, scale:2/3 },
   { name:"약국",   x:-20, z:-45, color:0xffffff, accent:0x1f9d55, icon:"💊" },
   { name:"미용실", x: 45, z: 22, color:0xfbcfe8, accent:0xdb2777, icon:"💈", w:12, h:9, scale:0.8 },
   // 서쪽 길 (z=0): 북쪽 z=-18, 남쪽 z=18 (새 건물 4개는 간판 없음)
   { name:"유치원", x:-45, z:-22, color:0xfde68a, icon:"🧸", w:13, h:9,  style:"house", accent:0xfacc15 },
   { name:"극장", x:-87, z:-45, color:0xf8f4ea, accent:0xdc2626, icon:"🎬", w:10, d:14, h:12, scale:2, noSign:true, front:{ x:0, z:1 } },   // 정면은 남쪽(주차장 쪽)   // 예전 관공서 자리 (간판은 직접 그림)
-  { name:"관공서", x:40, z:85, color:0xbfdbfe, accent:0x1d4ed8, icon:"🏛️", w:8,  h:7,  style:"house" },   // 우체국 동쪽 공터
-  { name:"아파트", x:79, z: -36, color:0xe9d5ff, accent:0x7c3aed, icon:"🏢", w:8,  h:16 },   // 육교 북쪽
-  { name:"아파트", x:92, z: -36, color:0xe9d5ff, accent:0x7c3aed, icon:"🏢", w:8,  h:16 },   // 육교 북쪽
+  { name:"관공서", x:65, z:65, color:0xbfdbfe, accent:0x1d4ed8, icon:"🏛️", w:10.8, h:7, d:15, scale:0.7, style:"house", signLift:2 },   // 은행 서쪽
+  { name:"아파트", x:89, z: -36, color:0xe9d5ff, accent:0x7c3aed, icon:"🏢", w:8,  h:33.33 },   // 육교 북쪽 (10층), 동쪽으로 10 이동
+  { name:"아파트", x:102, z: -36, color:0xe9d5ff, accent:0x7c3aed, icon:"🏢", w:8,  h:33.33 },   // 육교 북쪽 (10층), 동쪽으로 10 이동
   // 새로 추가한 건물 3개
   { name:"교회", x:-81.5, z: 40, color:0xffffff, accent:0x1e3a8a, icon:"⛪", w:5.5, h:7, shape:"church", noSign:true, scale:1.2 },   // 보라색 아파트 앞(남쪽) 공간
   { name:"절",   x:-69, z:-71, color:0xf25f6b, accent:0x84d165, icon:"🛕", w:11, h:10, noSign:true, scale:1.5 },   // 유치원과 병원 사이
@@ -985,7 +1003,18 @@ const BUILDINGS = [
 
 const BUILD_SIZE = 11;
 const ARRIVE_DISTANCE = 22;
-const START = { x: 0, z: 115, angle: 0 }; // 시민공원 앞 도로 출발 (북쪽 향함)
+// 출발점 후보: 동·서·남·북 길 끝 (길 안쪽을 향해 출발)
+const START_POINTS = {
+  남: { x: 0,    z: 115,  angle: 0 },            // 남쪽 길 끝, 북쪽을 향함
+  북: { x: 0,    z: -115, angle: Math.PI },      // 북쪽 길 끝, 남쪽을 향함
+  동: { x: 115,  z: 0,    angle: Math.PI / 2 },  // 동쪽 길 끝, 서쪽을 향함
+  서: { x: -115, z: 0,    angle: -Math.PI / 2 }  // 서쪽 길 끝, 동쪽을 향함
+};
+let START = { ...START_POINTS['남'] };   // 지금 고른 출발점 (기본: 남쪽)
+// 탈것 종류에 따라 차선 쪽으로 밀린 자리 (오른쪽으로 off만큼, 방향을 따라 회전)
+function startPos(off) {
+  return { x: START.x + Math.cos(START.angle) * off, z: START.z - Math.sin(START.angle) * off };
+}
 
 /* 탈것 스펙 설정 */
 const BUILD_HEIGHT_SCALE = 0.75;   // 건물 높이 비율 (1 = 원래 높이, 낮출수록 낮아짐)
@@ -1294,9 +1323,126 @@ function addRooftopDecor(g, b, wx, wz, h) {
     w.rotation.x = Math.PI / 2;
   }); };
 
+  if (b.name === '교회') {
+    // 교회 둘레 흰색 울타리 (앞쪽 가운데 2칸 출입구)
+    const FX = wx / 2 + 2, FZ = wz / 2 + 2, FH = 1.4;
+    const FW = 0xd1d5db;   // 연회색 울타리
+    const railX = (z, gap) => {   // x 방향 울타리 줄 (z 고정)
+      const segs = gap ? [[-FX, -gap / 2], [gap / 2, FX]] : [[-FX, FX]];
+      segs.forEach(([a, c]) => add(new THREE.BoxGeometry(c - a, 0.12, 0.12), FW, (a + c) / 2, 0.5, z));
+      segs.forEach(([a, c]) => add(new THREE.BoxGeometry(c - a, 0.12, 0.12), FW, (a + c) / 2, 1.0, z));
+      for (let x = -FX; x <= FX + 0.01; x += 1.2) if (!gap || Math.abs(x) > gap / 2 - 0.01) add(new THREE.BoxGeometry(0.16, FH, 0.16), FW, x, FH / 2, z);
+    };
+    const railZ = (x) => {       // z 방향 울타리 줄 (x 고정)
+      add(new THREE.BoxGeometry(0.12, 0.12, FZ * 2), FW, x, 0.5, 0);
+      add(new THREE.BoxGeometry(0.12, 0.12, FZ * 2), FW, x, 1.0, 0);
+      for (let z = -FZ; z <= FZ + 0.01; z += 1.2) add(new THREE.BoxGeometry(0.16, FH, 0.16), FW, x, FH / 2, z);
+    };
+    railX(-FZ, 0);            // 뒤쪽(북)
+    railX(FZ, 2);             // 앞쪽(남) 가운데 출입구
+    railZ(-FX);               // 서쪽
+    railZ(FX);                // 동쪽
+  }
+  if (b.name === '학교' || b.name === '도서관') {
+    // 학교·도서관: 건물 둘레에 나무 테라스
+    add(new THREE.BoxGeometry(wx + 3, 0.3, wz + 3), 0xd6a86b, 0, 0.15, 0);
+  }
+  if (['병원', '마트', '미용실', '약국', '도서관', '유치원', '관공서', '극장', '소방서', '아파트'].includes(b.name)) {
+    // 문이 없던 건물: 앞뒤 벽에 진회색 문 (유치원은 진한 노란색 문 두 개)
+    const isKinder = b.name === '유치원';
+    const xs = isKinder ? [-3, 3] : [0];
+    const isOffice = b.name === '관공서';
+    const DW = isKinder ? 1.6 : (isOffice ? 1.6 : (b.name === '소방서' ? 3.0 : 1.8));   // 소방서: 경찰서처럼 넓은 회색 문 하나
+    const isFire = b.name === '소방서';
+    const DH = (isOffice || isFire) ? 2.2 : 2.6;
+    const col = isKinder ? 0xca8a04 : (b.name === '미용실' ? 0xbfe3f5 : 0x374151);   // 소방서 문: 경찰서와 같은 회색, 미용실 문: 유리
+    if (!isKinder) [1, -1].forEach(sz => xs.forEach(x => {
+      if (b.name === '미용실' || b.name === '약국') return;   // 미용실·약국 문은 네 면 통유리로 대체 (아래 블록)
+      add(new THREE.BoxGeometry(DW, DH, 0.2), col, x, DH / 2, sz * (wz / 2 + 0.08));
+    }));
+    if (isFire) {
+      // 소방서 문 위 빨간 차양
+      [1, -1].forEach(sz => add(new THREE.BoxGeometry(3.0, 0.25, 1.2), 0xef4444, 0, 2.45, sz * (wz / 2 + 0.5)));
+    }
+    if (isOffice) {
+      // 관공서 현관: 문 위 차양 + 양쪽 기둥
+      [1, -1].forEach(sz => {
+        if (sz === 1) add(new THREE.BoxGeometry(3.0, 0.25, 1.2), 0x1d4ed8, 0, 2.45, sz * (wz / 2 + 0.5));   // 파란 차양은 남쪽(+z)만
+        [-1.9, 1.9].forEach(x => add(new THREE.BoxGeometry(0.4, 2.45, 0.4), 0xe5e7eb, x, 1.225, sz * (wz / 2 + 0.2)));
+      });
+    }
+    if (isKinder) {
+      // 유치원 3D 문: 주황 테두리 틀, 튀어나온 노란 문짝, 문살 패널, 손잡이, 계단, 양옆 동물 캐릭터
+      [1, -1].forEach(sz => xs.forEach(x => {
+        const zWall = sz * (wz / 2);
+        add(new THREE.BoxGeometry(DW + 0.5, DH + 0.35, 0.15), 0xf59e0b, x, (DH + 0.35) / 2, zWall + sz * 0.03);   // 테두리 틀
+        add(new THREE.BoxGeometry(DW, DH, 0.3), col, x, DH / 2, zWall + sz * 0.13);                              // 문짝
+        add(new THREE.BoxGeometry(DW - 0.5, 0.8, 0.1), 0xfde047, x, 1.9, zWall + sz * 0.3);                     // 위쪽 패널
+        add(new THREE.BoxGeometry(DW - 0.5, 0.8, 0.1), 0xfde047, x, 0.9, zWall + sz * 0.3);                     // 아래쪽 패널
+        add(new THREE.SphereGeometry(0.09, 10, 8), 0xfef9c3, x + 0.55, 1.2, zWall + sz * 0.35);                 // 손잡이
+        add(new THREE.BoxGeometry(DW + 1.0, 0.2, 0.7), 0x9ca3af, x, 0.1, zWall + sz * 0.45);                    // 계단
+      }));
+      [1, -1].forEach(sz => [-5.6, 5.6].forEach(x => {
+        const zc = sz * (wz / 2 + 0.6);
+        if (x < 0) {   // 곰
+          add(new THREE.SphereGeometry(0.55, 12, 10), 0x8b5a2b, x, 0.55, zc);
+          add(new THREE.SphereGeometry(0.4, 12, 10), 0x8b5a2b, x, 1.3, zc);
+          [-0.28, 0.28].forEach(ex => add(new THREE.SphereGeometry(0.15, 8, 6), 0x6b3f1d, x + ex, 1.65, zc));
+          add(new THREE.SphereGeometry(0.18, 8, 6), 0xd2b48c, x, 1.2, zc + sz * 0.3);
+          add(new THREE.SphereGeometry(0.07, 6, 6), 0x1f1f1f, x, 1.25, zc + sz * 0.46);
+        } else {       // 토끼
+          add(new THREE.SphereGeometry(0.5, 12, 10), 0xffffff, x, 0.5, zc);
+          add(new THREE.SphereGeometry(0.35, 12, 10), 0xffffff, x, 1.15, zc);
+          [-0.13, 0.13].forEach(ex => add(new THREE.BoxGeometry(0.14, 0.7, 0.12), 0xffffff, x + ex, 1.7, zc));
+          [-0.13, 0.13].forEach(ex => add(new THREE.BoxGeometry(0.08, 0.5, 0.06), 0xf9a8d4, x + ex, 1.7, zc + sz * 0.05));
+          add(new THREE.SphereGeometry(0.05, 6, 6), 0xf472b6, x, 1.12, zc + sz * 0.34);
+        }
+      }));
+    }
+  }
+  if (b.name === '학교' || b.name === '병원') {
+    // 벽 네 면에 작은 창문 (흰 테두리 + 파란 유리), 두 줄. 간판 글씨 자리는 피함
+    const WIN_BLUE = 0x1e3a5f, WIN_FRAME = 0xf8fafc;
+    const rowsY = b.name === '학교' ? [3.2] : [2.5, 7.6];   // 학교는 간판 아래 한 줄
+    const faces = [
+      { axis: 'z', sign: 1,  len: wx, off: wz / 2 },
+      { axis: 'z', sign: -1, len: wx, off: wz / 2 },
+      { axis: 'x', sign: 1,  len: wz, off: wx / 2 },
+      { axis: 'x', sign: -1, len: wz, off: wx / 2 },
+    ];
+    faces.forEach(f => {
+      const cols = Math.max(2, Math.round(f.len / 2.5));
+      for (let k = 0; k < cols; k++) {
+        const t = (k - (cols - 1) / 2) * (f.len / cols);   // 면 위에서의 가로 위치
+        rowsY.forEach(y => {
+          const d = f.off + 0.06;                              // 벽 바로 바깥
+          const px = f.axis === 'z' ? t : f.sign * d;
+          const pz = f.axis === 'z' ? f.sign * d : t;
+          const rot = f.axis === 'z' ? 0 : Math.PI / 2;
+          if (b.name === '학교') {
+            // 식당 창문 스타일: 베이지 틀, 유리에 흰 십자, 양옆 파란 덧문
+            const wg = new THREE.Group();
+            wg.position.set(px, y, pz);
+            wg.rotation.y = f.axis === 'z' ? (f.sign > 0 ? 0 : Math.PI) : (f.sign > 0 ? Math.PI / 2 : -Math.PI / 2);
+            g.add(wg);
+            const part = (geo, color, x, z) => { const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color })); m.position.set(x, 0, z); wg.add(m); };
+            part(new THREE.BoxGeometry(2.0, 2.4, 0.2), 0xd2b48c, 0, 0);
+            part(new THREE.BoxGeometry(1.5, 2.0, 0.22), 0xbfe3f5, 0, 0.05);
+            part(new THREE.BoxGeometry(1.5, 0.1, 0.25), 0xffffff, 0, 0.1);
+            part(new THREE.BoxGeometry(0.1, 2.0, 0.25), 0xffffff, 0, 0.1);
+            [-1.25, 1.25].forEach(x => part(new THREE.BoxGeometry(0.5, 2.2, 0.15), 0x5b7fa6, x, 0.05));
+            return;
+          }
+          const fr = add(new THREE.BoxGeometry(0.9, 1.0, 0.12), WIN_FRAME, px, y, pz);
+          const gl = add(new THREE.BoxGeometry(0.6, 0.7, 0.14), WIN_BLUE, px, y, pz);
+          fr.rotation.y = rot; gl.rotation.y = rot;
+        });
+      }
+    });
+  }
   if (b.name === '은행') {
     // 옥상의 캐시 (지폐 다발과 동전)
-    const y0 = h + 1.0;
+    const y0 = h + 2.4;   // 박공 지붕 꼭대기 위에 올림
     // 지폐 4장을 세로로 세워 쌓은 다발 (가로 4, 세로 2.2, 두께 0.25)
     // 지폐 다발: 앞뒤 면을 $$$ 그림으로 직접 입힘 (그림을 따로 띄워 붙이면 깜박여서 제거)
     const moneyTex = makeMoneyTexture();
@@ -1311,6 +1457,43 @@ function addRooftopDecor(g, b, wx, wz, h) {
     });
     add(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 20), 0xfacc15, 1.6, y0 + 0.1, 1.9);  // 동전
     add(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 20), 0xfacc15, 1.6, y0 + 0.3, 1.9);
+    // 참고 그림: 흰 벽, 앞면 삼각 박공 지붕, 짙은 기둥 4개, 파란 차양, 유리문, 계단과 난간, 왼쪽 나무
+    const F = wz / 2 + 0.05;   // 정면(+z) 벽 바로 앞
+    const NAVY = 0x3b4b63, STONE = 0xffffff, GLASS = 0xbfe3f5, FRAME = 0x9fd3ef, BLUE = 0x2b59c3;
+    // 삼각 박공 지붕 (짙은 테두리)
+    const pedShape = new THREE.Shape();
+    pedShape.moveTo(-wx / 2 - 0.8, h - 0.1); pedShape.lineTo(wx / 2 + 0.8, h - 0.1); pedShape.lineTo(0, h + 3.0); pedShape.closePath();
+    const pedGeo = new THREE.ExtrudeGeometry(pedShape, { depth: wz + 1.0, bevelEnabled: false });
+    pedGeo.translate(0, 0, -(wz + 1.0) / 2);
+    add(pedGeo, NAVY, 0, 0, 0);
+    // 박공 안쪽 밝은 면 (앞쪽에 얇게 붙임)
+    const inShape = new THREE.Shape();
+    inShape.moveTo(-wx / 2 + 0.7, h + 0.05); inShape.lineTo(wx / 2 - 0.7, h + 0.05); inShape.lineTo(0, h + 2.3); inShape.closePath();
+    add(new THREE.ExtrudeGeometry(inShape, { depth: 0.3, bevelEnabled: false }), 0xe5e9f0, 0, 0, (wz + 1.0) / 2 + 0.02);
+    // 처마 흰 띠
+    add(new THREE.BoxGeometry(wx + 1.6, 0.35, 0.8), STONE, 0, h - 0.2, F + 0.3);
+    // 창문 (흰 테두리 + 하늘색 유리)
+    const win = (x, y) => {
+      add(new THREE.BoxGeometry(0.7, 1.5, 0.12), STONE, x, y, F + 0.06);
+      add(new THREE.BoxGeometry(0.5, 1.3, 0.14), FRAME, x, y, F + 0.08);
+    };
+    [-4.1, -2.4, 2.4, 4.1].forEach(x => win(x, 2.5));   // 위쪽 창문은 간판 글씨와 겹쳐서 지움
+    // 가운데 유리문 + 파란 차양
+    add(new THREE.BoxGeometry(2.2, 2.9, 0.1), NAVY, 0, 1.6, F + 0.03);
+    add(new THREE.BoxGeometry(1.8, 2.6, 0.12), GLASS, 0, 1.5, F + 0.08);
+    add(new THREE.BoxGeometry(0.06, 2.6, 0.14), NAVY, 0, 1.5, F + 0.1);
+    add(new THREE.BoxGeometry(2.6, 0.22, 1.6), BLUE, 0, 3.3, F + 0.75);
+    // 계단 단과 양쪽 난간
+    add(new THREE.BoxGeometry(4.8, 0.3, 1.8), 0xd1d5db, 0, 0.15, F + 0.9);
+    add(new THREE.BoxGeometry(4.2, 0.15, 0.5), 0xe5e7eb, 0, 0.375, F + 2.05);
+    [-2.1, 2.1].forEach(x => {
+      add(new THREE.BoxGeometry(0.08, 1.0, 0.08), NAVY, x, 0.8, F + 1.9);
+      add(new THREE.BoxGeometry(0.08, 0.08, 1.6), NAVY, x, 1.3, F + 1.9);
+    });
+    // 왼쪽 나무 (참고 그림)
+    const tx = -wx / 2 - 1.8, tz = F + 1.2;
+    add(new THREE.CylinderGeometry(0.12, 0.12, 1.4, 8), 0x8b5a2b, tx, 0.7, tz);
+    [[0, 1.9, 0.6], [-0.35, 2.4, 0.45], [0.35, 2.3, 0.5]].forEach(([dx, y, r]) => add(new THREE.SphereGeometry(r, 12, 10), 0x4ade80, tx + dx, y, tz));
   }
   if (b.name === '교회') {
     // 교회 (아이콘 참고): 흰 벽, 남색 삼각 지붕, 정면 가운데 종탑(둥근 창) + 뾰족 첨탑 + 십자가, 아치 창문과 아치 문
@@ -1357,6 +1540,10 @@ function addRooftopDecor(g, b, wx, wz, h) {
     addL(archGeo(0.9, 1.7, 0.1), DARK, 0, 0.3, wx / 2 + 0.02 + 0.8);
   }
   if (b.name === '성당') {
+    // 성당 문: 앞뒤 면 가운데에 진회색 문 (건물이 돌아가도 보이도록 양쪽에)
+    [1, -1].forEach(sz => {
+      add(new THREE.BoxGeometry(2.2, 2.6, 0.2), 0x374151, 0, 1.3, sz * (6 / 2 + 0.08));   // 성당 몸체 깊이(6)의 앞뒤 벽에 붙임
+    });
     // 성당 (참고 사진): 가운데 높은 종탑 + 양옆 작은 탑, 탑 꼭대기는 회색 돔과 검은 십자가
     const BRICK = 0xa3543a, SLATE = 0x4b5563, DARK = 0x1f2937;
     const hc = h, hs = h * 0.72;   // 가운데 탑 높이, 양옆 탑 높이
@@ -1533,6 +1720,30 @@ function addRooftopDecor(g, b, wx, wz, h) {
     add(new THREE.BoxGeometry(2.2, 0.6, 0.06), 0x1d4ed8, 1.1, h + 7.6, 0);
     add(new THREE.BoxGeometry(2.2, 0.6, 0.06), 0xffffff, 1.1, h + 7.0, 0);
   }
+  if (b.name === '미용실' || b.name === '약국') {
+    // 동서남북 네 면: 간판 아래 통유리 (흰 테두리, 기둥 2개) + 미용실만 나무 테라스(화분 2개)
+    [0, Math.PI / 2, Math.PI, -Math.PI / 2].forEach(rot => {
+      const grp = new THREE.Group();
+      grp.rotation.y = rot;
+      g.add(grp);
+      const part = (geo, color, x, y, z) => { const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color })); m.position.set(x, y, z); grp.add(m); };
+      const isZFace = Math.abs(Math.sin(rot)) < 0.5;   // 0 또는 π: 남북 면
+      const half = isZFace ? wz / 2 : wx / 2;
+      const L = wx - 0.8;   // 유리 가로 길이
+      const SG = half + 0.1;
+      part(new THREE.BoxGeometry(L, 2.0, 0.15), 0xbfe3f5, 0, 1.25, SG);
+      part(new THREE.BoxGeometry(L, 0.12, 0.25), 0xffffff, 0, 2.27, SG + 0.03);
+      part(new THREE.BoxGeometry(L, 0.12, 0.25), 0xffffff, 0, 0.25, SG + 0.03);
+      [-L / 2 + 0.1, 0, L / 2 - 0.1].forEach(x => part(new THREE.BoxGeometry(0.15, 2.0, 0.25), 0xffffff, x, 1.25, SG + 0.03));
+      if (b.name !== '미용실') return;
+      // 테라스
+      part(new THREE.BoxGeometry(wx - 2, 0.3, 2.4), 0xd6a86b, 0, 0.15, half + 1.1);
+      [-4.5, 4.5].forEach(x => {
+        part(new THREE.CylinderGeometry(0.45, 0.35, 0.8, 12), 0xb45309, x, 0.7, half + 1.4);
+        part(new THREE.SphereGeometry(0.6, 10, 8), 0x16a34a, x, 1.45, half + 1.4);
+      });
+    });
+  }
   if (b.name === '극장') {
     // 극장: 길 쪽(앞면)에 어두운 유리창 줄, 빨간 간판(CINEMA), 노란 차양과 기둥, 옆의 높은 탑, 옥상 별 간판
     const out = b.front || (Math.abs(b.z) > Math.abs(b.x) ? { x: Math.sign(b.x) || 1, z: 0 } : { x: 0, z: Math.sign(b.z) || 1 });   // 정면 방향
@@ -1690,6 +1901,13 @@ function addRooftopDecor(g, b, wx, wz, h) {
     }
   }
   if (b.name === '경찰서') {
+    // 건물 모양 (참고 그림): 흰 벽, 1층 차고 문과 큰 유리창, 유리 차양, 윗 흰 띠
+    const F = wz / 2 + 0.05;   // 정면(+z) 벽 바로 앞
+    const GLASS = 0x475569, FRAME = 0x94a3b8, WHITE = 0xffffff, GARAGE = 0x374151;
+    add(new THREE.BoxGeometry(wx + 0.6, 0.5, 0.6), WHITE, 0, h - 0.25, F + 0.2);          // 윗 흰 띠
+    add(new THREE.BoxGeometry(3.4, 2.0, 0.12), GARAGE, -3.2, 1.0, F + 0.03);              // 1층 차고 문 (왼쪽)
+    add(new THREE.BoxGeometry(4.2, 2.0, 0.12), GLASS, 2.5, 1.0, F + 0.03);                // 1층 큰 유리창
+    add(new THREE.BoxGeometry(4.6, 0.25, 0.9), WHITE, 2.5, 2.25, F + 0.5);   // 문 바로 위 (글씨 아래)                 // 유리 차양
     // 옥상의 경찰차 (2배 크기, 흰 차체·파란 경광등)
     const vg = new THREE.Group();
     vg.position.set(0, h + 1.0, 0); vg.scale.setScalar(2); g.add(vg);
@@ -1895,7 +2113,8 @@ function switchControl(type) {
   if (!entry) {
     const g = makeVehicle(type);
     const off = type === 'walk' ? 13.5 : type === 'bicycle' ? 8.7 : 6;
-    g.position.set(START.x + off, 0, START.z);
+    const sp = startPos(off);
+    g.position.set(sp.x, 0, sp.z);
     g.rotation.y = 0;
     scene.add(g);
     entry = { group: g, speed: 0, angle: 0 };
@@ -2020,7 +2239,16 @@ function init3DWorld() {
   const ring = new THREE.Mesh(new THREE.RingGeometry(17, 25, 64), roadMat);
   ring.rotation.x = -Math.PI/2; ring.position.set(0, 0.02, 0); scene.add(ring);
   // 4갈래길: 북·남·동·서 방향으로 중앙공원에서 바깥까지
-  [[0,-70,10,100],[0,70,10,100],[70,0,100,10],[-70,0,100,10]].forEach(([x,z,w,d]) => {
+  [[0,-70,10,100],[0,70,10,100],[70,0,100,10],[-70,0,100,10],
+   [-93,25.5,10,51],      // 극장 앞 횡단보도에서 좌회전해 남쪽으로 가는 길 (교회 쪽)
+   [-89.75,51,16.5,10],   // 교회 앞 동쪽 길 (교회 남쪽 출입구까지)
+   [-51.5,61,93,10],      // 횡단보도(x=0 길)에서 왼쪽으로 꺾어 식당 남쪽 앞 → 카페 앞 → 교회 앞까지
+   [42.5,79.5,75,10],     // 경찰서 옆 횡단보도(x=0 길)에서 우회전: 경찰서 남쪽 → 관공서·은행 앞까지
+   [22,64.75,8,29.5],     // 경찰서 가는 길: 위 길에서 경찰서 남쪽 면까지 올라가는 연결 길
+   [72.5,-33.75,10,57.5], // 소방서와 아파트 사이 북쪽 길: 동서 길에서 올라가 성당 남쪽(옆)까지 (동쪽으로 5 이동 → 2번째 이동)
+   [-32.5,-96,75,10],     // 병원 앞 횡단보도 북쪽 길: 북쪽 남북 길에서 서쪽으로 절 북쪽까지
+   [-69,-82.5,10,17]      // 절로 내려가는 연결 길 (절 북쪽 면 안쪽까지 이어서 틈이 생기지 않게)
+  ].forEach(([x,z,w,d]) => {
     const r = new THREE.Mesh(new THREE.PlaneGeometry(w, d), roadMat);
     r.rotation.x = -Math.PI/2; r.position.set(x, 0.02, z); scene.add(r);
   });
@@ -2225,8 +2453,10 @@ function init3DWorld() {
 
     if (b.style === 'house') {
       // 집: 뾰족한 지붕
+      // 관공서: 지붕 바닥 가장자리가 간판 앞으로 튀어나와 줄처럼 보였으므로 벽 크기에 맞춤
+      const roofR = b.name === '관공서' ? wx / Math.SQRT2 : (wx + 1) / Math.SQRT2;
       const roof = new THREE.Mesh(
-        new THREE.ConeGeometry((wx + 1) / Math.SQRT2, 4, 4),
+        new THREE.ConeGeometry(roofR, 4, 4),
         accentMat
       );
       roof.rotation.y = Math.PI / 4;
@@ -2247,14 +2477,6 @@ function init3DWorld() {
       cap.rotation.y = Math.PI / 4; cap.position.set(0, h + 7.75, 0); g.add(cap);
     }
 
-    // 소방서: 빨간 소방 망루 + 차고 문 (길 쪽 면)
-    if (b.name === "소방서") {
-      const door = new THREE.Mesh(
-        out.x !== 0 ? new THREE.BoxGeometry(0.3, 4, 6) : new THREE.BoxGeometry(6, 4, 0.3),
-        new THREE.MeshLambertMaterial({ color: 0x7f1d1d })
-      );
-      door.position.set(-out.x * (wx / 2 + 0.1), 2, -out.z * (wz / 2 + 0.1)); g.add(door);
-    }
 
     // 경찰서: 파란 띠 + 깃대와 파란 깃발
     if (b.name === "경찰서") {
@@ -2312,10 +2534,20 @@ function init3DWorld() {
 
 window.resetCar = function() {
   if (!car) return;
-  car.position.set(START.x + (vehicleType === 'walk' ? 13.5 : vehicleType === 'bicycle' ? 8.7 : 0), 0, START.z);
+  const sp = startPos(vehicleType === 'walk' ? 13.5 : vehicleType === 'bicycle' ? 8.7 : 0);
+  car.position.set(sp.x, 0, sp.z);
   angle = START.angle; speed = 0;
   car.rotation.y = angle;
 };
+
+// 출발점 버튼(동·서·남·북): 고른 길 끝으로 출발점을 바꾸고 그 자리로 돌아감
+document.querySelectorAll('.start-pick button').forEach(btn => {
+  btn.onclick = () => {
+    START = { ...START_POINTS[btn.dataset.start] };
+    document.querySelectorAll('.start-pick button').forEach(b => b.classList.toggle('on', b === btn));
+    resetCar();
+  };
+});
 
 const ROAD_HALF = 5;   // 길 폭의 절반 (길 폭 10)
 
@@ -2387,6 +2619,14 @@ function onDrivableRoad(x, z, pad) {
   if (r >= Math.max(15, 17 - pad) && r <= 25 + pad) return true;      // 원형 길 (공원 바로 바깥까지)
   if (Math.abs(x) <= ROAD_HALF + pad && Math.abs(z) >= 20 && Math.abs(z) <= 120) return true;   // 남북 길
   if (Math.abs(z) <= ROAD_HALF + pad && Math.abs(x) >= 20 && Math.abs(x) <= 120) return true;   // 동서 길
+  if (x >= -98 - pad && x <= -88 + pad && z >= -pad && z <= 51 + pad) return true;              // 교회 가는 남쪽 길
+  if (z >= 46 - pad && z <= 56 + pad && x >= -98 - pad && x <= -81.5 + pad) return true;        // 교회 앞 길
+  if (z >= 56 - pad && z <= 66 + pad && x >= -98 - pad && x <= -5 + pad) return true;           // 식당 남쪽·카페 남쪽 길
+  if (z >= 74.5 - pad && z <= 84.5 + pad && x >= 0 - pad && x <= 80 + pad) return true;          // 경찰서 남쪽 → 관공서·은행 앞 길
+  if (z >= 50 - pad && z <= 79.5 + pad && x >= 18 - pad && x <= 26 + pad) return true;           // 경찰서 가는 연결 길
+  if (z >= -62.5 - pad && z <= -5 + pad && x >= 67.5 - pad && x <= 77.5 + pad) return true;      // 소방서·아파트 사이 북쪽 길 (성당 쪽)
+  if (z >= -101 - pad && z <= -91 + pad && x >= -70 - pad && x <= 5 + pad) return true;          // 병원 앞 횡단보도 북쪽 길 (절 쪽)
+  if (z >= -91 - pad && z <= -74 + pad && x >= -74 - pad && x <= -64 + pad) return true;          // 절로 내려가는 연결 길
   return false;
 }
 
@@ -2514,50 +2754,54 @@ window.setLevel = function(n) {
 // 2단계: 아파트 벽에 창문 그리기 (건물 벽 바로 앞에 얇은 그림 판을 붙임)
 // 판과 벽이 같은 자리에 겹쳐 깜박이지 않도록 polygonOffset 사용, 간판 자리는 비워 둠
 function buildApartmentWindows() {
+  let idx = 0;   // 아파트 번호 (면마다 다른 불 켜짐 패턴을 만들기 위해 사용)
   BUILDINGS.forEach(b => {
     if (b.name !== '아파트') return;
     const W = b.w || 11, D = b.d || W;
     const h = (b.h || 12) * BUILD_HEIGHT_SCALE;
     const bandY = Math.max(2.6, h * 0.6);             // 간판 높이 (addBuildingSigns 와 같은 식)
-    const cols = Math.max(2, Math.round(W / 2.5));
     const rows = Math.max(3, Math.round(h / 2.5));
-    const CW = 256, CH = Math.round(256 * h / W);
-    const cv = document.createElement('canvas');
-    cv.width = CW; cv.height = CH;
-    const c = cv.getContext('2d');                    // 배경은 투명 (벽이 그대로 보임)
-    const cw = CW / cols, rh = CH / rows;
-    for (let r = 0; r < rows; r++) {
-      const yc = h - (r + 0.5) * h / rows;           // 캔버스 첫 행이 건물 맨 위
-      if (Math.abs(yc - bandY) < 3.2) continue;       // 간판 자리는 창문을 그리지 않음 (글씨 위아래 여유 포함)
-      for (let k = 0; k < cols; k++) {
-        const lit = (r * 3 + k * 5) % 4 === 0;
-        c.fillStyle = '#0f172a';
-        c.fillRect(k * cw + cw * 0.2, r * rh + rh * 0.2, cw * 0.6, rh * 0.6);      // 창틀
-        c.fillStyle = lit ? '#fde68a' : '#4b5563';   // 불 켜진 창은 노랑, 꺼진 창은 진회색
-        c.fillRect(k * cw + cw * 0.26, r * rh + rh * 0.26, cw * 0.48, rh * 0.48);  // 유리
-      }
-    }
-    const tex = new THREE.CanvasTexture(cv);
-    const mat = new THREE.MeshLambertMaterial({
-      map: tex, alphaTest: 0.5,
-      polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1
-    });
     const faces = [
       { pos: [b.x, h / 2, b.z + D / 2 + 0.02], ry: 0,            w: W },
       { pos: [b.x, h / 2, b.z - D / 2 - 0.02], ry: Math.PI,      w: W },
       { pos: [b.x + W / 2 + 0.02, h / 2, b.z], ry: Math.PI / 2,  w: D },
       { pos: [b.x - W / 2 - 0.02, h / 2, b.z], ry: -Math.PI / 2, w: D },
     ];
-    faces.forEach(f => {
+    faces.forEach((f, fi) => {
+      const seed = idx * 4 + fi + 1;                   // 건물·면마다 다른 패턴
+      const cols = Math.max(2, Math.round(f.w / 2.5));
+      const CW = 256, CH = Math.round(256 * h / f.w);
+      const cv = document.createElement('canvas');
+      cv.width = CW; cv.height = CH;
+      const c = cv.getContext('2d');                    // 배경은 투명 (벽이 그대로 보임)
+      const cw = CW / cols, rh = CH / rows;
+      for (let r = 0; r < rows; r++) {
+        const yc = h - (r + 0.5) * h / rows;           // 캔버스 첫 행이 건물 맨 위
+        if (Math.abs(yc - bandY) < 3.2) continue;       // 간판 자리는 창문을 그리지 않음
+        for (let k = 0; k < cols; k++) {
+          const lit = ((r * 17 + k * 29 + seed * 41) % 11) < 4;   // 약 3분의 1 정도 불 켜짐
+          c.fillStyle = '#0f172a';
+          c.fillRect(k * cw + cw * 0.2, r * rh + rh * 0.2, cw * 0.6, rh * 0.6);      // 창틀
+          c.fillStyle = lit ? '#fde68a' : '#4b5563';   // 불 켜진 창은 노랑, 꺼진 창은 진회색
+          c.fillRect(k * cw + cw * 0.26, r * rh + rh * 0.26, cw * 0.48, rh * 0.48);  // 유리
+        }
+      }
+      const tex = new THREE.CanvasTexture(cv);
+      const mat = new THREE.MeshLambertMaterial({
+        map: tex, alphaTest: 0.5,
+        polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1
+      });
       const m = new THREE.Mesh(new THREE.PlaneGeometry(f.w, h), mat);
       m.position.set(f.pos[0], f.pos[1], f.pos[2]);
       m.rotation.y = f.ry;
       levelTwoGroup.add(m);
     });
+    idx++;
   });
 }
 
 // 건물 사이 인도: 건물·차·의자 등 기존 물건을 피해서 끊어 깖 (2단계에서만 보임)
+const SHOW_WALKS = false;   // 골목 사이 흰색 길 그림 숨김 (다시 그리기 전까지). 사람이 걷는 길 정보는 그대로 둠
 function buildWalkways() {
   const walkMat = new THREE.MeshLambertMaterial({ color: 0xd1d5db });
   // 건물 바닥 자리 (인도가 건물 속을 지나가지 않도록 잘라냄)
@@ -2583,7 +2827,7 @@ function buildWalkways() {
       if (p.x1 - p.x0 < 0.05 || p.z1 - p.z0 < 0.05) return;
       levelTwoWalks.push({ x0: p.x0, x1: p.x1, z0: p.z0, z1: p.z1 });
       const m = new THREE.Mesh(new THREE.PlaneGeometry(p.x1 - p.x0, p.z1 - p.z0), walkMat);
-      m.rotation.x = -Math.PI / 2; m.position.set((p.x0 + p.x1) / 2, 0.07, (p.z0 + p.z1) / 2); levelTwoGroup.add(m);
+      m.rotation.x = -Math.PI / 2; m.position.set((p.x0 + p.x1) / 2, 0.07, (p.z0 + p.z1) / 2); if (SHOW_WALKS) levelTwoGroup.add(m);
     });
   };
   // 피해야 할 물건: 건물 바닥 + 2단계 상자(차·의자·사람 자리)
@@ -2680,7 +2924,7 @@ function buildLevelTwo() {
   };
 
   // 경찰서 앞 주차장: 경찰차 3대
-  lot(27.5, 69, 29, 58.5, 10, true);   // 경찰서 주차장 (회색): 미용실 앞까지 이어짐
+  lot(27.5, 80.5, 29, 58.5, 10, true);   // 경찰서 주차장 (회색): 마트 동쪽 끝(x 80.5)까지 늘림, 은행 북쪽
   car(37.875, 46.75, 0xcbd5e1, 2.4, 4.6, 1.0, 0x1d4ed8, 0x1d4ed8, 0x1d4ed8);   // 경찰차 1
   car(42.025, 46.75, 0xcbd5e1, 2.4, 4.6, 1.0, 0x1d4ed8, 0x1d4ed8, 0x1d4ed8);   // 경찰차 2
   // 버스 2대: 탈것 선택에 있는 버스 모양 그대로
@@ -2741,8 +2985,20 @@ function buildLevelTwo() {
   // 오토바이 3대: 주황색 차 옆 (같은 방향)
   [42.025, 46.175, 50.325].forEach(x => motorcycle(x, 56.2));
 
+  // 아파트 북쪽 넓은 주차장 (x 70~104, z -58~-42): 칸 8개 중 차 4대, 오토바이 3대, 자전거 3대, 나머지는 빈 칸
+  lot(80, 114, -58, -42, 8);
+  const APT_SPOT = i => 80 + 4.25 * (i + 0.5);   // 칸 가운데 x (i: 0~7), 주차장 동쪽으로 10 이동
+  // 윗줄 차 4대 (칸 0·1·3·4), 칸 2·5·6·7은 빈 칸
+  car(APT_SPOT(0), -51, 0xf1f5f9, 2.4, 4.6, 1.0);   // 흰 승용차
+  car(APT_SPOT(1), -51, 0xdc2626, 2.4, 4.6, 1.0);   // 빨간 승용차
+  car(APT_SPOT(3), -51, 0x2563eb, 2.4, 4.6, 1.0);   // 파란 승용차
+  car(APT_SPOT(4), -51, 0xfacc15, 2.4, 4.6, 1.0);   // 노란 승용차
+  // 아랫줄 오토바이 3대 (칸 0·1·2)
+  [0, 1, 2].forEach(i => motorcycle(APT_SPOT(i), -45.5));
+  // 아랫줄 자전거 3대 (칸 5·6·7)
+  [[5, 0x1d4ed8], [6, 0x16a34a], [7, 0xf472b6]].forEach(([i, c]) => bike(APT_SPOT(i), -45.5, c));
   // 소방서 앞 주차장: 소방차 2대
-  lot(35, 68, -58.5, -35, 5);   // 소방서 주차장: 2배 소방차 5대가 들어가도록 동쪽으로 넓힘 (주차선 5칸)
+  lot(33, 66, -58.5, -35, 5);   // 소방서 주차장: 2배 소방차 5대가 들어가도록 동쪽으로 넓힘 (주차선 5칸), 서쪽으로 2 이동
   // 소방차: 뒤쪽 짐칸 위에 사다리를 얹고, 앞쪽에 운전석 칸
   const fireTruck = (x, z) => {   // 소방차 2배 크기: 한 덩어리 그룹을 2배로 키워서 놓음
     const red = 0xdc2626, S = 2;
@@ -2774,7 +3030,7 @@ function buildLevelTwo() {
     levelTwoBoxes.push({ cx: x, cz: z, hw: 1.4 * S, hd: 3.0 * S });          // 차 크기만큼 피해 다님
   };
   // 소방차 5대: 주차선 칸(폭 6.6) 가운데에 맞춰 세움
-  [38.3, 44.9, 51.5, 58.1, 64.7].forEach(x => fireTruck(x, -46.75));
+  [38.3, 44.9, 51.5].forEach(x => fireTruck(x, -46.75));   // 소방차 3대 (동쪽 끝 2대 삭제)
 
   // 2단계 사람: 경찰서·소방서·유치원 앞에 서 있는 사람, 카페 테라스에 앉은 사람 (지나다닐 수 있게 충돌 상자는 두지 않음)
   const person = (x, z, shirt, sitting, rotY) => {
@@ -3213,7 +3469,7 @@ function tick() {
   // 카메라는 자동차 중심(높이 3)을 바라봄
   const LOOK_AHEAD = 0;   // 차가 화면 아래쪽에 계속 보이도록 차 중심을 바라봄
   // 화면 기울기: 위로 20도 (양수 = 위로, 음수 = 아래로)
-  const CAM_TILT_UP = 20 * Math.PI / 180;
+  const CAM_TILT_UP = 10 * Math.PI / 180;   // 20도에서 10도 낮춤 (화면을 아래로 기울임)
   const aimY = 3 + Math.tan(CAM_TILT_UP) * (camDist + LOOK_AHEAD);
   camera.lookAt(car.position.x - Math.sin(angle) * LOOK_AHEAD, aimY, car.position.z - Math.cos(angle) * LOOK_AHEAD);
   updateLabels();
@@ -3358,7 +3614,6 @@ window.loadQuestion = async function(i) {
 document.getElementById('btn-hint').onclick = () => {
   document.getElementById('hint-text').classList.toggle('show');
 };
-document.getElementById('btn-reset').onclick = () => resetCar();
 
 /* ── 영상 없는 버전: 길 안내 글 + 실시간 약도(빨간 화살표가 내 위치) ── */
 let playMode = 'video';   // 'video' = 영상 버전, 'novideo' = 영상 없는 버전
