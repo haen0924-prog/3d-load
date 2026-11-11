@@ -66,6 +66,7 @@
   body.lv3 .sign-img { display: block; position: static; margin-top: 4px; }
   body.lv3 #sign-car { height: 32px; top: auto; margin-top: 10px; }
   body.lv3 #sign-bus { height: 43px; top: auto; }
+  body.lv3 #sign-walk { height: 43px; top: auto; }
   #sign-car { height: 32px; top: 8px; }
   #sign-bus { height: 43px; }
   .vehicle-selector {
@@ -231,6 +232,7 @@
   }
   .side-actions button:active { transform: scale(.97); }
   #btn-arrive { background: var(--accent); color: #fff; }
+  body:not(.novideo) #btn-arrive { display: none; }   /* 영상 버전에서는 '여기예요!' 버튼 숨김 */
   #btn-reset { background: #eef1f6; color: var(--muted); flex: 0 0 110px; }
 
   /* ── 3D Canvas 영역 ── */
@@ -283,7 +285,8 @@
   body.lv3 .nv-sign { display: block; }
   #nv-sign-car { height: 32px; margin-top: 10px; }
   #nv-sign-bus { height: 43px; }
-  #nv-sign-bike, #nv-sign-walk { height: 64px; }
+  #nv-sign-bike { height: 64px; }
+  #nv-sign-walk { height: 43px; }
 
   /* 전체 화면일 때는 3D 길만 보이도록 안내·버튼·이름표를 숨김 */
   #game-wrap:fullscreen { background: #000; }
@@ -671,8 +674,6 @@
 <!-- QR 코드 (기본은 숨김, 상단 버튼으로 보이기/숨기기) -->
 <div id="qr-box" style="display:none;position:fixed;right:16px;bottom:16px;z-index:250;background:#fff;border-radius:14px;padding:14px;box-shadow:0 4px 18px rgba(0,0,0,.25);text-align:center;">
   <img src="data:image/png;base64,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" alt="휴대폰으로 스캔하는 QR 코드" style="width:220px;height:220px;display:block;">
-  <div style="margin-top:8px;font-size:14px;font-weight:700;color:#1c2433;">📱 휴대폰으로 스캔하세요</div>
-  <button onclick="toggleQr()" style="margin-top:8px;border:none;border-radius:8px;padding:6px 14px;background:#eef1f6;font-weight:700;cursor:pointer;">숨기기 ✕</button>
 </div>
 
 <!-- 사용법 창 -->
@@ -932,7 +933,7 @@ function getDBStore(storeName, key) {
 let QUESTIONS = [
   {
     id: 1,
-    question: "수어 영상을 보고, 지시하는 길을 따라 운전해서 도착한 건물 앞에서 '여기예요!'를 눌러주세요.",
+    question: "수어 영상을 보고, 지시하는 길을 따라 운전해서 목표 건물을 마우스로 클릭해 주세요.",
     directions: "출발 후 북쪽으로 직진하세요. 왼쪽에 보이는 두 번째 건물, 식당입니다.",
     answer: "식당",
     explain: "[직진]과 [좌회전], [식당](🍱) 수어 표현을 확인해보세요."
@@ -1004,6 +1005,8 @@ const FRICTION = 0.94;
 
 const keys = { up:false, down:false, left:false, right:false };
 const buildingBoxes = [];
+const buildingPolys = [];   // 반원형 건물: 실제 모양의 바깥선 (점 목록)
+const VEH_R = { car: 2.6, bus: 3.2, bicycle: 1.4, walk: 0.9 };   // 탈것 크기 (탈것끼리 부딪힘 반지름)
 const buildingGroups = [];   // 건물 3D 묶음 (마우스로 누른 건물을 찾는 데 사용)
 const billboardSprites = [];
 
@@ -1583,6 +1586,58 @@ function addRooftopDecor(g, b, wx, wz, h) {
 }
 
 /* ── 3D 이동 수단 생성 ── */
+/* ── 탈것 목록 & 탈것 모양 (3D 모양 / 수어 손모양) ── */
+let shapeMode = false;   // false: 3D 모양, true: 수어 손모양 그림
+const SIGN_IMG_ID = { car: 'sign-car', bicycle: 'sign-bike', bus: 'sign-bus', walk: 'sign-walk' };
+const SIGN_HEIGHT = { car: 6, bicycle: 5, bus: 6.5, walk: 5.5 };   // 손모양 그림 높이 (월드 단위)
+const signTexCache = {};
+const signRatio = {};
+
+// 수어 손모양 그림을 세운 탈것 (항상 카메라를 향함, 바닥에 빨간 화살표로 진행 방향 표시)
+function makeSignVehicle(type) {
+  const g = new THREE.Group();
+  const h = SIGN_HEIGHT[type] || 5;
+  const mat = new THREE.SpriteMaterial({ transparent: true, alphaTest: 0.05, depthWrite: false });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(h * (signRatio[type] || 1), h, 1);
+  sprite.position.set(0, h / 2 + 0.2, 0);
+  g.add(sprite);
+  if (signTexCache[type]) {
+    mat.map = signTexCache[type];
+  } else {
+    const src = document.getElementById(SIGN_IMG_ID[type])?.src;
+    if (src) {
+      new THREE.TextureLoader().load(src, tex => {
+        signTexCache[type] = tex;
+        signRatio[type] = tex.image.width / tex.image.height;
+        mat.map = tex; mat.needsUpdate = true;
+        sprite.scale.x = h * signRatio[type];
+      });
+    }
+  }
+  const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.9, 1.8, 4), new THREE.MeshLambertMaterial({ color: 0xef4444 }));
+  arrow.rotation.x = -Math.PI / 2;   // 앞(-z) 방향
+  arrow.position.set(0, 0.3, -2.8);
+  g.add(arrow);
+  return g;
+}
+
+// 조종 중인 탈것을 만들 때 현재 모양 모드에 맞춰 만듦
+function makeVehicle(type) {
+  return shapeMode ? makeSignVehicle(type) : createVehicleGroup(type);
+}
+
+// 이미 놓인 탈것의 모양만 바꾸고, 자리와 방향은 그대로 둠
+function swapModel(group, type) {
+  const g = makeVehicle(type);
+  g.position.copy(group.position);
+  g.rotation.copy(group.rotation);
+  scene.remove(group);
+  scene.add(g);
+  return g;
+}
+
+
 function createVehicleGroup(type) {
   const g = new THREE.Group();
   // 진행 방향은 -z(앞), +z(뒤). 앞에는 흰/노란 불, 뒤에는 빨간 불을 붙여 구분
@@ -1665,7 +1720,7 @@ function createVehicleGroup(type) {
     mk(new THREE.BoxGeometry(0.5, 0.3, 0.1), 0xfde047, 1.4, 1.0, -4.8);
     mk(new THREE.BoxGeometry(0.5, 0.3, 0.1), 0xdc2626, -1.4, 1.0, 4.78);          // 뒤: 후미등
     mk(new THREE.BoxGeometry(0.5, 0.3, 0.1), 0xdc2626, 1.4, 1.0, 4.78);
-    [[-1.8,-3],[1.8,-3],[-1.8,0],[1.8,0],[-1.8,3],[1.8,3]].forEach(([wx, wz]) => {
+    [[-1.8,-3],[1.8,-3],[-1.8,3],[1.8,3]].forEach(([wx, wz]) => {   // 바퀴 4개 (앞뒤 두 축)
       const w = new THREE.Mesh(wGeo, wMat);
       w.rotation.z = Math.PI / 2;
       w.position.set(wx, 0.8, wz);
@@ -1717,7 +1772,7 @@ function switchControl(type) {
   let entry = lv3Others[type];
   delete lv3Others[type];
   if (!entry) {
-    const g = createVehicleGroup(type);
+    const g = makeVehicle(type);
     const off = type === 'walk' ? 13.5 : type === 'bicycle' ? 8.7 : 6;
     g.position.set(START.x + off, 0, START.z);
     g.rotation.y = 0;
@@ -1797,7 +1852,7 @@ window.selectVehicle = function(type) {
     const curAng = car.rotation.y;
     scene.remove(car);
 
-    car = createVehicleGroup(type);
+    car = makeVehicle(type);
     car.position.set(curX, 0, curZ);
     car.rotation.y = curAng;
     scene.add(car);
@@ -1944,6 +1999,7 @@ function init3DWorld() {
     const tx = Math.cos(a) * r, tz = Math.sin(a) * r;
     const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 2, 8), trunkMat);
     trunk.position.set(tx, 1.6, tz); parkGroup.add(trunk);
+    poleObstacles.push({ x: tx, z: tz, r: 1.6 });   // 나무는 부딪히면 멈춤
     const crown = new THREE.Mesh(new THREE.SphereGeometry(1.8, 12, 12), leafMat);
     crown.position.set(tx, 3.6, tz); parkGroup.add(crown);
   });
@@ -2099,7 +2155,18 @@ function init3DWorld() {
       minZ: b.z - wz/2 - 1.5, maxZ: b.z + wz/2 + 1.5,
       cx: b.x, cz: b.z, hw: wx/2, hd: wz/2
     };
-    buildingBoxes.push(boxInfo);
+    if (b.shape === 'half') {
+      // 반원형(카페): 사각형 대신 실제 반원 모양으로 부딪힘 판정
+      const out2 = Math.abs(b.z) > Math.abs(b.x) ? { x: Math.sign(b.x) || 1, z: 0 } : { x: 0, z: Math.sign(b.z) || 1 };
+      const rY = Math.atan2(out2.x, out2.z), R2 = wx / 2;
+      const ox = -out2.x * R2 / 2, oz = -out2.z * R2 / 2;   // 반원 가운데 위치 (그릴 때와 같음)
+      const toW = (lx, lz) => ({ x: b.x + ox + lx * Math.cos(rY) + lz * Math.sin(rY), z: b.z + oz - lx * Math.sin(rY) + lz * Math.cos(rY) });
+      const pts = [{ x: b.x + ox, z: b.z + oz }];
+      for (let i = 0; i <= 24; i++) { const t = Math.PI * i / 24; pts.push(toW(R2 * Math.sin(t), R2 * Math.cos(t))); }
+      buildingPolys.push({ name: b.name, pts });
+    } else {
+      buildingBoxes.push(boxInfo);
+    }
     g.userData.box = boxInfo;
     buildingGroups.push(g);
   });
@@ -2110,7 +2177,7 @@ function init3DWorld() {
   buildWalkways();   // 건물·차를 피한 인도 (buildLevelTwo 이후에 실행해야 차·의자 자리를 알 수 있음)
   buildLabelOverlay();
 
-  car = createVehicleGroup('car');
+  car = makeVehicle('car');
   scene.add(car);
 
   resetCar();
@@ -2229,8 +2296,43 @@ function isAllowedPosition(x, z) {
 
 function collides(x, z) {
   if (!isAllowedPosition(x, z)) return true;   // 허용된 길·인도 밖이면 막힘
+  return objectHit(x, z);
+}
+
+// 그림 물체(기둥·나무·건물·주차된 차·사람)에 닿았는지만 확인
+// 점이 다각형 안에 있거나, 가장자리에서 m 거리 안에 있는지
+function nearPoly(x, z, pts, m) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const xi = pts[i].x, zi = pts[i].z, xj = pts[j].x, zj = pts[j].z;
+    if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) inside = !inside;
+  }
+  if (inside) return true;
+  if (m <= 0) return false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const ax = pts[j].x, az = pts[j].z, dx = pts[i].x - ax, dz = pts[i].z - az;
+    const len2 = dx * dx + dz * dz || 1e-9;
+    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / len2));
+    if (Math.hypot(x - (ax + dx * t), z - (az + dz * t)) < m) return true;
+  }
+  return false;
+}
+
+function objectHit(x, z, m) {
   if (poleObstacles.some(p => Math.hypot(x - p.x, z - p.z) < p.r)) return true;   // 신호등 기둥·분수
-  const margin = vehicleType === 'walk' ? 0.6 : 1.5;   // 사람은 건물 벽에 조금 더 가까이 갈 수 있음
+  const margin = m !== undefined ? m : (vehicleType === 'walk' ? 0.6 : 1.5);   // 사람은 건물 벽에 조금 더 가까이 갈 수 있음
+  if (buildingPolys.some(bp => nearPoly(x, z, bp.pts, margin))) return true;   // 반원형 건물 (카페)
+  // 3단계: 조종하지 않는 다른 탈것(예: 사람, 자전거)과도 부딪힘
+  if (gameLevel >= 3) {
+    for (const t of Object.keys(lv3Others)) {
+      const o = lv3Others[t].group.position;
+      if (Math.hypot(x - o.x, z - o.z) < (VEH_R[vehicleType] || 2) + (VEH_R[t] || 2)) return true;
+    }
+  }
+  if (vehicleType !== 'walk') {   // 육교 계단은 사람만 오름 (차·자전거는 부딪힘)
+    const fh = footbridgeHeight(x, z);
+    if (fh !== null && fh <= FOOT_Y + 0.01) return true;
+  }
   if (buildingBoxes.some(b => Math.abs(x - b.cx) < b.hw + margin && Math.abs(z - b.cz) < b.hd + margin)) return true;
   // 2단계 물체 (주차된 차, 버스, 아이들, 테라스 손님): 건물처럼 피해 다님
   return gameLevel >= 2 && levelTwoBoxes.some(b => Math.abs(x - b.cx) < b.hw + margin && Math.abs(z - b.cz) < b.hd + margin);
@@ -2413,15 +2515,16 @@ function buildLevelTwo() {
     }
   };
   // 차 한 대 (차체·지붕·바퀴 네 개, 옆면 줄무늬). 충돌 상자도 함께 등록
-  const car = (x, z, color, w, l, h, stripe, trim, roofColor) => {
+  const car = (x, z, color, w, l, h, stripe, trim, roofColor, k = 1) => {
+    w *= k; l *= k; h *= k;   // k: 크기 배율 (2/3 = 자가용 작게, 1.5 = 버스 크게)
     put(new THREE.BoxGeometry(w, h, l), color, x, h / 2 + 0.2, z);
     put(new THREE.BoxGeometry(w * 0.82, 0.8, l * 0.5), roofColor || color, x, h + 0.6, z);
-    if (stripe) put(new THREE.BoxGeometry(w + 0.06, 0.16, l * 0.9), stripe, x, 1.0, z);
+    if (stripe) put(new THREE.BoxGeometry(w + 0.06, 0.16, l * 0.9), stripe, x, 1.0 * k, z);
     // 모서리 파란 기둥: 차체 표면에서 살짝 바깥으로 나오게 하고 윗면은 차체보다 낮게 해서 깜박이지 않게 함
     if (trim) [-1, 1].forEach(sx => [-1, 1].forEach(sz =>
-      put(new THREE.BoxGeometry(0.2, 0.7, 0.2), trim, x + sx * w / 2, 0.7, z + sz * l / 2)));
+      put(new THREE.BoxGeometry(0.2 * k, 0.7 * k, 0.2 * k), trim, x + sx * w / 2, 0.7 * k, z + sz * l / 2)));
     [-1, 1].forEach(sx => [-1, 1].forEach(sz => {
-      const wh = put(new THREE.CylinderGeometry(0.45, 0.45, 0.3, 10), 0x111827, x + sx * (w / 2), 0.45, z + sz * l * 0.32);
+      const wh = put(new THREE.CylinderGeometry(0.45 * k, 0.45 * k, 0.3 * k, 10), 0x111827, x + sx * (w / 2), 0.45 * k, z + sz * l * 0.32);
       wh.rotation.z = Math.PI / 2;
     }));
     levelTwoBoxes.push({ cx: x, cz: z, hw: w / 2, hd: l / 2 });
@@ -2429,91 +2532,105 @@ function buildLevelTwo() {
 
   // 경찰서 앞 주차장: 경찰차 3대
   lot(27.5, 69, 29, 58.5, 10, true);   // 경찰서 주차장 (회색): 미용실 앞까지 이어짐
-  car(37.35, 46.75, 0xcbd5e1, 2.4, 4.6, 1.0, 0x1d4ed8, 0x1d4ed8, 0x1d4ed8);   // 경찰차 1
-  car(42.05, 46.75, 0xcbd5e1, 2.4, 4.6, 1.0, 0x1d4ed8, 0x1d4ed8, 0x1d4ed8);   // 경찰차 2
+  car(37.875, 46.75, 0xcbd5e1, 2.4, 4.6, 1.0, 0x1d4ed8, 0x1d4ed8, 0x1d4ed8);   // 경찰차 1
+  car(42.025, 46.75, 0xcbd5e1, 2.4, 4.6, 1.0, 0x1d4ed8, 0x1d4ed8, 0x1d4ed8);   // 경찰차 2
   // 버스 2대: 탈것 선택에 있는 버스 모양 그대로
-  [46.75, 51.45].forEach(x => {
+  [48.25, 56.55].forEach(x => {
     const bus = createVehicleGroup('bus');
     bus.position.set(x, 0, 46.75);
+    bus.scale.set(1.5, 1.5, 1.5);
     levelTwoGroup.add(bus);
-    levelTwoBoxes.push({ cx: x, cz: 46.75, hw: 1.8, hd: 4.75 });
+    levelTwoBoxes.push({ cx: x, cz: 46.75, hw: 2.7, hd: 7.125 });
   });
-  car(56.15, 46.75, 0xf97316, 2.2, 4.2, 1.6);                        // SUV
+  car(54.475, 46.75, 0xf97316, 2.2, 4.2, 1.6, null, null, null, 2 / 3);                        // SUV
   // 자전거 3대 (파란 프레임, 주차장 아래쪽 줄)
-  const bike = (x, z, color) => {   // 가로 방향(동서 방향)으로 놓인 자전거, 1.5배 크기
+  const bike = (x, z, color) => {   // 주차 칸에 남북(세로) 방향으로 세운 자전거, 1.5배 크기
     const S = 1.5;
-    [-0.7, 0.7].forEach(dx => { const w = put(new THREE.CylinderGeometry(0.42 * S, 0.42 * S, 0.08 * S, 12), 0x111827, x + dx * S, 0.42 * S, z); w.rotation.x = Math.PI / 2; });
-    put(new THREE.BoxGeometry(1.4 * S, 0.08 * S, 0.08 * S), color, x, 0.6 * S, z);                    // 프레임
-    put(new THREE.BoxGeometry(0.08 * S, 0.6 * S, 0.08 * S), color, x + 0.4 * S, 0.9 * S, z);          // 핸들 기둥
-    put(new THREE.BoxGeometry(0.06 * S, 0.06 * S, 0.3 * S), 0x111827, x + 0.4 * S, 1.2 * S, z);       // 핸들
-    put(new THREE.BoxGeometry(0.2 * S, 0.06 * S, 0.2 * S), 0x111827, x - 0.2 * S, 0.95 * S, z);       // 안장
-    levelTwoBoxes.push({ cx: x, cz: z, hw: 0.8 * S, hd: 0.2 * S });
+    const g = new THREE.Group();
+    g.position.set(x, 0, z); g.rotation.y = Math.PI / 2;
+    const add = (geo, c, px, py, pz) => { const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: c })); m.position.set(px, py, pz); g.add(m); return m; };
+    [-0.7, 0.7].forEach(dx => { const w = add(new THREE.CylinderGeometry(0.42 * S, 0.42 * S, 0.08 * S, 12), 0x111827, dx * S, 0.42 * S, 0); w.rotation.x = Math.PI / 2; });
+    add(new THREE.BoxGeometry(1.4 * S, 0.08 * S, 0.08 * S), color, 0, 0.6 * S, 0);                 // 프레임
+    add(new THREE.BoxGeometry(0.08 * S, 0.6 * S, 0.08 * S), color, 0.4 * S, 0.9 * S, 0);           // 핸들 기둥
+    add(new THREE.BoxGeometry(0.06 * S, 0.06 * S, 0.3 * S), 0x111827, 0.4 * S, 1.2 * S, 0);        // 핸들
+    add(new THREE.BoxGeometry(0.2 * S, 0.06 * S, 0.2 * S), 0x111827, -0.2 * S, 0.95 * S, 0);       // 안장
+    levelTwoGroup.add(g);
+    levelTwoBoxes.push({ cx: x, cz: z, hw: 0.2 * S, hd: 1.7 });
   };
   // 밝은 회색, 노란색, 핑크색 자전거
   // 자전거 3대: 주황색 차 옆 (같은 방향)
-  [[59.5, 0xd1d5db], [62.5, 0xfacc15], [65.5, 0xf472b6]].forEach(([x, c]) => bike(x, 49.5, c));
+  [[29.575, 0xd1d5db], [33.725, 0xfacc15], [37.875, 0xf472b6]].forEach(([x, c]) => bike(x, 56.2, c));
   // 교회 앞 주차장: 길 안쪽 땅 전부 (x -58.5~-35, z 35~58.5), 보라색 버스 1대 + 승용차 3대
   lot(-58.5, -35, 35, 58.5, 4, true);
-  car(-55.6, 46.75, 0x9333ea, 2.8, 7.0, 1.8, 0x111827);   // 보라색 버스
-  car(-49.7, 46.75, 0xe2e8f0, 2.4, 4.6, 1.0, null, null, null);   // 승용차 1 (흰색)
-  car(-43.9, 46.75, 0x64748b, 2.4, 4.6, 1.0, null, null, null);   // 승용차 2 (회색)
-  car(-38.0, 46.75, 0x0ea5e9, 2.4, 4.6, 1.0, null, null, null);   // 승용차 3 (하늘색)
+  car(-55.56, 46.75, 0x9333ea, 2.8, 7.0, 1.8, 0x111827, null, null, 1.5);   // 보라색 버스
+  car(-49.69, 46.75, 0xe2e8f0, 2.4, 4.6, 1.0, null, null, null, 2 / 3);   // 승용차 1 (흰색)
+  car(-43.81, 46.75, 0x64748b, 2.4, 4.6, 1.0, null, null, null, 2 / 3);   // 승용차 2 (회색)
+  car(-37.94, 46.75, 0x0ea5e9, 2.4, 4.6, 1.0, null, null, null, 2 / 3);   // 승용차 3 (하늘색)
   // 관공서 북쪽 주차장 (x -84~-64, z -44~-30), 차 5대 아무거나
   lot(-84, -64, -44, -30, 5, true);
-  car(-82, -37, 0xdc2626, 2.4, 4.6, 1.0);   // 빨간 승용차
-  car(-78, -37, 0xf1f5f9, 2.4, 4.6, 1.0);   // 흰 승용차
-  car(-74, -37, 0x64748b, 2.4, 4.6, 1.0);   // 회색 승용차
-  car(-70, -37, 0xfacc15, 2.4, 4.6, 1.0);   // 노란 승용차
-  car(-66, -37, 0x2563eb, 2.4, 4.6, 1.0);   // 파란 승용차
+  car(-82, -37, 0xdc2626, 2.4, 4.6, 1.0, null, null, null, 2 / 3);   // 빨간 승용차
+  car(-78, -37, 0xf1f5f9, 2.4, 4.6, 1.0, null, null, null, 2 / 3);   // 흰 승용차
+  car(-74, -37, 0x64748b, 2.4, 4.6, 1.0, null, null, null, 2 / 3);   // 회색 승용차
+  car(-70, -37, 0xfacc15, 2.4, 4.6, 1.0, null, null, null, 2 / 3);   // 노란 승용차
+  car(-66, -37, 0x2563eb, 2.4, 4.6, 1.0, null, null, null, 2 / 3);   // 파란 승용차
   // 노란 택시 4대 (윗줄)
-  [31.5, 35.5, 39.5, 43.5].forEach(x => car(x, 39.5, 0xfacc15, 2.4, 4.6, 1.0, null, null, 0xfde047));
+  [29.575, 33.725, 37.875, 42.025].forEach(x => car(x, 39.5, 0xfacc15, 2.4, 4.6, 1.0, null, null, 0xfde047));
   // 오토바이 3대 (아랫줄, 빨간 차체)
-  const motorcycle = (x, z) => {   // 가로 방향(동서 방향), 1.6배 크기, 빨간 차체
+  const motorcycle = (x, z) => {   // 주차 칸에 남북(세로) 방향으로 세운 오토바이, 1.6배 크기, 빨간 차체
     const S = 1.6;
-    [-0.9, 0.9].forEach(dx => { const w = put(new THREE.CylinderGeometry(0.35 * S, 0.35 * S, 0.2 * S, 10), 0x111827, x + dx * S, 0.35 * S, z); w.rotation.x = Math.PI / 2; });
-    put(new THREE.BoxGeometry(1.6 * S, 0.5 * S, 0.5 * S), 0xdc2626, x, 0.7 * S, z);             // 차체
-    put(new THREE.BoxGeometry(0.6 * S, 0.15 * S, 0.4 * S), 0x111827, x - 0.2 * S, 1.0 * S, z);  // 안장
-    put(new THREE.BoxGeometry(0.1 * S, 0.5 * S, 0.1 * S), 0x111827, x + 0.6 * S, 1.0 * S, z);   // 핸들 기둥
-    put(new THREE.BoxGeometry(0.1 * S, 0.08 * S, 0.8 * S), 0x111827, x + 0.6 * S, 1.2 * S, z);  // 핸들
-    levelTwoBoxes.push({ cx: x, cz: z, hw: 0.8 * S, hd: 0.3 * S });
+    const g = new THREE.Group();
+    g.position.set(x, 0, z); g.rotation.y = Math.PI / 2;
+    const add = (geo, c, px, py, pz) => { const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: c })); m.position.set(px, py, pz); g.add(m); return m; };
+    [-0.9, 0.9].forEach(dx => { const w = add(new THREE.CylinderGeometry(0.35 * S, 0.35 * S, 0.2 * S, 10), 0x111827, dx * S, 0.35 * S, 0); w.rotation.x = Math.PI / 2; });
+    add(new THREE.BoxGeometry(1.6 * S, 0.5 * S, 0.5 * S), 0xdc2626, 0, 0.7 * S, 0);             // 차체
+    add(new THREE.BoxGeometry(0.6 * S, 0.15 * S, 0.4 * S), 0x111827, -0.2 * S, 1.0 * S, 0);     // 안장
+    add(new THREE.BoxGeometry(0.1 * S, 0.5 * S, 0.1 * S), 0x111827, 0.6 * S, 1.0 * S, 0);       // 핸들 기둥
+    add(new THREE.BoxGeometry(0.1 * S, 0.08 * S, 0.8 * S), 0x111827, 0.6 * S, 1.2 * S, 0);      // 핸들
+    levelTwoGroup.add(g);
+    levelTwoBoxes.push({ cx: x, cz: z, hw: 0.4 * S, hd: 2.0 });
   };
   // 오토바이 3대: 주황색 차 옆 (같은 방향)
-  [59.5, 62.5, 65.5].forEach(x => motorcycle(x, 43.5));
+  [42.025, 46.175, 50.325].forEach(x => motorcycle(x, 56.2));
 
   // 소방서 앞 주차장: 소방차 2대
-  lot(35, 58.5, -58.5, -35, 5);   // 소방서 주차장: 흰 길 사이에 딱 맞추고 주차선 5칸
+  lot(35, 68, -58.5, -35, 5);   // 소방서 주차장: 2배 소방차 5대가 들어가도록 동쪽으로 넓힘 (주차선 5칸)
   // 소방차: 뒤쪽 짐칸 위에 사다리를 얹고, 앞쪽에 운전석 칸
-  const fireTruck = (x, z) => {
-    const red = 0xdc2626;
-    put(new THREE.BoxGeometry(2.8, 1.5, 4.2), red, x, 0.95, z - 0.8);            // 짐칸
-    put(new THREE.BoxGeometry(2.8, 1.4, 1.6), red, x, 0.9, z + 2.2);             // 운전석 칸
-    put(new THREE.BoxGeometry(2.5, 0.6, 0.06), 0x1e3a8a, x, 1.4, z + 3.02);      // 앞 유리
-    put(new THREE.BoxGeometry(2.92, 0.16, 4.2), 0xffffff, x, 0.5, z - 0.8);      // 흰 줄무늬
-    [-1, 1].forEach(sx => [z - 1.8, z + 2.2].forEach(wz => {                     // 바퀴 4개
-      const wh = put(new THREE.CylinderGeometry(0.45, 0.45, 0.3, 10), 0x111827, x + sx * 1.45, 0.45, wz);
+  const fireTruck = (x, z) => {   // 소방차 2배 크기: 한 덩어리 그룹을 2배로 키워서 놓음
+    const red = 0xdc2626, S = 2;
+    const g = new THREE.Group();
+    g.position.set(x, 0, z); g.scale.set(S, S, S);
+    const add = (geo, color, px, py, pz) => { const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color })); m.position.set(px, py, pz); g.add(m); return m; };
+    add(new THREE.BoxGeometry(2.8, 1.5, 4.2), red, 0, 0.95, -0.8);            // 짐칸
+    add(new THREE.BoxGeometry(2.8, 1.4, 1.6), red, 0, 0.9, 2.2);             // 운전석 칸
+    add(new THREE.BoxGeometry(2.5, 0.6, 0.1), 0x1e3a8a, 0, 1.4, 3.1);       // 앞 유리 (운전석 칸 앞면에서 살짝 띄워서 겹쳐 깜박이지 않게)
+    add(new THREE.BoxGeometry(2.92, 0.16, 4.0), 0xffffff, 0, 0.5, -0.8);     // 흰 줄무늬 (몸통 앞뒤 면과 겹치지 않도록 조금 짧게)
+    [-1, 1].forEach(sx => [-1.8, 2.2].forEach(wz => {                        // 바퀴 4개
+      const wh = add(new THREE.CylinderGeometry(0.45, 0.45, 0.3, 10), 0x111827, sx * 1.45, 0.45, wz);
       wh.rotation.z = Math.PI / 2;
     }));
-    put(new THREE.BoxGeometry(1.4, 0.3, 1.4), 0x374151, x, 1.85, z - 0.8);       // 사다리 받침대
+    add(new THREE.BoxGeometry(1.4, 0.3, 1.4), 0x374151, 0, 1.85, -0.8);      // 사다리 받침대
     // 사다리: 짐칸 위에 눕혀 살짝 앞으로 기울임
     const lad = new THREE.Group();
-    lad.position.set(x, 2.1, z - 0.8);
+    lad.position.set(0, 2.1, -0.8);
     lad.rotation.x = -0.2;
-    const add = (geo, color, px, py, pz) => {
+    const addLd = (geo, color, px, py, pz) => {
       const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
       m.position.set(px, py, pz); lad.add(m);
     };
-    add(new THREE.BoxGeometry(0.15, 0.15, 5.4), 0xe5e7eb, -0.5, 0, 0);           // 왼쪽 난간
-    add(new THREE.BoxGeometry(0.15, 0.15, 5.4), 0xe5e7eb, 0.5, 0, 0);            // 오른쪽 난간
-    for (let i = 0; i <= 8; i++) add(new THREE.BoxGeometry(1.2, 0.1, 0.1), 0xe5e7eb, 0, 0, -2.4 + i * 0.6); // 가로대
-    levelTwoGroup.add(lad);
-    levelTwoBoxes.push({ cx: x, cz: z, hw: 1.4, hd: 3.0 });                       // 차 크기만큼 피해 다님
+    addLd(new THREE.BoxGeometry(0.15, 0.15, 5.4), 0xe5e7eb, -0.5, 0, 0);     // 왼쪽 난간
+    addLd(new THREE.BoxGeometry(0.15, 0.15, 5.4), 0xe5e7eb, 0.5, 0, 0);      // 오른쪽 난간
+    for (let i = 0; i <= 8; i++) addLd(new THREE.BoxGeometry(1.2, 0.1, 0.1), 0xe5e7eb, 0, 0, -2.4 + i * 0.6); // 가로대
+    g.add(lad);
+    levelTwoGroup.add(g);
+    levelTwoBoxes.push({ cx: x, cz: z, hw: 1.4 * S, hd: 3.0 * S });          // 차 크기만큼 피해 다님
   };
-  // 소방차 5대: 주차선 칸 가운데에 맞춰 세움
-  [37.35, 42.05, 46.75, 51.45, 56.15].forEach(x => fireTruck(x, -46.75));
+  // 소방차 5대: 주차선 칸(폭 6.6) 가운데에 맞춰 세움
+  [38.3, 44.9, 51.5, 58.1, 64.7].forEach(x => fireTruck(x, -46.75));
 
   // 2단계 사람: 경찰서·소방서·유치원 앞에 서 있는 사람, 카페 테라스에 앉은 사람 (지나다닐 수 있게 충돌 상자는 두지 않음)
   const person = (x, z, shirt, sitting, rotY) => {
     const pg = new THREE.Group();
+    levelTwoBoxes.push({ cx: x, cz: z, hw: 0.9 * 1.5, hd: 0.9 * 1.5 });   // 사람도 부딪히는 물체 (1.5배 크기)
     const addP = (geo, color, px, py, pz) => {
       const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
       m.position.set(px, py, pz); pg.add(m);
@@ -2532,37 +2649,39 @@ function buildLevelTwo() {
       addP(new THREE.BoxGeometry(0.3, 0.8, 0.3), shirt, 0.65, 1.4, 0);
       addP(new THREE.SphereGeometry(0.3, 12, 10), skin, 0, 2.0, 0);          // 머리
     }
-    pg.position.set(x, sitting ? 0.95 : 0, z);
+    pg.scale.set(1.5, 1.5, 1.5);   // 사람 1.5배
+    pg.position.set(x, sitting ? 0.95 * 1.5 : 0, z);   // 앉은 사람: 의자 면 높이에 맞춤
     pg.rotation.y = rotY || 0;
     levelTwoGroup.add(pg);
   };
   person(40.5, 54, 0x2563eb, false, 0);          // 경찰서 앞
   person(40.5, -38.5, 0xdc2626, false, 0);       // 소방서 앞
   person(-56, -20, 0x10b981, false, 0);          // 유치원 앞
-  person(-24.1, 82, 0xf59e0b, true, Math.PI / 2);   // 카페 테라스: 의자에 앉은 사람
-  person(-19.9, 82, 0xdb2777, true, -Math.PI / 2);
+  person(-28.85, 84.5, 0xf59e0b, true, -Math.PI / 2);   // 카페 테라스: 바깥쪽 의자에 앉은 사람
+  person(-15.15, 84.5, 0xdb2777, true, Math.PI / 2);   // 카페 테라스: 바깥쪽 의자에 앉은 사람
 
   // 유치원 앞 주차장: 유치원 버스 1대
   lot(-68, -54, -28, -16, 1);
-  car(-61, -22, 0xfacc15, 2.8, 7.0, 1.8, 0x111827);
+  car(-61, -22, 0xfacc15, 2.8, 7.0, 1.8, 0x111827, null, null, 1.5);
 
   // 카페 둥근 면 앞 테라스: 탁자 2개 (1.5배 크기)
-  const S = 1.5;
-  [-26, -18].forEach(tx => {   // 카페 둥근 면 앞쪽에 나란히
-    const z = 82;
+  const S = 2.25;   // 테이블·의자 1.5배 (기존 1.5 → 2.25)
+  const K = 1.5;    // 의자 배치 간격과 크기 배율
+  [-26, -18].forEach(tx => {   // 카페 둥근 면 앞쪽에 나란히 (1.5배로 커져서 건물에서 조금 더 떨어뜨림)
+    const z = 84.5;
     put(new THREE.CylinderGeometry(0.12 * S, 0.12 * S, 1.0 * S, 8), 0x78350f, tx, 0.7 * S, z);   // 탁자 다리
     put(new THREE.CylinderGeometry(0.9 * S, 0.9 * S, 0.12 * S, 14), 0xfef3c7, tx, 1.3 * S, z);   // 탁자 윗면
     put(new THREE.CylinderGeometry(0.12 * S, 0.1 * S, 0.25 * S, 8), 0xffffff, tx - 0.3 * S, 1.5 * S, z); // 찻잔
     levelTwoBoxes.push({ cx: tx, cz: z, hw: 0.9 * S, hd: 0.9 * S });
     // 의자 2개 (탁자 서쪽·동쪽에 하나씩): 등받이 + 앉는 면
     [-1, 1].forEach(dir => {
-      const cx = tx + dir * 1.9;
+      const cx = tx + dir * 1.9 * K;
       const wood = 0x92400e;
-      put(new THREE.BoxGeometry(0.7, 0.1, 0.7), wood, cx, 0.9, z);                       // 앉는 면
-      put(new THREE.BoxGeometry(0.1, 0.9, 0.7), wood, cx + dir * 0.3, 1.4, z);           // 등받이 (바깥쪽, 세로로 세움)
+      put(new THREE.BoxGeometry(0.7 * K, 0.1 * K, 0.7 * K), wood, cx, 0.9 * K, z);                       // 앉는 면
+      put(new THREE.BoxGeometry(0.1 * K, 0.9 * K, 0.7 * K), wood, cx + dir * 0.3 * K, 1.4 * K, z);           // 등받이 (바깥쪽, 세로로 세움)
       [-0.28, 0.28].forEach(ox => [-0.28, 0.28].forEach(oz =>                          // 다리 4개
-        put(new THREE.BoxGeometry(0.08, 0.85, 0.08), wood, cx + ox, 0.425, z + oz)));
-      levelTwoBoxes.push({ cx, cz: z, hw: 0.4, hd: 0.4 });
+        put(new THREE.BoxGeometry(0.08 * K, 0.85 * K, 0.08 * K), wood, cx + ox * K, 0.425 * K, z + oz * K)));
+      levelTwoBoxes.push({ cx, cz: z, hw: 0.4 * K, hd: 0.4 * K });
     });
   });
   buildApartmentWindows();
@@ -2630,7 +2749,6 @@ function buildFootbridge() {
   const deckMat = new THREE.MeshLambertMaterial({ color: 0x9ca3af });
   const railMat = new THREE.MeshLambertMaterial({ color: 0xe5e7eb });
   const stairMat = new THREE.MeshLambertMaterial({ color: 0xcbd5e1 });
-  const pillarMat = new THREE.MeshLambertMaterial({ color: 0x6b7280 });
   const Y = FOOT_Y;
   const W = FOOT_HALF_W * 2;
   // 다리 바닥
@@ -2649,13 +2767,6 @@ function buildFootbridge() {
   [-1, 1].forEach(sz => {                          // 다리 끝 가로 난간 (남·북 끝)
     const endRail = new THREE.Mesh(new THREE.BoxGeometry(W, 1.2, 0.2), railMat);
     endRail.position.set(FOOT_BX, Y + 0.85, sz * FOOT_DECK_Z); footGroup.add(endRail);
-  });
-  // 기둥 네 개: 차도 가장자리 옆 (너비 방향 두 개씩)
-  [-5.6, 5.6].forEach(z => {
-    [-2, 2].forEach(dx => {
-      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.8, Y - 0.25, 0.8), pillarMat);
-      pillar.position.set(FOOT_BX + dx, (Y - 0.25) / 2, z); footGroup.add(pillar);
-    });
   });
   // 계단: 남·북 두 끝에서, 동쪽과 서쪽 두 방향 모두 (칸 높이 0.5, 칸 폭 0.3, 15칸)
   [-1, 1].forEach(sz => {
@@ -2840,22 +2951,10 @@ function animateWalker(g, amount) {
 }
 
 // ── 3단계 충돌 효과: 두 탈것이 부딪히면 멈추고 불꽃이 튀며 화면이 흔들림 ──
-const LV3_RADIUS = { car: 2.6, bus: 3.2, bicycle: 1.4, walk: 0.9 };   // 탈것 크기 (부딪힘 판정 반지름)
 let lastCrashMs = 0;
 let camShake = 0;
 const sparkList = [];
 let lastFrameS = 0;
-
-// 지금 조종하는 탈것이 (x, z)로 가면 다른 탈것과 부딪히는지 확인
-function hitsOther(x, z) {
-  if (gameLevel < 3) return null;
-  for (const t of Object.keys(lv3Others)) {
-    const o = lv3Others[t].group.position;
-    const need = (LV3_RADIUS[vehicleType] || 2) + (LV3_RADIUS[t] || 2);
-    if (Math.hypot(x - o.x, z - o.z) < need) return { x: (x + o.x) / 2, z: (z + o.z) / 2 };
-  }
-  return null;
-}
 
 function spawnSparks(x, z) {
   const n = 40;
@@ -2904,6 +3003,20 @@ function onCrash(hit) {
   toast('쾅! 충돌했습니다 💥');
 }
 
+// 탈것 몸의 여러 점(앞·뒤·양옆 모서리, 옆면 가운데)을 확인: 어느 부분이든 물체에 닿으면 그 자리를 돌려줌
+const BODY_HALF = { car: [3.2, 1.4], bus: [5.0, 1.5], bicycle: [1.8, 0.5], walk: [0.9, 0.4] };   // [앞뒤 반길이, 좌우 반너비]
+function bodyTouches(x, z) {
+  const [F, W] = BODY_HALF[vehicleType] || [2, 1.2];
+  const fdx = -Math.sin(angle), fdz = -Math.cos(angle);   // 진행 방향 (앞)
+  const rdx = Math.cos(angle), rdz = -Math.sin(angle);    // 오른쪽
+  const pts = [[F, W], [F, -W], [-F, W], [-F, -W], [F, 0], [-F, 0], [0, W], [0, -W]];
+  for (const [a, b] of pts) {
+    const px = x + fdx * a + rdx * b, pz = z + fdz * a + rdz * b;
+    if (objectHit(px, pz, 0)) return { x: px, z: pz };
+  }
+  return null;
+}
+
 function tick() {
   if (keys.up)   speed = Math.min(speed + ACCEL,  MAX_SPEED);
   if (keys.down) speed = Math.max(speed - ACCEL, -MAX_SPEED*0.55);
@@ -2917,13 +3030,16 @@ function tick() {
   const fz = car.position.z + Math.cos(angle) * -speed;
   const walking = vehicleType === 'walk';
   const blocked = gameLevel < 3 && crosswalkBlockedBy(car.position.x, car.position.z, fx, fz, walking);
-  const hit = hitsOther(fx, fz);
-  if (hit && Math.abs(speed) > 0.05) onCrash(hit);
-  if (!collides(fx, fz) && !blocked && !hit) {
+  // 탈것 몸 전체를 확인: 앞·뒤·옆 어느 부분이든 물체에 닿으면 멈추고 부딪힘
+  const hitPoint = bodyTouches(fx, fz);
+  if (!collides(fx, fz) && !blocked && !hitPoint) {
     car.position.x = fx;
     car.position.z = fz;
   } else {
     if (blocked && (keys.up || keys.down)) warnRedLight(walking);
+    // 건물·주차된 차·사람·육교 계단 등 그림 물체에 부딪히면 불꽃이 튀며 충돌 (도로 경계는 제외)
+    if (!blocked && isAllowedPosition(fx, fz) && (hitPoint || objectHit(fx, fz)) && Math.abs(speed) > 0.05)
+      onCrash(hitPoint || { x: fx, z: fz });
     speed = 0;
   }
   car.rotation.y = angle;
@@ -3122,7 +3238,15 @@ window.setPlayMode = function(m) {
 
 window.toggleQr = function() {
   const box = document.getElementById('qr-box');
-  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  if (box.style.display !== 'none') { box.style.display = 'none'; return; }
+  // QR 보이기 버튼 바로 아래에 붙여서 띄움 (화면 밖으로 나가지 않게 위치 조정)
+  const btn = document.getElementById('btn-qr').getBoundingClientRect();
+  box.style.display = 'block';
+  const w = box.offsetWidth;
+  box.style.right = 'auto';
+  box.style.bottom = 'auto';
+  box.style.top = (btn.bottom + 8) + 'px';
+  box.style.left = Math.max(8, Math.min(btn.left, window.innerWidth - w - 8)) + 'px';
 };
 
 window.toggleGuide = function(show) {
