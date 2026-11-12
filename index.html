@@ -719,7 +719,8 @@
 
   <div class="header-right">
     <button class="btn-teacher" style="background:#eef2ff;color:#1d4ed8" onclick="openRegionMap()">🗺 우리 지역 지도</button>
-    <button class="btn-teacher" id="btn-admin" onclick="toggleTeacherModal(true)">⚙️ 강사 관리 모드</button>
+    <button class="btn-teacher" style="background:#eef2ff;color:#1d4ed8" onclick="toggleNvFullscreen()">⛶ 전체 화면</button>
+    <button class="btn-teacher" id="btn-admin" onclick="toggleTeacherModal(true)">⚙️ 문제출제</button>
     <div class="qnum" id="qnum">문제 1 / 3</div>
   </div>
 </header>
@@ -735,7 +736,7 @@
     <div style="padding:14px 18px;overflow-y:auto;font-size:15px;line-height:1.7;color:#1c2433;">
 <div class="guide-top">
 <p class="guide-h">⭐ 꼭 알아두기</p>
-<p>· 수업 전: 강사 관리 모드에서 문제 만들기 → <b>저장하고 반영하기</b> 필수</p>
+<p>· 수업 전: 문제출제에서 문제 만들기 → <b>저장하고 반영하기</b> 필수</p>
 <p>· 모바일 수업: <b>📱 모바일 참여 QR</b> → <b>수업 열기</b> → 코드·QR 공유</p>
 <p>· 다음 문제는 강사가 <b>다음 문제</b> 버튼으로 넘김</p>
 <p>· 정답 확인은 학생이 손을 들어 확인</p>
@@ -765,7 +766,7 @@
 <details class="guide-acc">
 <summary>👩‍🏫 강사 안내</summary>
 <p><b>문제 만들기</b></p>
-<p>· 강사 관리 모드 → 문제 추가 (➕)</p>
+<p>· 문제출제 → 문제 추가 (➕)</p>
 <p>· 단계 선택 (1·2단계)</p>
 <p>· 정답 건물: 펼쳐서 배치도의 건물 클릭</p>
 <p>· 영상: 파일 올리기 또는 유튜브 주소</p>
@@ -835,7 +836,7 @@
       <button id="btn-video-off" title="영상 끄기 (영상 없는 버전)" onclick="setPlayMode('novideo')">✕</button>
       <div class="label"><span class="dot"></span><span id="video-label">수어 지시 영상</span></div>
       <div id="video-box">
-        <div class="placeholder">📹<br>여기에 수어 영상이 들어갑니다.<br>(강사 관리 모드에서 영상 등록 가능)</div>
+        <div class="placeholder">📹<br>여기에 수어 영상이 들어갑니다.<br>(문제출제에서 영상 등록 가능)</div>
       </div>
     </section>
 
@@ -971,8 +972,8 @@
       <p class="live-note">③ 수강생은 폰으로 QR을 찍거나 입장 코드를 입력해 들어옵니다.</p>
       <p class="live-note">④ 문제를 넘길 때는 <b>다음 문제</b>를 누르면 모든 수강생 폰이 함께 넘어갑니다.</p>
       <div id="live-empty" style="display:none;">
-        <p class="live-note">등록된 문제가 없습니다. 먼저 강사 관리 모드에서 문제를 만드세요.</p>
-        <button onclick="goTeacherFromLive()">⚙️ 강사 관리 모드로 가기</button>
+        <p class="live-note">등록된 문제가 없습니다. 먼저 문제출제에서 문제를 만드세요.</p>
+        <button onclick="goTeacherFromLive()">⚙️ 문제출제로 가기</button>
       </div>
       <div id="live-qlist"></div>
       <button id="live-open-btn" onclick="liveOpenSession()">📡 수업 열기</button>
@@ -3874,7 +3875,7 @@ window.loadQuestion = async function(i) {
       f.style.cssText = 'width:100%;height:100%;border:0;';
       vBox.appendChild(f);
     } else {
-      vBox.innerHTML = `<div class="placeholder">📹<br>유튜브 주소가 올바르지 않습니다.<br>(강사 관리 모드에서 주소 확인)</div>`;
+      vBox.innerHTML = `<div class="placeholder">📹<br>유튜브 주소가 올바르지 않습니다.<br>(문제출제에서 주소 확인)</div>`;
     }
   } else {
     // 파일: IndexedDB에 저장된 영상 사용, start/end 구간만 재생
@@ -3894,7 +3895,7 @@ window.loadQuestion = async function(i) {
       }
       vBox.appendChild(v);
     } else {
-      vBox.innerHTML = `<div class="placeholder">📹<br>등록된 수어 영상이 없습니다.<br>(강사 관리 모드에서 영상 파일 업로드)</div>`;
+      vBox.innerHTML = `<div class="placeholder">📹<br>등록된 수어 영상이 없습니다.<br>(문제출제에서 영상 파일 업로드)</div>`;
     }
   }
 
