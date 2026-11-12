@@ -315,7 +315,7 @@
   #nv-sign-car { height: 32px; margin-top: 10px; }
   #nv-sign-bus { height: 43px; }
   #nv-sign-bike { height: 64px; }
-  #nv-sign-walk { height: 43px; }
+  #nv-sign-walk { height: 62px; }   /* 사람 수형 1.2배 더 (52 → 62) */
 
   /* 전체 화면일 때는 3D 길만 보이도록 안내·버튼·이름표를 숨김 */
   #game-wrap:fullscreen { background: #000; }
@@ -588,7 +588,7 @@
   #cam-panel.on { display: flex; flex-direction: column; gap: 10px; }
   #cam-panel label { font-size: 13px; font-weight: 700; color: #334155; display: flex; flex-direction: column; gap: 4px; }
   #cam-panel input { width: 100%; }
-  .boom-text { position: fixed; transform: translate(-50%, -50%) rotate(-6deg); font-family: 'Black Han Sans', Impact, 'Arial Black', sans-serif; font-size: 44px; line-height: 1; color: #facc15; -webkit-text-stroke: 2px #7f1d1d; text-shadow: 0 0 6px #ef4444, 3px 4px 0 #7f1d1d; letter-spacing: 2px; white-space: nowrap; pointer-events: none; z-index: 70; }
+  .boom-text { position: fixed; transform: translate(-50%, -50%) rotate(-6deg); font-family: 'Black Han Sans', Impact, 'Arial Black', sans-serif; font-size: 44px; line-height: 1; color: #dc2626; -webkit-text-stroke: 2px #000; text-shadow: 3px 4px 0 #000; letter-spacing: 2px; white-space: nowrap; pointer-events: none; z-index: 70; }
   body.live-student #cam-btn, body.live-student #cam-panel { display: none !important; }
   .form-group { display: flex; flex-direction: column; gap: 4px; }
   .form-group label { font-size: 12.5px; font-weight: 700; color: #475569; }
@@ -2048,7 +2048,7 @@ function addRooftopDecor(g, b, wx, wz, h) {
 /* ── 탈것 목록 & 탈것 모양 (3D 모양 / 수어 손모양) ── */
 let shapeMode = false;   // false: 3D 모양, true: 수어 손모양 그림
 const SIGN_IMG_ID = { car: 'sign-car', bicycle: 'sign-bike', bus: 'sign-bus', walk: 'sign-walk' };
-const SIGN_HEIGHT = { car: 6, bicycle: 5, bus: 6.5, walk: 5.5 };   // 손모양 그림 높이 (월드 단위)
+const SIGN_HEIGHT = { car: 6, bicycle: 5, bus: 6.5, walk: 6.6 };   // 사람 수형은 1.2배 (5.5 → 6.6)   // 손모양 그림 높이 (월드 단위)
 const signTexCache = {};
 const signRatio = {};
 
