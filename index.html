@@ -714,7 +714,6 @@
 
   <!-- 영상 버전 / 영상 없는 버전 선택 -->
   <button class="btn-teacher" id="btn-live" style="display:none;background:#eff6ff;color:#1d4ed8;margin-left:8px" onclick="openLivePanel()">📱 모바일 참여 QR</button>
-  <button class="btn-teacher" id="btn-guide" style="background:#fff7ed;color:#9a3412;margin-left:8px" onclick="toggleGuide(true)">📖 사용법</button>
   <span id="level-switch" style="display:inline-flex;gap:4px;margin-left:8px;background:#f1f5f9;padding:3px;border-radius:999px;vertical-align:middle">
     <button id="lv-1" onclick="setLevel(1)">1단계</button><button id="lv-2" onclick="setLevel(2)">2단계</button>
   </span>
@@ -722,6 +721,7 @@
   <div class="header-right">
     <button class="btn-teacher" style="background:#eef2ff;color:#1d4ed8" onclick="openRegionMap()">🗺 우리 지역 지도</button>
     <button class="btn-teacher" style="background:#eef2ff;color:#1d4ed8" onclick="toggleNvFullscreen()">⛶ 전체 화면</button>
+    <button class="btn-teacher" id="btn-guide" style="background:#fff7ed;color:#9a3412" onclick="toggleGuide(true)">📖 사용법</button>
     <button class="btn-teacher" id="btn-admin" onclick="toggleTeacherModal(true)">⚙️ 문제출제</button>
     <div class="qnum" id="qnum">문제 1 / 3</div>
   </div>
@@ -899,7 +899,6 @@
         <button data-start="남" class="on">남</button>
         <button data-start="북">북</button>
       </div>
-      <button class="fs-btn" onclick="toggleNvFullscreen()">⛶ 전체 화면</button>
     </div>
     
     <!-- 동서남북 방위계 (Compass HUD) -->
