@@ -3632,7 +3632,10 @@ window.addEventListener('keyup', e => {
 
 /* ── 학습 진행 ── */
 /* 실시간 수업 설정: Supabase 프로젝트 주소와 공개(anon) 키를 넣으면 켜집니다 (비워 두면 기존 방식) */
-var LIVE_CONFIG = { url: '', anonKey: '' };
+var LIVE_CONFIG = {
+  url: 'https://njrbqfyxxwobthzrhqzm.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qcmJxZnl4eHdvYnRoenJocXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NDkxODUsImV4cCI6MjA4OTUyNTE4NX0.8lw0F6jzaMHlBqaiHoEtywLsANdcQDLJVCqiSdwPFMg'
+};
 var LIVE = {
   mode: 'off', sb: null, indices: null, sid: null, lastQ: null, channel: null, ended: false,
   tid: null, token: null, code: null, picked: [], cur: 0, total: 0, level: 1, qrDone: false
