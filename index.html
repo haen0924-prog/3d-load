@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>수어 길찾기 — 3D 학습 게임</title>
@@ -586,7 +588,7 @@
   #cam-panel.on { display: flex; flex-direction: column; gap: 10px; }
   #cam-panel label { font-size: 13px; font-weight: 700; color: #334155; display: flex; flex-direction: column; gap: 4px; }
   #cam-panel input { width: 100%; }
-  .boom-text { position: fixed; transform: translate(-50%, -50%); font-size: 30px; font-weight: 900; color: #dc2626; text-shadow: 0 2px 0 #fff; pointer-events: none; z-index: 70; }
+  .boom-text { position: fixed; transform: translate(-50%, -50%) rotate(-6deg); font-family: 'Black Han Sans', Impact, 'Arial Black', sans-serif; font-size: 44px; line-height: 1; color: #facc15; -webkit-text-stroke: 2px #7f1d1d; text-shadow: 0 0 6px #ef4444, 3px 4px 0 #7f1d1d; letter-spacing: 2px; white-space: nowrap; pointer-events: none; z-index: 70; }
   body.live-student #cam-btn, body.live-student #cam-panel { display: none !important; }
   .form-group { display: flex; flex-direction: column; gap: 4px; }
   .form-group label { font-size: 12.5px; font-weight: 700; color: #475569; }
@@ -3562,8 +3564,9 @@ const boomList = [];
 function showBoom(hit) {
   const el = document.createElement('div');
   el.className = 'boom-text';
-  el.textContent = '쾅';
-  document.body.appendChild(el);
+  el.textContent = '충돌';
+  // 전체 화면에서도 보이도록 게임 화면 안에 붙임
+  (document.getElementById('game-wrap') || document.body).appendChild(el);
   boomList.push({ el, pos: new THREE.Vector3(hit.x, 3, hit.z), t: 0 });
 }
 
