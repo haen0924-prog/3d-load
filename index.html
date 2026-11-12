@@ -266,11 +266,12 @@
   .nv-svg { height: 100%; width: auto; max-width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; background: #9fce8f; }
 
   /* 실시간 수업 */
-  #join-card, #live-card { background: #fff; border-radius: 14px; padding: 18px; width: min(460px, 94vw); max-height: 90vh; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
+  #join-card, #live-card, #sg-card { background: #fff; border-radius: 14px; padding: 18px; width: min(460px, 94vw); max-height: 90vh; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
   #join-card label, #live-card label { font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 6px; }
   #join-card input, #live-card input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 16px; }
-  #join-card > button, #live-card button { padding: 11px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 6px; }
+  #join-card > button, #sg-card > button, #live-card button { padding: 11px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 6px; }
   #live-card button.sub { background: #eef1f6; color: var(--muted); }
+  .sg-line { font-size: 15px; line-height: 1.6; margin: 0; color: #1c2433; }
   #join-msg { color: #b91c1c; font-size: 14px; min-height: 18px; }
   .live-note { font-size: 13px; color: var(--muted); line-height: 1.5; }
   .live-pane { display: none; flex-direction: column; gap: 6px; }
@@ -891,6 +892,19 @@
     <input id="join-code" inputmode="numeric" maxlength="6" placeholder="123456">
     <button id="join-btn" onclick="joinNow()">입장하기</button>
     <p id="join-msg"></p>
+  </div>
+</div>
+
+<!-- 수강생 안내 (입장 직후 한 번) -->
+<div class="modal-overlay" id="student-guide">
+  <div id="sg-card">
+    <h3>📱 이렇게 함께 해요</h3>
+    <p class="sg-line">1. 선생님이 문제를 보여 주면, 조작 버튼으로 차를 움직여 길을 따라 목표 건물까지 가세요.</p>
+    <p class="sg-line">2. 건물 가까이 가서 그 건물을 누르면 정답 확인이 됩니다.</p>
+    <p class="sg-line">3. 맞으면 <b>"여기가 정답입니다!"</b>가 뜹니다. 손을 들어 선생님께 알려 주세요.</p>
+    <p class="sg-line">4. 다음 문제는 선생님이 넘깁니다. 모두 같은 문제로 함께 넘어갑니다.</p>
+    <p class="sg-line">이름은 묻지 않으며, 수업 기록도 남지 않습니다.</p>
+    <button onclick="document.getElementById('student-guide').classList.remove('show')">확인하고 시작하기</button>
   </div>
 </div>
 
@@ -2295,7 +2309,7 @@ function init3DWorld() {
   scene.add(ground);
 
   // 도로망
-  const roadMat = new THREE.MeshLambertMaterial({ color: 0x434b59 });
+  const roadMat = new THREE.MeshLambertMaterial({ color: 0x9e9e9e });   // 길: #9e9e9e
   const dashMat = new THREE.MeshLambertMaterial({ color: 0xf5d469 });
 
   // 중앙공원 둘레 원형 길 (안쪽 17 ~ 바깥쪽 25)
@@ -2308,6 +2322,8 @@ function init3DWorld() {
    [-89.75,51,16.5,10],   // 교회 앞 동쪽 길 (교회 남쪽 출입구까지)
    [-51.5,61,93,10],      // 횡단보도(x=0 길)에서 왼쪽으로 꺾어 식당 남쪽 앞 → 카페 앞 → 교회 앞까지
    [42.5,79.5,75,10],     // 경찰서 옆 횡단보도(x=0 길)에서 우회전: 경찰서 남쪽 → 관공서·은행 앞까지
+   [84.5,66,10,28],       // 은행 동쪽을 한 바퀴 돌아 북쪽 주차장(경찰서 주차장)까지 이어지는 길
+   [86.5,31.5,10,42],     // 마트 동쪽 옆을 지나 자전거길(동서 길 남쪽 자전거길)까지 이어지는 길
    [22,64.75,8,29.5],     // 경찰서 가는 길: 위 길에서 경찰서 남쪽 면까지 올라가는 연결 길
    [86.75,-46,38.5,4],    // 아파트 북쪽 동서 길 (x=102 아파트 가까이 갈 수 있게)
    [72.5,-33.75,10,57.5], // 소방서와 아파트 사이 북쪽 길: 동서 길에서 올라가 성당 남쪽(옆)까지 (동쪽으로 5 이동 → 2번째 이동)
@@ -2691,6 +2707,8 @@ function onDrivableRoad(x, z, pad) {
   if (z >= 46 - pad && z <= 56 + pad && x >= -98 - pad && x <= -81.5 + pad) return true;        // 교회 앞 길
   if (z >= 56 - pad && z <= 66 + pad && x >= -98 - pad && x <= -5 + pad) return true;           // 식당 남쪽·카페 남쪽 길
   if (z >= 74.5 - pad && z <= 84.5 + pad && x >= 0 - pad && x <= 80 + pad) return true;          // 경찰서 남쪽 → 관공서·은행 앞 길
+  if (x >= 79.5 - pad && x <= 89.5 + pad && z >= 52 - pad && z <= 80 + pad) return true;         // 은행 동쪽 길 → 북쪽 주차장 연결
+  if (x >= 81.5 - pad && x <= 91.5 + pad && z >= 10.5 - pad && z <= 52.5 + pad) return true;     // 마트 동쪽 길 → 자전거길까지
   if (z >= 50 - pad && z <= 79.5 + pad && x >= 18 - pad && x <= 26 + pad) return true;           // 경찰서 가는 연결 길
   if (z >= -62.5 - pad && z <= -5 + pad && x >= 67.5 - pad && x <= 77.5 + pad) return true;      // 소방서·아파트 사이 북쪽 길 (성당 쪽)
   if (z >= -101 - pad && z <= -91 + pad && x >= -70 - pad && x <= 5 + pad) return true;          // 병원 앞 횡단보도 북쪽 길 (절 쪽)
@@ -2716,12 +2734,14 @@ function isAllowedPosition(x, z) {
   if (gameLevel >= 3) return true;   // 3단계: 사고 상황 표현용, 어느 공간이든 이동 가능 (건물은 막힘)
   // 2단계에서 새로 그린 길 위는 사람·자전거·차 모두 지나갈 수 있음
   if (gameLevel >= 2 && levelTwoWalks.some(w => x >= w.x0 && x <= w.x1 && z >= w.z0 && z <= w.z1)) return true;
+  // 주차장: 1·2단계 모두, 자동차·버스·자전거 모두 들어갈 수 있음 (바로 옆 3칸까지도 통행)
+  if (vehicleType !== 'walk' && levelTwoLots.some(l => x >= l.x0 - 3 && x <= l.x1 + 3 && z >= l.z0 - 3 && z <= l.z1 + 3)) return true;
   if (gameLevel >= 2 && vehicleType !== 'walk') {
-    // 차·자전거: 새 길 양옆 20%(길 폭 3의 20% = 0.6)까지, 그리고 주차장 안까지 통행
+    // 차·자전거: 새 길 양옆 20%(길 폭 3의 20% = 0.6)까지 통행
     if (levelTwoWalks.some(w => x >= w.x0 - 0.6 && x <= w.x1 + 0.6 && z >= w.z0 - 0.6 && z <= w.z1 + 0.6)) return true;
-    // 주차장 바로 옆 3칸까지도 차·자전거·오토바이가 들어가서 주차할 수 있게 함
-    if (levelTwoLots.some(l => x >= l.x0 - 3 && x <= l.x1 + 3 && z >= l.z0 - 3 && z <= l.z1 + 3)) return true;
   }
+  // 사람: 주차장 안도 걸어 다닐 수 있음 (1·2단계 공통, 주차된 차는 물체라서 피해 감)
+  if (vehicleType === 'walk' && levelTwoLots.some(l => x >= l.x0 && x <= l.x1 && z >= l.z0 && z <= l.z1)) return true;
   if (vehicleType === 'walk') return onWalkable(x, z);                  // 사람: 인도 (차도·자전거길은 가장자리 20%)
   if (vehicleType === 'bicycle') return onBikeLane(x, z);               // 자전거: 자전거길 (차도·인도는 20%)
   return onDrivableRoad(x, z, 1);                                       // 버스·자동차: 차도 (자전거길은 20%)
@@ -2957,7 +2977,10 @@ function buildWalkways() {
 }
 
 function buildLevelTwo() {
-  const padMat = new THREE.MeshLambertMaterial({ color: 0x4b5563 });
+  // 주차장 바닥·주차선: 1단계부터 보이도록 별도 그룹 (차·사람 등 2단계 물건과 분리)
+  const lotGroup = new THREE.Group();
+  scene.add(lotGroup);
+  const padMat = new THREE.MeshLambertMaterial({ color: 0x424242 });   // 주차장 바닥: #424242
   const lineMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
   const put = (geo, color, x, y, z) => {
     const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
@@ -2968,11 +2991,11 @@ function buildLevelTwo() {
     levelTwoLots.push({ x0, x1, z0, z1 });
     const w = x1 - x0, d = z1 - z0, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
     const pad = new THREE.Mesh(new THREE.PlaneGeometry(w, d), padMat);
-    pad.rotation.x = -Math.PI / 2; pad.position.set(cx, 0.03, cz); levelTwoGroup.add(pad);
+    pad.rotation.x = -Math.PI / 2; pad.position.set(cx, 0.03, cz); lotGroup.add(pad);
     for (let i = 0; i <= slots; i++) {
       if (i === 0 && skipFirst) continue;   // 경찰서 쪽 첫 흰 선은 그리지 않음
       const ln = new THREE.Mesh(new THREE.PlaneGeometry(0.15, d * 0.8), lineMat);
-      ln.rotation.x = -Math.PI / 2; ln.position.set(x0 + (w / slots) * i, 0.05, cz); levelTwoGroup.add(ln);
+      ln.rotation.x = -Math.PI / 2; ln.position.set(x0 + (w / slots) * i, 0.05, cz); lotGroup.add(ln);
     }
   };
   // 차 한 대 (차체·지붕·바퀴 네 개, 옆면 줄무늬). 충돌 상자도 함께 등록
@@ -3537,7 +3560,7 @@ function tick() {
   // 카메라는 자동차 중심(높이 3)을 바라봄
   const LOOK_AHEAD = 0;   // 차가 화면 아래쪽에 계속 보이도록 차 중심을 바라봄
   // 화면 기울기: 위로 20도 (양수 = 위로, 음수 = 아래로)
-  const CAM_TILT_UP = 10 * Math.PI / 180;   // 20도에서 10도 낮춤 (화면을 아래로 기울임)
+  const CAM_TILT_UP = 10 * Math.PI / 180;   // 0도에서 10도 올림
   const aimY = 3 + Math.tan(CAM_TILT_UP) * (camDist + LOOK_AHEAD);
   camera.lookAt(car.position.x - Math.sin(angle) * LOOK_AHEAD, aimY, car.position.z - Math.cos(angle) * LOOK_AHEAD);
   updateLabels();
@@ -4232,6 +4255,7 @@ async function joinNow() {
   if (!s) { msg.textContent = '수업 정보를 불러오지 못했습니다.'; return; }
   document.getElementById('join-overlay').classList.remove('show');
   startStudent(s);
+  showStudentGuide();
 }
 
 async function fetchPublicSession(sid) {
@@ -4269,6 +4293,12 @@ function startStudent(s) {
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'session_public', filter: 'id=eq.' + s.id }, p => studentGotQ(p.new.current_q))
     .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'session_public', filter: 'id=eq.' + s.id }, () => studentEnded())
     .subscribe();
+}
+
+function showStudentGuide() {
+  if (sessionStorage.getItem('liveGuideSeen')) return;   // 같은 기기에서는 한 번만
+  sessionStorage.setItem('liveGuideSeen', '1');
+  document.getElementById('student-guide').classList.add('show');
 }
 
 function studentGotQ(n) {
