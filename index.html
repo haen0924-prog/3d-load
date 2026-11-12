@@ -63,7 +63,7 @@
   .sign-img { display: none; position: absolute; top: 2px; height: 64px; width: auto; }
   .sign-img.on { display: block; }
   /* 3단계: 각 탈것 버튼 바로 아래에 수어 그림 고정 표시 */
-  .v-item { display: flex; flex-direction: column; align-items: center; transition: opacity .2s; }
+  .v-item { display: flex; flex-direction: column; align-items: center; transition: opacity .2s; width: 96px; }   /* 1단계·2단계 칸 너비 동일 */
   .v-item.dim, .nv-item.dim { opacity: 0.4; }
   body.lv3 .sign-img { display: block; position: static; margin-top: 4px; }
   /* 2단계: 헤더 탈것 글씨 자리에 수형 그림을 넣음 (글씨는 숨김) */
@@ -98,6 +98,7 @@
     align-items: center;
     gap: 4px;
   }
+  .v-btn { min-height: 72px; width: 100%; justify-content: center; }   /* 1단계 높이를 2단계(수형 그림 있는) 높이에 맞춤 */
   .v-btn:hover { background: rgba(255,255,255,0.8); }
   .v-btn.active {
     background: #ffffff;
