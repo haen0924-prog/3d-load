@@ -233,6 +233,7 @@
   .side-actions button:active { transform: scale(.97); }
   #btn-arrive { background: var(--accent); color: #fff; }
   body:not(.novideo) #btn-arrive { display: none; }   /* 영상 버전에서는 '여기예요!' 버튼 숨김 */
+  body:not(.novideo) #question-panel { display: none; }   /* 영상 버전에서는 문제 박스 숨김 */
   .start-pick { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; }
   .start-pick span { font-size: 13px; color: var(--muted); font-weight: 700; margin-right: 2px; }
   .start-pick button { flex: 1; padding: 7px 0; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; color: #334155; font-size: 14px; font-weight: 800; cursor: pointer; }
@@ -280,7 +281,7 @@
   #live-qr { display: flex; justify-content: center; }
   #live-url { font-size: 12px; color: var(--muted); word-break: break-all; text-align: center; }
   #live-qlist label { font-weight: 500; font-size: 14px; color: #334155; margin: 0; display: flex; gap: 6px; align-items: flex-start; }
-  body.live-student #btn-admin, body.live-student #btn-qr, body.live-student #btn-live,
+  body.live-student #btn-admin, body.live-student #btn-live,
   body.live-student #nv-video-on, body.live-student #btn-video-off { display: none !important; }
   body.live-student #lv-1, body.live-student #lv-2, body.live-student #lv-3 { pointer-events: none; opacity: .4; }
 
@@ -572,6 +573,13 @@
     font-weight: 800;
     color: var(--accent);
   }
+  #guide-modal .guide-top { background: #eff6ff; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; }
+  #guide-modal .guide-top p { margin: 3px 0; font-size: 14.5px; }
+  #guide-modal .guide-h { font-weight: 800; color: #1d4ed8; margin: 0 0 4px; font-size: 15px; }
+  #guide-modal .guide-acc { border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; margin: 8px 0; }
+  #guide-modal .guide-acc summary { cursor: pointer; font-weight: 700; color: #1d4ed8; font-size: 15px; }
+  #guide-modal .guide-acc p { margin: 3px 0; font-size: 14px; }
+  #guide-modal .guide-acc p b { color: #334155; }
   .form-group { display: flex; flex-direction: column; gap: 4px; }
   .form-group label { font-size: 12.5px; font-weight: 700; color: #475569; }
   .form-group input, .form-group textarea, .form-group select {
@@ -582,6 +590,18 @@
     font-family: inherit;
   }
   .form-group textarea { resize: vertical; min-height: 52px; }
+  .q-edit-card { gap: 14px; padding: 18px; }
+  .q-edit-header span { font-size: 16px; }
+  .form-group label { font-size: 14px; color: #334155; }
+  .form-group input, .form-group select { font-size: 15px; padding: 10px 12px; }
+  .mini-row { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+  .mini-row .form-group { flex-direction: row; align-items: center; gap: 8px; }
+  .mini-row .form-group select { width: auto; padding: 4px 8px; font-size: 13px; }
+  .ans-box { border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; padding: 10px 12px; }
+  .ans-box summary { cursor: pointer; font-size: 15px; font-weight: 700; color: #334155; }
+  .ans-box summary small { font-weight: 400; color: #64748b; margin-left: 8px; font-size: 13px; }
+  .ans-box .pick { cursor: pointer; }
+  .ans-map { margin-top: 10px; }
 
   .btn-del-q {
     background: #fee2e2;
@@ -641,7 +661,7 @@
     #toast { bottom: auto; top: 118px; }   /* 알림이 방향키 위를 가리지 않게 위쪽으로 */
     main { flex-direction: column; }
     aside { display: none; }   /* 모바일: 지도(3D 화면)만 보이게 문제·영상 숨김 */
-    .header-right, #btn-qr, #qr-box { display: none !important; }
+    .header-right { display: none !important; }
     #nv-video-on { display: none !important; }
     #btn-guide, #guide-modal { display: none !important; }   /* 모바일: 사용법(강사용 안내) 숨김 */
     #nv-actions .fs-btn { display: none; }
@@ -683,8 +703,7 @@
   </div>
 
   <!-- 영상 버전 / 영상 없는 버전 선택 -->
-  <button class="btn-teacher" id="btn-live" style="display:none;background:#eff6ff;color:#1d4ed8;margin-left:8px" onclick="openLivePanel()">📡 실시간 수업</button>
-  <button class="btn-teacher" id="btn-qr" style="background:#ecfdf5;color:#047857;margin-left:8px" onclick="toggleQr()">📱 QR 보이기</button>
+  <button class="btn-teacher" id="btn-live" style="display:none;background:#eff6ff;color:#1d4ed8;margin-left:8px" onclick="openLivePanel()">📱 모바일 참여 QR</button>
   <button class="btn-teacher" id="btn-guide" style="background:#fff7ed;color:#9a3412;margin-left:8px" onclick="toggleGuide(true)">📖 사용법</button>
   <span id="level-switch" style="display:inline-flex;gap:4px;margin-left:8px;background:#f1f5f9;padding:3px;border-radius:999px;vertical-align:middle">
     <button id="lv-1" onclick="setLevel(1)">1단계</button><button id="lv-2" onclick="setLevel(2)">2단계</button><button id="lv-3" onclick="setLevel(3)">3단계</button>
@@ -697,10 +716,6 @@
   </div>
 </header>
 
-<!-- QR 코드 (기본은 숨김, 상단 버튼으로 보이기/숨기기) -->
-<div id="qr-box" style="display:none;position:fixed;right:16px;bottom:16px;z-index:250;background:#fff;border-radius:14px;padding:14px;box-shadow:0 4px 18px rgba(0,0,0,.25);text-align:center;">
-  <img src="data:image/png;base64,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" alt="휴대폰으로 스캔하는 QR 코드" style="width:220px;height:220px;display:block;">
-</div>
 
 <!-- 사용법 창 -->
 <div id="guide-modal" onclick="if(event.target===this)toggleGuide(false)" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:300;align-items:center;justify-content:center;padding:12px;">
@@ -710,63 +725,109 @@
       <button onclick="toggleGuide(false)" style="border:none;border-radius:8px;padding:8px 14px;background:#eef1f6;font-weight:700;cursor:pointer;">닫기 ✕</button>
     </div>
     <div style="padding:14px 18px;overflow-y:auto;font-size:15px;line-height:1.7;color:#1c2433;">
-<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>👩‍🏫 강사용 안내</b></p>
-<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>🔧 수업 전 준비 (강사 관리 모드, 컴퓨터)</b></p>
-<p style="margin:0 0 4px;"><b>1. 문제 만들기</b></p>
-<p style="margin:0 0 8px;">· 문제마다 "이 문제가 속한 단계"(1·2·3단계)를 고릅니다. 수강생이 해당 단계를 누르면 그 단계 문제만 나옵니다.</p>
-<p style="margin:0 0 8px;">· 정답 건물을 고르고, 문제 설명 글을 씁니다.</p>
-<p style="margin:0 0 4px;"><b>2. 수어 영상 올리기</b></p>
-<p style="margin:0 0 8px;">· 문제마다 수어 영상을 파일로 올리거나 유튜브 주소를 넣습니다. 필요하면 재생 구간(시작·끝 초)을 정합니다.</p>
-<p style="margin:0 0 8px;">· 영상은 이 컴퓨터(브라우저)에만 저장됩니다. 다른 컴퓨터로 옮기려면 아래 순서를 따릅니다.</p>
-<p style="margin:0 0 8px;">&nbsp;&nbsp;① 보내는 컴퓨터: 강사 관리 모드에서 <b>💾 백업 파일 받기</b>를 누르면 문제와 영상이 모두 든 .json 파일이 저장됩니다.<br>
-&nbsp;&nbsp;② 받는 컴퓨터: 같은 화면에서 <b>📂 백업 불러오기</b>를 누르고 그 .json 파일을 고릅니다.<br>
-&nbsp;&nbsp;③ 불러온 뒤 <b>저장하고 반영하기</b>를 눌러 수강생 화면에 적용합니다.</p>
-<p style="margin:0 0 4px;"><b>3. 저장하기</b></p>
-<p style="margin:0 0 8px;">· 반드시 "저장하고 반영하기"를 눌러야 수강생 화면에 적용됩니다.</p>
-<p style="margin:0 0 4px;"><b>4. 수업 중 화면 설정</b></p>
-<p style="margin:0 0 8px;">· 영상 끄기: 영상 칸 오른쪽 위의 <b>✕</b> 버튼을 누릅니다. 지도 화면만 보입니다.</p>
-<p style="margin:0 0 8px;">· 영상 켜기: 지도 왼쪽 아래의 <b>🎬 영상 보기</b> 버튼을 누릅니다.</p>
-<p style="margin:0 0 8px;">· 탈것 그림(수어 그림)은 3단계에서 탈것 버튼 아래에 나타납니다.</p>
-<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>1단계: 건물 모양과 방향 표현</b></p>
-<p style="margin:0 0 4px;"><b>가르치는 것</b></p>
-<p style="margin:0 0 8px;">· 건물의 모양(사각형, 둥근 건물, 탑, 집 모양 등)과 그 수어 표현을 익힙니다.</p>
-<p style="margin:0 0 8px;">· 앞·뒤·왼쪽·오른쪽, 직진·좌회전·우회전 같은 방향 표현을 건물 위치와 연결합니다.</p>
-<p style="margin:0 0 4px;"><b>진행 순서</b></p>
-<p style="margin:0 0 8px;">· ① 건물 모양과 이름을 먼저 보여 줍니다. ② 방향 수어를 보여 주고 따라 하게 합니다. ③ 영상을 보고 목표 건물을 찾게 합니다.</p>
-<p style="margin:0 0 4px;"><b>수강생이 이해했는지 확인하는 방법</b></p>
-<p style="margin:0 0 8px;">· 수어를 보고 건물을 바로 찾는지, 방향을 헷갈리지 않는지 봅니다. 틀리면 "여기는 ○○입니다" 안내가 나오므로, 그 건물과 방향을 다시 설명합니다.</p>
-<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>2단계: 다양한 사물과 숫자 표현 (1단계 내용 포함)</b></p>
-<p style="margin:0 0 4px;"><b>가르치는 것</b></p>
-<p style="margin:0 0 8px;">· 1단계 내용에 더해, 여러 사물의 모양과 수어 표현을 익힙니다.</p>
-<p style="margin:0 0 8px;">· 경찰서·소방서·유치원·카페 앞에 차와 사람이 있어, 사물이 있는 장소를 표현하는 연습을 합니다.</p>
-<p style="margin:0 0 8px;">· 주차장의 경찰차, 소방차, 택시, 버스, 자전거, 오토바이 등 다양한 탈것을 익힙니다.</p>
-<p style="margin:0 0 8px;">· 숫자 표현을 함께 익힙니다. (숫자 문제는 게임 기능이 아니라 수업 활동으로 진행합니다.)</p>
-<p style="margin:0 0 4px;"><b>진행 순서</b></p>
-<p style="margin:0 0 8px;">· ① 1단계 복습 ② 새 사물 모양과 수어 보여 주기 ③ 장소를 표현하고 찾기 ④ 숫자 수어를 보여 주고 숫자와 연결해 보기</p>
-<p style="margin:0 0 4px;"><b>수강생이 이해했는지 확인하는 방법</b></p>
-<p style="margin:0 0 8px;">· 사물 모양을 보고 그 이름과 장소를 함께 말하는지, 숫자 수어를 정확히 읽는지 확인합니다.</p>
-<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>3단계: 충돌 상황 표현 (1·2단계 내용 포함)</b></p>
-<p style="margin:0 0 4px;"><b>가르치는 것</b></p>
-<p style="margin:0 0 8px;">· 사고가 나는 상황을 수어로 표현하고 이해합니다. 누가, 어느 방향에서, 어떻게 움직여 부딪혔는지를 설명하는 것이 핵심입니다.</p>
-<p style="margin:0 0 4px;"><b>수업 방법</b></p>
-<p style="margin:0 0 8px;">· 수강생이 탈것 2개를 고릅니다. 예: 🚗 자동차와 🚲 자전거.</p>
-<p style="margin:0 0 8px;">· 수강생이 조종할 탈것을 마우스로 클릭하고 방향키로 움직입니다. 다른 탈것을 클릭하면 그 탈것을 조종합니다.</p>
-<p style="margin:0 0 8px;">· 두 탈것을 부딪혀 보게 합니다. 부딪히면 멈추고 불꽃과 흔들림 효과가 나오며 "쾅! 충돌했습니다"가 뜹니다.</p>
-<p style="margin:0 0 8px;">· 3단계에서는 사람, 자동차, 자전거 모두 어디든 이동할 수 있습니다. 신호등에 멈추지 않으므로, 사고 상황을 자유롭게 만들어 볼 수 있습니다.</p>
-<p style="margin:0 0 4px;"><b>진행 순서</b></p>
-<p style="margin:0 0 8px;">· ① 1·2단계 복습 ② 탈것 2개 고르고 움직여 보기 ③ 충돌 장면 만들기 ④ 수강생이 수어로 사고 장면을 설명하고, 강사가 맞는지 확인하기</p>
-<p style="margin:0 0 4px;"><b>수강생이 이해했는지 확인하는 방법</b></p>
-<p style="margin:0 0 8px;">· 누가 어디서 어떻게 움직여 부딪혔는지 수어로 설명할 수 있는지 확인합니다. 설명이 어려우면 장면을 천천히 다시 만들어 봅니다.</p>
-<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>📱 큐알코드로 함께 하기 (수강생 폰)</b></p>
-<p style="margin:0 0 8px;">· 선생님 화면의 큐알코드를 폰 카메라로 찍으면 입장 화면이 열립니다. 6자리 입장 코드를 직접 입력해도 됩니다.</p>
-<p style="margin:0 0 8px;">· 이름은 묻지 않으며, 수업 기록도 남지 않습니다.</p>
-<p style="margin:0 0 8px;">· 선생님이 문제를 보여 주면, 폰 화면의 조작 버튼으로 차를 움직여 길을 따라 목표 건물까지 가세요. 수어 영상은 선생님 화면에서 봅니다.</p>
-<p style="margin:0 0 8px;">· 건물 가까이 가서 그 건물을 누르면 정답 확인이 됩니다. 맞으면 <b>"여기가 정답입니다!"</b> 창이 뜹니다.</p>
-<p style="margin:0 0 8px;">· 정답 창이 뜨면 <b>손을 들어 선생님께 정답을 맞혔다고 알려 주세요.</b> 다음 문제는 선생님이 넘깁니다. 선생님이 넘기면 모두 같은 문제로 함께 넘어갑니다.</p>
-<p style="margin:14px 0 6px;font-size:16px;color:#1d4ed8;"><b>📝 수업 팁</b></p>
-<p style="margin:0 0 8px;">· 1단계에서 충분히 익힌 뒤 2단계, 2단계 뒤 3단계로 넘어가는 것이 좋습니다.</p>
-<p style="margin:0 0 8px;">· 단계를 바꾸면 그 단계의 첫 문제가 나오므로, 수업 전에 각 단계에 문제가 있는지 확인하세요. 문제가 없으면 "이 단계에 등록된 문제가 없습니다"가 나옵니다.</p>
-<p style="margin:0 0 8px;">· 자전거는 자전거 전용도로(초록 띠)와 인도, 차도 일부로 다닐 수 있습니다. 사람은 인도와 횡단보도로 다닙니다. (3단계에서는 예외입니다.)</p>
+<div class="guide-top">
+<p class="guide-h">⭐ 꼭 알아두기</p>
+<p>· 수업 전: 강사 관리 모드에서 문제 만들기 → <b>저장하고 반영하기</b> 필수</p>
+<p>· 모바일 수업: <b>📱 모바일 참여 QR</b> → <b>수업 열기</b> → 코드·QR 공유</p>
+<p>· 다음 문제는 강사가 <b>다음 문제</b> 버튼으로 넘김</p>
+<p>· 정답 확인은 학생이 손을 들고 말로 확인</p>
+<p>· 수업 기록은 하루 뒤 자동 삭제, 이름·점수 저장 안 함</p>
+</div>
+
+<details class="guide-acc">
+<summary>🔧 강사: 문제 만들기</summary>
+<p>· 강사 관리 모드 → 문제 추가 (➕)</p>
+<p>· 단계: 1·2·3단계 중 선택</p>
+<p>· 정답 건물: 펼쳐서 배치도의 건물 클릭</p>
+<p>· 영상: 파일 올리기 또는 유튜브 주소</p>
+<p>· 재생 구간: 시작·끝 초 (끝 0 = 끝까지)</p>
+<p>· 마지막에 <b>저장하고 반영하기</b></p>
+</details>
+
+<details class="guide-acc">
+<summary>💾 강사: 다른 컴퓨터로 옮기기</summary>
+<p>· 영상은 이 컴퓨터(브라우저)에만 저장됨</p>
+<p>· 보내는 컴퓨터: <b>💾 백업 파일 받기</b> (.json)</p>
+<p>· 받는 컴퓨터: <b>📂 백업 불러오기</b> → <b>저장하고 반영하기</b></p>
+</details>
+
+<details class="guide-acc">
+<summary>📱 강사: 모바일 참여 수업 진행</summary>
+<p>· <b>📱 모바일 참여 QR</b> 누르기</p>
+<p>· 풀 문제 체크 (기본은 전부 선택)</p>
+<p>· <b>수업 열기</b> → 6자리 코드와 QR 표시</p>
+<p>· 학생이 QR 찍거나 코드 입력</p>
+<p>· <b>다음 문제</b>로 모든 학생 폰 함께 넘김</p>
+<p>· 끝나면 <b>수업 끝내기</b> (입장 막힘)</p>
+<p>· 같은 컴퓨터·브라우저에서 다시 열면 이어짐</p>
+<p>· QR 사진을 수업 밖 사람에게 보내지 않기</p>
+</details>
+
+<details class="guide-acc">
+<summary>👀 수업 중 화면 설정</summary>
+<p>· 영상 끄기: 영상 칸 오른쪽 위 <b>✕</b> (지도만 보임)</p>
+<p>· 영상 켜기: 지도 왼쪽 아래 <b>🎬 영상 보기</b></p>
+<p>· 탈것 그림: 3단계에서 탈것 버튼 아래에 표시</p>
+</details>
+
+<details class="guide-acc">
+<summary>1단계: 건물 모양과 방향 표현</summary>
+<p><b>가르치는 것</b></p>
+<p>· 건물 모양과 수어 표현</p>
+<p>· 앞·뒤·좌·우, 직진·좌회전·우회전</p>
+<p><b>진행</b></p>
+<p>· 건물 보여 주기 → 방향 수어 따라 하기 → 영상 보고 찾기</p>
+<p><b>확인</b></p>
+<p>· 건물을 바로 찾는지, 방향을 헷갈리지 않는지 확인</p>
+</details>
+
+<details class="guide-acc">
+<summary>2단계: 사물과 숫자 표현 (1단계 포함)</summary>
+<p><b>가르치는 것</b></p>
+<p>· 여러 사물 모양과 수어 표현</p>
+<p>· 경찰서·소방서·유치원·카페 앞 차와 사람 표현</p>
+<p>· 탈것: 경찰차, 소방차, 택시, 버스, 자전거, 오토바이</p>
+<p>· 숫자 수어 (게임이 아닌 수업 활동)</p>
+<p><b>진행</b></p>
+<p>· 1단계 복습 → 새 사물 → 장소 표현 → 숫자 연결</p>
+<p><b>확인</b></p>
+<p>· 사물 이름과 장소를 함께 말하는지, 숫자 수어를 읽는지 확인</p>
+</details>
+
+<details class="guide-acc">
+<summary>3단계: 충돌 상황 표현 (1·2단계 포함)</summary>
+<p><b>가르치는 것</b></p>
+<p>· 사고 상황을 수어로 표현: 누가, 어디서, 어떻게 부딪혔는지</p>
+<p><b>수업 방법</b></p>
+<p>· 학생이 탈것 2개 선택 (예: 🚗 자동차 + 🚲 자전거)</p>
+<p>· 탈것을 클릭해 조종, 방향키로 이동</p>
+<p>· 부딪히면 멈추고 "쾅! 충돌했습니다" 표시</p>
+<p>· 3단계는 신호등 없이 자유 이동</p>
+<p><b>진행</b></p>
+<p>· 1·2단계 복습 → 탈것 고르기 → 충돌 만들기 → 수어로 설명 → 강사 확인</p>
+<p><b>확인</b></p>
+<p>· 누가 어디서 어떻게 움직였는지 수어로 설명하는지 확인</p>
+</details>
+
+<details class="guide-acc">
+<summary>📱 학생: 폰으로 참여하기</summary>
+<p>· 선생님 화면의 QR 찍기 또는 6자리 코드 입력</p>
+<p>· 이름 입력 없음, 기록 없음</p>
+<p>· 폰 조작 버튼으로 차를 움직여 목표 건물까지 이동</p>
+<p>· 수어 영상은 선생님 화면에서 봄</p>
+<p>· 건물 가까이 가서 누르면 정답 확인</p>
+<p>· 맞으면 "여기가 정답입니다!" → 손 들어 말로 알리기</p>
+<p>· 다음 문제는 선생님이 넘김</p>
+</details>
+
+<details class="guide-acc">
+<summary>📝 수업 팁</summary>
+<p>· 1단계 충분히 익힌 뒤 2단계, 그 뒤 3단계</p>
+<p>· 단계를 바꾸면 그 단계 첫 문제가 나옴</p>
+<p>· 단계에 문제가 없으면 "이 단계에 등록된 문제가 없습니다" 표시</p>
+<p>· 자전거: 자전거 전용도로(초록 띠), 인도, 차도 일부 이용</p>
+<p>· 사람: 인도와 횡단보도 이용 (3단계 제외)</p>
+</details>
     </div>
   </div>
 </div>
@@ -912,13 +973,20 @@
 <div class="modal-overlay" id="live-overlay">
   <div id="live-card">
     <div class="modal-header">
-      <h2>📡 실시간 수업</h2>
+      <h2>📱 모바일 참여</h2>
       <button class="btn-close-modal" onclick="document.getElementById('live-overlay').classList.remove('show')">✕</button>
     </div>
     <div id="live-open" class="live-pane">
-      <p class="live-note">이번 수업에서 풀 문제를 고르세요. (문제 수는 강사가 정합니다)</p>
+      <p class="live-note">① 아래에서 이번 수업에 풀 문제를 고릅니다. 기본은 전부 선택되어 있습니다.</p>
+      <p class="live-note">② <b>수업 열기</b>를 누르면 6자리 입장 코드와 모바일 참여 QR이 나옵니다.</p>
+      <p class="live-note">③ 수강생은 폰으로 QR을 찍거나 입장 코드를 입력해 들어옵니다.</p>
+      <p class="live-note">④ 문제를 넘길 때는 <b>다음 문제</b>를 누르면 모든 수강생 폰이 함께 넘어갑니다.</p>
+      <div id="live-empty" style="display:none;">
+        <p class="live-note">등록된 문제가 없습니다. 먼저 강사 관리 모드에서 문제를 만드세요.</p>
+        <button onclick="goTeacherFromLive()">⚙️ 강사 관리 모드로 가기</button>
+      </div>
       <div id="live-qlist"></div>
-      <button onclick="liveOpenSession()">📡 수업 열기</button>
+      <button id="live-open-btn" onclick="liveOpenSession()">📡 수업 열기</button>
     </div>
     <div id="live-run" class="live-pane">
       <div id="live-count"></div>
@@ -940,23 +1008,6 @@
     </div>
     <div class="modal-body">
       
-      <!-- 건물 위치 참고 지도 -->
-      <div class="map-guide-toggle">
-        <button onclick="toggleMapGuide()">
-          <span>🗺️ 3D 마을 건물 배치도 (정답 설정 참고용)</span>
-          <span id="map-guide-arrow">▼ 펼치기</span>
-        </button>
-        <div id="map-guide-content" style="display:none; margin-top:10px;">
-          <p style="font-size:12px; color:var(--muted); margin-bottom:8px; text-align:center;">
-            위에서 내려다본 실제 배치도입니다. 위쪽이 북쪽, 빨간 점이 출발지, 가운데 초록 원이 중앙공원입니다.
-          </p>
-          <div id="map-svg-box"></div>
-          <p style="font-size:11.5px; color:var(--accent); margin-top:8px; text-align:center; font-weight:700;">
-            🚗 출발지: 남쪽 길 끝 (북쪽을 향해 출발)
-          </p>
-        </div>
-      </div>
-
       <div id="teacher-questions-list"></div>
       <button class="btn-add-q" onclick="addQuestion()">➕ 새 문제 추가하기</button>
     </div>
@@ -3750,19 +3801,6 @@ window.setPlayMode = function(m) {
   toast(m === 'novideo' ? '영상 없는 버전으로 바뀌었습니다 🗺' : '영상 버전으로 바뀌었습니다 🎬');
 };
 
-window.toggleQr = function() {
-  const box = document.getElementById('qr-box');
-  if (box.style.display !== 'none') { box.style.display = 'none'; return; }
-  // QR 보이기 버튼 바로 아래에 붙여서 띄움 (화면 밖으로 나가지 않게 위치 조정)
-  const btn = document.getElementById('btn-qr').getBoundingClientRect();
-  box.style.display = 'block';
-  const w = box.offsetWidth;
-  box.style.right = 'auto';
-  box.style.bottom = 'auto';
-  box.style.top = (btn.bottom + 8) + 'px';
-  box.style.left = Math.max(8, Math.min(btn.left, window.innerWidth - w - 8)) + 'px';
-};
-
 window.toggleGuide = function(show) {
   document.getElementById('guide-modal').style.display = show ? 'flex' : 'none';
 };
@@ -3901,30 +3939,28 @@ function renderTeacherQuestionsUI() {
         <span>문제 #${idx + 1}</span>
         <button class="btn-del-q" onclick="deleteQuestion(${idx})">🗑 삭제</button>
       </div>
-      <div class="form-group">
-        <label>이 문제가 속한 단계:</label>
-        <select onchange="updateQuestionField(${idx}, 'level', Number(this.value))">
-          <option value="1" ${Number(q.level || 1) === 1 ? 'selected' : ''}>1단계</option>
-          <option value="2" ${Number(q.level || 1) === 2 ? 'selected' : ''}>2단계</option>
-          <option value="3" ${Number(q.level || 1) === 3 ? 'selected' : ''}>3단계</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>영상 종류:</label>
-        <select onchange="updateQuestionField(${idx}, 'videoType', this.value); renderTeacherQuestionsUI();">
-          <option value="file" ${isYt ? '' : 'selected'}>로컬 파일 (MP4/WebM)</option>
-          <option value="youtube" ${isYt ? 'selected' : ''}>유튜브 링크</option>
-        </select>
+      <div class="mini-row">
+        <div class="form-group">
+          <label>단계:</label>
+          <select onchange="updateQuestionField(${idx}, 'level', Number(this.value))">
+            <option value="1" ${Number(q.level || 1) === 1 ? 'selected' : ''}>1단계</option>
+            <option value="2" ${Number(q.level || 1) === 2 ? 'selected' : ''}>2단계</option>
+            <option value="3" ${Number(q.level || 1) === 3 ? 'selected' : ''}>3단계</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>영상 종류:</label>
+          <select onchange="updateQuestionField(${idx}, 'videoType', this.value); renderTeacherQuestionsUI();">
+            <option value="file" ${isYt ? '' : 'selected'}>로컬 파일 (MP4/WebM)</option>
+            <option value="youtube" ${isYt ? 'selected' : ''}>유튜브 링크</option>
+          </select>
+        </div>
       </div>
       ${isYt ? `
       <div class="form-group">
         <label>유튜브 주소 (주소창의 링크를 그대로 붙여넣기):</label>
         <input type="text" value="${escAttr(q.youtubeUrl)}" placeholder="https://www.youtube.com/watch?v=..." onchange="updateQuestionField(${idx}, 'youtubeUrl', this.value)">
-      </div>` : `
-      <div class="form-group">
-        <label>수어 동영상 파일 선택 (선택하면 바로 저장됩니다):</label>
-        <input type="file" accept="video/*" onchange="handleVideoUpload(event, ${q.id})">
-      </div>`}
+      </div>
       <div class="form-group">
         <label>재생 구간 (시작 ~ 끝, 초 단위 / 끝을 0으로 두면 끝까지):</label>
         <div class="range-row">
@@ -3933,21 +3969,35 @@ function renderTeacherQuestionsUI() {
           <input type="number" min="0" step="1" value="${q.end || 0}" onchange="updateQuestionField(${idx}, 'end', Math.max(0, Number(this.value) || 0))">
           <span class="unit">초</span>
         </div>
-      </div>
+      </div>` : `
       <div class="form-group">
-        <label>문제 설명 글:</label>
-        <input type="text" value="${escAttr(q.question)}" onchange="updateQuestionField(${idx}, 'question', this.value)">
-      </div>
+        <label>수어 동영상 파일 선택 (선택하면 이 컴퓨터·브라우저에 바로 저장됩니다):</label>
+        <input type="file" accept="video/*" onchange="handleVideoUpload(event, ${q.id})">
+      </div>`}
       <div class="form-group">
-        <label>정답 건물 선택:</label>
-        <select onchange="updateQuestionField(${idx}, 'answer', this.value)">
-          ${BUILDINGS.map(b => `<option value="${b.name}" ${b.name === q.answer ? 'selected' : ''}>${b.icon} ${b.name}</option>`).join('')}
-        </select>
+        <details class="ans-box">
+          <summary>정답 건물: <b id="ans-name-${idx}">${(BUILDINGS.find(b => b.name === q.answer) || {}).icon || ''} ${escAttr(q.answer)}</b><small>눌러서 펼치면 배치도에서 건물을 고를 수 있어요</small></summary>
+          <div class="ans-map" id="ans-map-${idx}">${mapBoxHTML(idx, q.answer)}</div>
+        </details>
       </div>
     `;
     container.appendChild(card);
   });
 }
+
+function mapBoxHTML(idx, sel) {
+  return `<svg viewBox="-120 -120 240 260" style="width:100%;display:block;border-radius:10px;border:1px solid #cbd5e1;">${mapInnerSVG(idx, sel)}</svg>`;
+}
+
+window.pickAnswer = function(idx, name) {
+  updateQuestionField(idx, 'answer', name);
+  const b = BUILDINGS.find(x => x.name === name);
+  const label = document.getElementById('ans-name-' + idx);
+  if (label) label.textContent = (b ? b.icon + ' ' : '') + name;
+  const box = document.getElementById('ans-map-' + idx);
+  if (box) box.innerHTML = mapBoxHTML(idx, name);
+  toast('정답 건물: ' + name);
+};
 
 window.addQuestion = function() {
   QUESTIONS.push({
@@ -4086,7 +4136,7 @@ window.saveTeacherQuestions = async function() {
 
 function hexColor(c) { return '#' + c.toString(16).padStart(6, '0'); }
 
-function mapInnerSVG() {
+function mapInnerSVG(idx, sel) {   // idx: 누르면 정답을 고르는 문제 번호 (없으면 그림만), sel: 지금 정답 건물
   let s = '';
   // 땅과 도로
   s += `<rect x="-120" y="-120" width="240" height="260" fill="#9fce8f"/>`;
@@ -4109,9 +4159,11 @@ function mapInnerSVG() {
   // 건물 (실제 위치와 크기)
   BUILDINGS.forEach(b => {
     const W = b.w || 11, D = b.d || W;
-    s += `<rect x="${b.x - W/2}" y="${b.z - D/2}" width="${W}" height="${D}" rx="1" fill="${hexColor(b.color)}" stroke="${hexColor(b.accent)}" stroke-width="1.2"/>`;
-    s += `<text x="${b.x}" y="${b.z + 1}" font-size="5" text-anchor="middle">${b.icon}</text>`;
-    s += `<text x="${b.x}" y="${b.z + 4.6}" font-size="2.8" text-anchor="middle" font-weight="bold" fill="#1c2433">${b.name}</text>`;
+    const on = sel === b.name;
+    const click = idx === undefined ? '' : ` class="pick" onclick="pickAnswer(${idx}, '${b.name}')"`;
+    s += `<rect${click} x="${b.x - W/2}" y="${b.z - D/2}" width="${W}" height="${D}" rx="1" fill="${hexColor(b.color)}" stroke="${on ? '#e11d48' : hexColor(b.accent)}" stroke-width="${on ? 2.6 : 1.2}"/>`;
+    s += `<text x="${b.x}" y="${b.z + 1}" font-size="5" text-anchor="middle" pointer-events="none">${b.icon}</text>`;
+    s += `<text x="${b.x}" y="${b.z + 4.6}" font-size="2.8" text-anchor="middle" font-weight="bold" fill="#1c2433" pointer-events="none">${b.name}</text>`;
   });
   // 출발지와 북쪽 표시
   s += `<circle cx="0" cy="115" r="2.2" fill="#dc2626"/>`;
@@ -4199,7 +4251,6 @@ window.addEventListener('load', async () => {
     console.warn('IndexedDB Init warning:', e);
   }
 
-  renderMapGuide();
   initLive();
   // 문제는 먼저 보여주고, 3D 화면은 따로 준비 (3D 로딩이 실패해도 문제는 보이도록)
   loadQuestion(0);
@@ -4346,9 +4397,18 @@ window.openLivePanel = function () {
 };
 
 function renderLiveOpen() {
+  const none = !QUESTIONS.length;   // 문제가 없으면 관리 모드로 가라는 안내만 보임
+  document.getElementById('live-empty').style.display = none ? '' : 'none';
+  document.getElementById('live-qlist').style.display = none ? 'none' : '';
+  document.getElementById('live-open-btn').style.display = none ? 'none' : '';
   document.getElementById('live-qlist').innerHTML = QUESTIONS.map((q, i) =>
-    `<label><input type="checkbox" value="${i}" checked><span>#${i + 1} [${Number(q.level || 1)}단계] ${escAttr(q.question)}</span></label>`
+    `<label><input type="checkbox" value="${i}" checked><span>${i + 1}번 문제</span></label>`
   ).join('');
+}
+
+function goTeacherFromLive() {
+  document.getElementById('live-overlay').classList.remove('show');
+  toggleTeacherModal(true);
 }
 
 function maxLevelOf(list) {
