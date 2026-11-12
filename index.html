@@ -2795,6 +2795,7 @@ function objectHit(x, z, m) {
 let gameLevel = 1;
 const levelTwoGroup = new THREE.Group();
 levelTwoGroup.visible = false;
+const aptDarkGroup = new THREE.Group();   // 1단계 전용: 불 꺼진 아파트 창문 (2단계부터 숨김)
 const levelTwoBoxes = [];   // 사람·차가 피해 다니는 상자 {cx, cz, hw, hd}
 const levelTwoWalks = [];   // 2단계에서 새로 그린 인도 범위 {x0, x1, z0, z1} (사람·자전거·차 모두 통행)
 const levelTwoLots = [];    // 주차장 바닥 범위 {x0, x1, z0, z1} (인도가 주차장 가운데로 지나가지 않게 피함)
@@ -2824,6 +2825,7 @@ function updateVehicleSign() {
 window.setLevel = function(n) {
   gameLevel = n;
   levelTwoGroup.visible = n >= 2;
+  aptDarkGroup.visible = n < 2;   // 1단계: 불 꺼진 아파트 / 2단계 이상: 기존 창문
   footGroup.visible = n >= 2;
   document.body.classList.toggle('lv3', n >= 3);   // 3단계: 탈것 그림 보이기 (2단계 내용은 모두 포함)
   if (n < 3) clearOthers();
@@ -2841,7 +2843,7 @@ window.setLevel = function(n) {
 
 // 2단계: 아파트 벽에 창문 그리기 (건물 벽 바로 앞에 얇은 그림 판을 붙임)
 // 판과 벽이 같은 자리에 겹쳐 깜박이지 않도록 polygonOffset 사용, 간판 자리는 비워 둠
-function buildApartmentWindows() {
+function buildApartmentWindows(allDark, grp) {   // allDark: 모든 창문 끔 (1단계), grp: 붙일 그룹
   let idx = 0;   // 아파트 번호 (면마다 다른 불 켜짐 패턴을 만들기 위해 사용)
   BUILDINGS.forEach(b => {
     if (b.name !== '아파트') return;
@@ -2867,7 +2869,7 @@ function buildApartmentWindows() {
         const yc = h - (r + 0.5) * h / rows;           // 캔버스 첫 행이 건물 맨 위
         if (Math.abs(yc - bandY) < 3.2) continue;       // 간판 자리는 창문을 그리지 않음
         for (let k = 0; k < cols; k++) {
-          const lit = ((r * 17 + k * 29 + seed * 41) % 11) < 4;   // 약 3분의 1 정도 불 켜짐
+          const lit = !allDark && ((r * 17 + k * 29 + seed * 41) % 11) < 4;   // 약 3분의 1 정도 불 켜짐 (1단계는 모두 끔)
           c.fillStyle = '#0f172a';
           c.fillRect(k * cw + cw * 0.2, r * rh + rh * 0.2, cw * 0.6, rh * 0.6);      // 창틀
           c.fillStyle = lit ? '#fde68a' : '#4b5563';   // 불 켜진 창은 노랑, 꺼진 창은 진회색
@@ -2882,7 +2884,7 @@ function buildApartmentWindows() {
       const m = new THREE.Mesh(new THREE.PlaneGeometry(f.w, h), mat);
       m.position.set(f.pos[0], f.pos[1], f.pos[2]);
       m.rotation.y = f.ry;
-      levelTwoGroup.add(m);
+      grp.add(m);
     });
     idx++;
   });
@@ -3184,9 +3186,11 @@ function buildLevelTwo() {
   });
   car(-23, 68, 0xe2e8f0, 2.4, 4.6, 1.0, null, null, null, 2 / 3);   // 흰 승용차 1대
 
-  buildApartmentWindows();
+  buildApartmentWindows(false, levelTwoGroup);   // 2·3단계: 불 켜진 창문 그대로
+  buildApartmentWindows(true, aptDarkGroup);     // 1단계: 아파트 불 모두 끔
   refreshLevelButtons();
   scene.add(levelTwoGroup);
+  scene.add(aptDarkGroup);
 }
 
 /* ── 횡단보도 + 신호등 ──
