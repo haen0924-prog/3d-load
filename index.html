@@ -693,6 +693,9 @@
     #game-wrap { flex: 1 1 auto; min-height: 70vh; }
     #touch-pad { display: grid; }
     #key-guide { display: none; }
+    #btn-live { display: none !important; }   /* 모바일: 모바일 참여 QR 버튼 숨김 */
+    #cam-btn { top: 8px; right: 8px; bottom: auto; }   /* 모바일: 카메라 버튼을 오른쪽 위로 (방향키와 겹치지 않게) */
+    #cam-panel { top: 58px; bottom: auto; right: 8px; }
   }
   @media (min-width:821px) {
     #touch-pad { display: none; }
@@ -1478,8 +1481,8 @@ function addRooftopDecor(g, b, wx, wz, h) {
     const isOffice = b.name === '관공서';
     const DW = isKinder ? 1.6 : (isOffice ? 1.6 : (b.name === '소방서' ? 3.0 : 1.8));   // 소방서: 경찰서처럼 넓은 회색 문 하나
     const isFire = b.name === '소방서';
-    const DH = (isOffice || isFire) ? 2.2 : 2.6;
-    const col = isKinder ? 0xca8a04 : (b.name === '미용실' ? 0xbfe3f5 : 0x374151);   // 소방서 문: 경찰서와 같은 회색, 미용실 문: 유리
+    const DH = (isOffice || isFire) ? 2.2 : (b.name === '병원' ? 1.9 : 2.6);   // 병원 문: 창문 줄 아래에서 끊김
+    const col = isKinder ? 0xca8a04 : ((b.name === '미용실' || b.name === '병원') ? 0xbfe3f5 : 0x374151);   // 미용실·병원 문: 유리문   // 소방서 문: 경찰서와 같은 회색, 미용실 문: 유리
     if (!isKinder) [1, -1].forEach(sz => xs.forEach(x => {
       if (b.name === '미용실' || b.name === '약국') return;   // 미용실·약국 문은 네 면 통유리로 대체 (아래 블록)
       add(new THREE.BoxGeometry(DW, DH, 0.2), col, x, DH / 2, sz * (wz / 2 + 0.08));
@@ -1526,7 +1529,7 @@ function addRooftopDecor(g, b, wx, wz, h) {
   }
   if (b.name === '학교' || b.name === '병원') {
     // 벽 네 면에 작은 창문 (흰 테두리 + 파란 유리), 두 줄. 간판 글씨 자리는 피함
-    const WIN_BLUE = 0x1e3a5f, WIN_FRAME = 0xf8fafc;
+    const WIN_BLUE = 0xfde68a, WIN_FRAME = 0xf8fafc;   // 병원 창문: 모두 켜진 노란 불빛
     const rowsY = b.name === '학교' ? [3.2] : [2.5, 7.6];   // 학교는 간판 아래 한 줄
     const faces = [
       { axis: 'z', sign: 1,  len: wx, off: wz / 2 },
@@ -1551,7 +1554,8 @@ function addRooftopDecor(g, b, wx, wz, h) {
             g.add(wg);
             const part = (geo, color, x, z) => { const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color })); m.position.set(x, 0, z); wg.add(m); };
             part(new THREE.BoxGeometry(2.0, 2.4, 0.2), 0xd2b48c, 0, 0);
-            part(new THREE.BoxGeometry(1.5, 2.0, 0.22), 0xbfe3f5, 0, 0.05);
+            const glassM = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.0, 0.22), new THREE.MeshLambertMaterial({ color: 0xfde68a }));   // 모두 켜진 창 (노란 불빛)
+            glassM.position.set(0, 0, 0.05); wg.add(glassM);
             part(new THREE.BoxGeometry(1.5, 0.1, 0.25), 0xffffff, 0, 0.1);
             part(new THREE.BoxGeometry(0.1, 2.0, 0.25), 0xffffff, 0, 0.1);
             [-1.25, 1.25].forEach(x => part(new THREE.BoxGeometry(0.5, 2.2, 0.15), 0x5b7fa6, x, 0.05));
@@ -3701,7 +3705,8 @@ function handleImpact(hit) {
     else if (isCar && T === 'bicycle') startFall(o.group, 'z', 1, false);
     else if (V === 'bicycle' && (T === 'car' || T === 'bus')) startFall(car, 'z', 1, true);
     else if (isCar && (T === 'car' || T === 'bus')) pushOther(T);
-  } else if (hit.bld) {
+  } else {
+    // 건물·나무·신호등 기둥·분수·주차된 차 등 모든 사물: 사람은 넘어지고, 자전거는 함께 넘어짐 (자동차는 멈춤만)
     if (V === 'walk') startFall(car, 'x', 1, true);
     else if (V === 'bicycle') startFall(car, 'z', 1, true);   // 자전거와 탄 사람이 함께 넘어짐
   }
