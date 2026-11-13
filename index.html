@@ -703,7 +703,7 @@
   @media (max-width:820px) {
     /* 휴대폰 주소창이 차지한 만큼 뺀 실제 화면 높이에 맞춤 (아래 방향키가 잘리지 않게) */
     body { height: 100vh; height: 100dvh; }
-    #toast { bottom: auto; top: 118px; }   /* 알림이 방향키 위를 가리지 않게 위쪽으로 */
+    #toast, body.live-teacher #toast { bottom: auto !important; top: 118px; }   /* 알림이 방향키 위를 가리지 않게 위쪽으로 (수업 중 아래 고정 위치가 남아 세로로 늘어나던 문제 방지) */
     main { flex-direction: column; }
     aside { display: none; }   /* 모바일: 지도(3D 화면)만 보이게 문제·영상 숨김 */
     .header-right { display: none !important; }
@@ -3002,7 +3002,19 @@ function applyNightVisuals() {
   setNightGlass(nt);             // 기존 건물 창문
   refreshDayNightButtons();
 }
-function setDayNight(night) { isNight = night; applyNightVisuals(); }
+function setDayNight(night) { isNight = night; applyNightVisuals(); pushNight(); }
+// 실시간 수업 중이면 강사의 낮/밤 선택을 수강생 기기에도 보냄 (강사 열쇠가 맞아야 저장됨)
+function pushNight() {
+  if (!(LIVE.mode === 'teacher' && LIVE.tid && LIVE.sb)) return;
+  LIVE.sb.rpc('set_night', { p_session: LIVE.tid, p_token: LIVE.token, p_night: !!isNight })
+    .then(({ error }) => { if (error) toast(error.message); });
+}
+// 수강생 기기: 강사가 정한 낮/밤을 그대로 따름
+function studentGotNight(v) {
+  if (typeof v !== 'boolean' || LIVE.ended) return;
+  isNight = v;
+  applyNightVisuals();
+}
 function refreshDayNightButtons() {
   const sw = document.getElementById('daynight-switch');
   if (sw) sw.style.display = gameLevel >= 2 ? 'inline-flex' : 'none';
@@ -3018,7 +3030,7 @@ function applyLevel(n) {
   if (n >= 3) n = 2;   // 예전 3단계는 2단계에 합쳐짐
   gameLevel = n;
   levelTwoGroup.visible = n >= 2;
-  if (n < 2) isNight = false;   // 1단계는 항상 낮
+  if (n < 2 && LIVE.mode !== 'student' && isNight) { isNight = false; pushNight(); }   // 1단계는 항상 낮 (강사 화면 → 수강생 기기도 낮)
   applyNightVisuals();
   footGroup.visible = n >= 2;
   document.body.classList.toggle('lv3', n >= 2);   // 2단계: 탈것 수어 그림 보이기
@@ -4823,7 +4835,7 @@ async function joinNow() {
 }
 
 async function fetchPublicSession(sid) {
-  const { data } = await LIVE.sb.from('session_public').select('id,level,current_q,questions').eq('id', sid).maybeSingle();
+  const { data } = await LIVE.sb.from('session_public').select('id,level,current_q,questions,night').eq('id', sid).maybeSingle();
   return data;
 }
 
@@ -4844,6 +4856,7 @@ function startStudent(s) {
   LIVE.sid = s.id;
   LIVE.ended = false;
   LIVE.lastQ = s.current_q;
+  isNight = !!s.night;   // 강사가 고른 낮/밤
   QUESTIONS = s.questions.map((q, i) => ({
     id: i + 1, level: Number(q.level || s.level), question: q.question, directions: q.directions || '',
     answer: '', explain: '', videoType: 'file', youtubeUrl: '', start: 0, end: 0
@@ -4853,7 +4866,7 @@ function startStudent(s) {
   setPlayMode('novideo');
   loadQuestion(s.current_q);
   LIVE.channel = LIVE.sb.channel('student-' + s.id)
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'session_public', filter: 'id=eq.' + s.id }, p => studentGotQ(p.new.current_q))
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'session_public', filter: 'id=eq.' + s.id }, p => { studentGotNight(p.new.night); studentGotQ(p.new.current_q); })
     .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'session_public', filter: 'id=eq.' + s.id }, () => studentEnded())
     .subscribe();
 }
@@ -4945,6 +4958,7 @@ async function liveOpenSession() {
   const row = data[0];
   localStorage.setItem('liveLastTeacher', JSON.stringify({ tid: row.out_session_id, token: row.out_token }));
   startTeacherState({ tid: row.out_session_id, token: row.out_token, code: row.out_code, picked, cur: 0, level });
+  pushNight();   // 지금 선택된 낮/밤을 수강생 기기에 맞춤
   saveTeacher();
   toast('수업을 시작했습니다. 📱 QR 버튼을 누르면 학생이 입장할 수 있어요.');
 }
