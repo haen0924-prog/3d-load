@@ -358,6 +358,7 @@
   #game-wrap:fullscreen #compass-hud,
   #game-wrap:fullscreen #touch-pad { display: none !important; }
   #game-wrap:fullscreen #nv-actions .fs-btn { display: none !important; }
+  #game-wrap:fullscreen #nv-vehicles { display: flex !important; }   /* 전체 화면에서도 탈것 선택 */
 
   /* 건물 이름표 (화면 위에 항상 같은 크기로 표시) */
   #label-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
@@ -781,8 +782,7 @@
     <button class="btn-teacher" style="background:#eef2ff;color:#1d4ed8" onclick="openRegionMap()">🗺 우리 지역 지도</button>
     <button class="btn-teacher" style="background:#eef2ff;color:#1d4ed8" onclick="toggleNvFullscreen()">⛶ 전체 화면</button>
     <button class="btn-teacher" id="btn-guide" style="background:#fff7ed;color:#9a3412" onclick="toggleGuide(true)">📖 사용법</button>
-    <button class="btn-teacher" id="btn-admin" onclick="toggleTeacherModal(true)">⚙️ 문제출제</button>
-    <div class="qnum" id="qnum">문제 1 / 3</div>
+    <div class="qnum" id="qnum" style="display:none">문제 1 / 3</div>
   </div>
 </header>
 
@@ -974,6 +974,7 @@
       <button id="tp-right">▶</button>
     </div>
     <div id="live-bar">
+      <button class="btn-teacher" id="btn-admin" onclick="toggleTeacherModal(true)" title="문제 만들기·고치기">⚙️ 문제출제</button>
       <button id="lb-prev" onclick="livePrev()" title="이전 문제 (PageUp)">◀</button>
       <span id="lb-count"></span>
       <button id="lb-next" onclick="liveNext()" title="다음 문제 (PageDown / Space)">▶</button>
@@ -4234,6 +4235,7 @@ window.toggleTeacherModal = function(show) {
     renderTeacherQuestionsUI();
     modal.classList.add('show');
   } else {
+    renderLiveBar();
     modal.classList.remove('show');
   }
 };
@@ -4581,6 +4583,8 @@ window.addEventListener('load', async () => {
   }
 
   initLive();
+  renderLiveBar();
+  document.getElementById('game-wrap').appendChild(document.getElementById('live-overlay'));   // 전체 화면에서도 QR이 보이도록
   // 문제는 먼저 보여주고, 3D 화면은 따로 준비 (3D 로딩이 실패해도 문제는 보이도록)
   loadQuestion(0);
   try {
@@ -4788,10 +4792,15 @@ function renderLiveRun() {
 // 화면 아래 작은 조작 바 (수업 중에만 보임, 패널을 닫아도 사용 가능)
 function renderLiveBar() {
   const bar = document.getElementById('live-bar');
-  const teacher = !!LIVE.sb && !document.body.classList.contains('live-student');
+  const teacher = !document.body.classList.contains('live-student');
   bar.classList.toggle('on', teacher);
   document.body.classList.toggle('live-teacher', teacher);
   if (!teacher) return;
+  const live = !!LIVE.sb;   // 실시간 설정이 있을 때만 수업 관련 버튼 보임
+  ['lb-count', 'lb-prev', 'lb-next', 'lb-nums', 'lb-qr', 'lb-start', 'lb-end'].forEach(id => {
+    document.getElementById(id).style.display = live ? '' : 'none';
+  });
+  if (!live) return;
   const running = LIVE.mode === 'teacher' && !!LIVE.tid;
   const total = running ? LIVE.total : QUESTIONS.length;
   const cur = running ? LIVE.cur : 0;
