@@ -978,6 +978,7 @@
       <button id="lb-next" onclick="liveNext()" title="다음 문제 (PageDown / Space)">▶</button>
       <span id="lb-nums"></span>
       <button id="lb-qr" onclick="openLivePanel()" title="QR 코드 보기">📱 QR</button>
+      <button id="lb-end" onclick="liveEnd()" title="수업 끝내기">수업 끝내기</button>
     </div>
     <div id="toast"></div>
   </div>
@@ -1038,13 +1039,7 @@
       <button id="live-open-btn" onclick="liveOpenSession()">📡 수업 열기</button>
     </div>
     <div id="live-run" class="live-pane">
-      <div id="live-count"></div>
       <div id="live-qr"></div>
-      <div id="live-url"></div>
-      <div id="live-nav"><button id="live-prev" class="sub" onclick="livePrev()">◀ 이전</button><button id="live-next" onclick="liveNext()">다음 ▶</button></div>
-      <div id="live-nums"></div>
-      <p class="live-keys">키보드·발표 리모컨: PageDown / Space = 다음, PageUp = 이전</p>
-      <button class="sub" onclick="liveEnd()">수업 끝내기</button>
     </div>
   </div>
 </div>
@@ -4780,28 +4775,13 @@ async function liveOpenSession() {
 
 function renderLiveRun() {
   const url = liveBaseUrl() + '?code=' + LIVE.code;
-  // 버튼을 누른 뒤 포커스가 남아 있으면 Space가 버튼을 또 누르므로 포커스를 뺌
-  if (document.activeElement && document.activeElement.tagName === 'BUTTON') document.activeElement.blur();
-  document.getElementById('live-count').textContent = `${LIVE.cur + 1} / ${LIVE.total} 문제`;
-  document.getElementById('live-url').textContent = url;
   if (!LIVE.qrDone && window.QRCode) {
     const box = document.getElementById('live-qr');
     box.innerHTML = '';
-    new QRCode(box, { text: url, width: 180, height: 180 });
+    new QRCode(box, { text: url, width: 220, height: 220 });
     LIVE.qrDone = true;
   }
-  document.getElementById('live-next').disabled = LIVE.cur + 1 >= LIVE.total;
-  document.getElementById('live-prev').disabled = LIVE.cur <= 0;
   renderLiveBar();
-  const nums = document.getElementById('live-nums');
-  nums.innerHTML = '';
-  for (let k = 0; k < LIVE.total; k++) {
-    const b = document.createElement('button');
-    b.textContent = k + 1;
-    b.className = k === LIVE.cur ? 'on' : '';
-    b.onclick = () => liveGoto(k);
-    nums.appendChild(b);
-  }
 }
 
 // 화면 아래 작은 조작 바 (수업 중에만 보임, 패널을 닫아도 사용 가능)
