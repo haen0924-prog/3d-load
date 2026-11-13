@@ -358,7 +358,7 @@
   #game-wrap:fullscreen #compass-hud,
   #game-wrap:fullscreen #touch-pad { display: none !important; }
   #game-wrap:fullscreen #nv-actions .fs-btn { display: none !important; }
-  #game-wrap:fullscreen #nv-vehicles { display: flex !important; }   /* 전체 화면에서도 탈것 선택 */
+  #game-wrap:fullscreen #nv-vehicles { display: flex !important; top: auto !important; bottom: 12px; left: 12px; }   /* 전체 화면에서도 탈것 선택 (하단 왼쪽) */
 
   /* 건물 이름표 (화면 위에 항상 같은 크기로 표시) */
   #label-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
@@ -4308,6 +4308,7 @@ function renderTeacherQuestionsUI() {
     `;
     container.appendChild(card);
   });
+  renderLiveBar();   // 문제 수가 바뀌면 하단 바도 맞춤
 }
 
 window.setCam = function(key, val) {
