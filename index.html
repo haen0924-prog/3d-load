@@ -798,10 +798,11 @@
 <div class="guide-top">
 <p class="guide-h">⭐ 꼭 알아두기</p>
 <p>· 수업 전: 목표설정에서 문제 만들기 → <b>저장하고 반영하기</b> 필수</p>
-<p>· 모바일 수업: 아래 조작 바의 <b>▶ 수업 시작</b> → <b>📱 QR</b> 을 학생에게 보여주기 (학생은 QR을 찍으면 바로 입장)</p>
-<p>· <b>모바일로 하지 않을 때는 ▶ 수업 시작을 누르지 않고 진행해도 됩니다.</b> 문제 번호나 ◀ ▶ 로 화면만 넘기면 됩니다.</p>
+<p>· 수업은 아래 조작 바의 <b>숫자 버튼</b>으로 진행합니다.</p>
+<p>· 수강생을 <b>모바일로 참여</b>시킬 때만 <b>▶ 모바일 참여</b>를 누르고 <b>📱 QR</b>을 보여주세요. 학생은 QR을 찍으면 바로 입장합니다.</p>
+<p>· 모바일로 참여시키지 않을 때는 <b>▶ 모바일 참여</b>를 누르지 않아도 됩니다. 숫자 버튼으로 화면만 넘기면 됩니다.</p>
 <p>· 수업이 끝나면 <b>수업 끝내기</b> 버튼 누르기</p>
-<p>· 문제 넘기기: 번호 버튼, ◀ ▶ 버튼, 또는 키보드(PageDown·Space 다음 / PageUp 이전)</p>
+<p>· 문제 넘기기: 아래 조작 바의 번호 버튼</p>
 <p>· 정답 확인은 학생이 손을 들어 확인</p>
 <p class="guide-h" style="margin-top:8px;">📋 진행방법</p>
 <p>1. 강사가 미리 촬영한 영상을 보고 길 또는 사물 찾기</p>
@@ -839,9 +840,9 @@
 <p>· 보내는 컴퓨터: <b>💾 백업 파일 받기</b> (.json)</p>
 <p>· 받는 컴퓨터: <b>📂 백업 불러오기</b> → <b>저장하고 반영하기</b></p>
 <p><b>모바일 참여 수업 진행</b></p>
-<p>· 아래 조작 바의 <b>▶ 수업 시작</b> 누르기</p>
+<p>· 수강생을 모바일로 참여시킬 때만 아래 조작 바의 <b>▶ 모바일 참여</b>를 누르기</p>
 <p>· 학생이 <b>📱 QR</b>을 찍으면 바로 입장</p>
-<p>· 번호 버튼이나 ◀ ▶ 로 넘기면 모든 학생 폰도 함께 넘어감</p>
+<p>· 숫자 버튼으로 넘기면 모든 학생 폰도 함께 넘어감</p>
 <p>· 끝나면 <b>수업 끝내기</b> (입장 막힘)</p>
 <p>· 같은 컴퓨터·브라우저에서 다시 열면 이어짐</p>
 <p>· QR 사진을 수업 밖 사람에게 보내지 않기</p>
@@ -976,12 +977,10 @@
     </div>
     <div id="live-bar">
       <button class="btn-teacher" id="btn-admin" onclick="toggleTeacherModal(true)" title="문제 만들기·고치기">⚙️ 목표설정</button>
-      <button id="lb-prev" onclick="livePrev()" title="이전 문제 (PageUp)">◀</button>
       <span id="lb-count"></span>
-      <button id="lb-next" onclick="liveNext()" title="다음 문제 (PageDown / Space)">▶</button>
       <span id="lb-nums"></span>
       <button id="lb-qr" onclick="openLivePanel()" title="QR 코드 보기">📱 QR</button>
-      <button id="lb-start" class="go" onclick="liveOpenSession()" title="수업 시작">▶ 수업 시작</button>
+      <button id="lb-start" class="go" onclick="liveOpenSession()" title="모바일 참여">▶ 모바일 참여</button>
       <button id="lb-end" class="end" onclick="liveEnd()" title="수업 끝내기">수업 끝내기</button>
     </div>
     <div id="toast"></div>
@@ -4263,7 +4262,7 @@ function renderTeacherQuestionsUI() {
     card.className = 'q-edit-card';
     card.innerHTML = `
       <div class="q-edit-header">
-        <span>문제 #${idx + 1}</span>
+        <span>목표 #${idx + 1}</span>
         <button class="btn-del-q" onclick="deleteQuestion(${idx})">🗑 삭제</button>
       </div>
       <div class="mini-row">
@@ -4724,7 +4723,7 @@ LIVE.attempt = async function (picked) {
 /* ── 강사 (로그인 없음: 수업을 열면 '강사 열쇠'가 생기고, 이 기기 브라우저에만 저장) ── */
 window.openLivePanel = function () {
   if (!LIVE.sb) return;
-  if (!(LIVE.mode === 'teacher' && LIVE.tid)) { toast('수업 시작 버튼을 먼저 눌러 주세요'); return; }
+  if (!(LIVE.mode === 'teacher' && LIVE.tid)) { toast('모바일 참여 버튼을 먼저 눌러 주세요'); return; }
   showLive('live-run');
   renderLiveRun();
   document.getElementById('live-overlay').classList.add('show');
@@ -4806,8 +4805,6 @@ function renderLiveBar() {
   const total = barTotal();
   const cur = LIVE.cur;
   document.getElementById('lb-count').textContent = total ? `${cur + 1} / ${total}` : '문제 없음';
-  document.getElementById('lb-prev').disabled = cur <= 0;
-  document.getElementById('lb-next').disabled = cur + 1 >= total;
   document.getElementById('lb-qr').disabled = !running;
   if (live) {
     document.getElementById('lb-start').style.display = running ? 'none' : '';
@@ -4854,15 +4851,6 @@ async function liveGoto(nxt) {
 function liveNext() { if (LIVE.cur + 1 >= barTotal()) { toast('마지막 문제입니다.'); return; } liveGoto(LIVE.cur + 1); }
 function livePrev() { if (LIVE.cur <= 0) { toast('첫 문제입니다.'); return; } liveGoto(LIVE.cur - 1); }
 
-// 키보드·발표 리모컨: 강사 수업 화면이 열려 있을 때만 동작 (자동차 방향키는 그대로 둠)
-document.addEventListener('keydown', e => {
-  if (document.body.classList.contains('live-student')) return;   // 학생 휴대폰에서는 키 조작 안 함
-  const t = e.target;
-  if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-  if (e.key === ' ' && t && t.tagName === 'BUTTON') return;   // 버튼에 포커스가 있으면 Space는 그 버튼을 누르는 용도
-  if (e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); liveNext(); }
-  else if (e.key === 'PageUp') { e.preventDefault(); livePrev(); }
-});
 
 async function liveEnd() {
   if (!confirm('수업을 끝내면 입장 QR이 닫히고, 수강생 화면에 수업 종료가 표시됩니다. 끝낼까요?')) return;
