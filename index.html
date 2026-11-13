@@ -2927,7 +2927,8 @@ function updateVehicleSign() {
   // 그림을 지금 선택한 탈것 버튼의 바로 밑 가운데에 맞춤
   // 줄 왼쪽 밖으로 나가지 않도록 최소 0으로 맞춤 (제목과 겹침 방지)
 }
-window.setLevel = function(n) {
+// 단계 모양만 바꿈 (문제는 다시 불러오지 않음). 실시간 수업에서 문제마다 단계를 맞출 때 씀
+function applyLevel(n) {
   if (n >= 3) n = 2;   // 예전 3단계는 2단계에 합쳐짐
   gameLevel = n;
   levelTwoGroup.visible = n >= 2;
@@ -2939,8 +2940,12 @@ window.setLevel = function(n) {
   updateLv3Pair();
   refreshLevelButtons();
   updateVehicleSign();
+}
+
+window.setLevel = function(n) {
+  applyLevel(n);
   if (typeof loadQuestion === 'function') loadQuestion(levelQIdx()[0] ?? 0);
-  toast(n >= 2
+  toast(gameLevel >= 2
     ? '2단계: 사물·아파트 불·사고 상황 표현과 자유 이동이 추가되었습니다!'
     : '1단계로 돌아왔습니다. 추가 물체가 사라졌습니다.');
 };
@@ -4004,6 +4009,8 @@ window.loadQuestion = async function(i) {
   if (i < 0 || i >= QUESTIONS.length || !list.includes(i)) i = list[0];
   qIndex = i;
   const q = QUESTIONS[i];
+  // 실시간 수업: 문제마다 정해진 단계로 맞춤 (강사 PC와 수강생 휴대폰이 같이 바뀜)
+  if (LIVE.indices) { const qLv = Number(q.level || 1) >= 2 ? 2 : 1; if (qLv !== gameLevel) applyLevel(qLv); }
 
   document.getElementById('qnum').textContent = `문제 ${list.indexOf(i)+1} / ${list.length}`;
   document.getElementById('question-text').textContent = q.question;
@@ -4638,13 +4645,12 @@ function startStudent(s) {
   LIVE.ended = false;
   LIVE.lastQ = s.current_q;
   QUESTIONS = s.questions.map((q, i) => ({
-    id: i + 1, level: s.level, question: q.question, directions: q.directions || '',
+    id: i + 1, level: Number(q.level || s.level), question: q.question, directions: q.directions || '',
     answer: '', explain: '', videoType: 'file', youtubeUrl: '', start: 0, end: 0
   }));
   LIVE.indices = QUESTIONS.map((_, i) => i);
   document.body.classList.add('live-student');
   setPlayMode('novideo');
-  setLevel(s.level);
   loadQuestion(s.current_q);
   LIVE.channel = LIVE.sb.channel('student-' + s.id)
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'session_public', filter: 'id=eq.' + s.id }, p => studentGotQ(p.new.current_q))
@@ -4737,7 +4743,7 @@ async function liveOpenSession() {
   const picked = QUESTIONS.map((_, i) => i);   // 문제 선택 없이 등록된 문제 전부 사용
   if (!picked.length) { toast('문제를 1개 이상 고르세요'); return; }
   const level = maxLevelOf(picked);
-  const questions = picked.map(i => ({ question: QUESTIONS[i].question, directions: QUESTIONS[i].directions || '' }));
+  const questions = picked.map(i => ({ question: QUESTIONS[i].question, directions: QUESTIONS[i].directions || '', level: Number(QUESTIONS[i].level || 1) }));
   const answers = picked.map(i => QUESTIONS[i].answer);
   const { data, error } = await LIVE.sb.rpc('create_session', { p_level: level, p_questions: questions, p_answers: answers });
   if (error) { toast(error.message); return; }
