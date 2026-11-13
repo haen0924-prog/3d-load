@@ -300,6 +300,8 @@
   #lb-count { font-size: 15px; font-weight: 900; color: var(--accent); min-width: 48px; text-align: center; }
   #lb-nums { display: flex; gap: 4px; }
   #lb-nums button { min-width: 34px; padding: 6px 0; }
+  #live-bar button.go { background: var(--accent); color: #fff; border-color: var(--accent); }
+  #live-bar button.end { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
   body.live-student #live-bar { display: none !important; }
   body.live-teacher #toast { bottom: 84px; }   /* 수업 중 알림이 조작 바를 가리지 않게 위로 */
   #live-qr { display: flex; justify-content: center; }
@@ -771,7 +773,6 @@
   </div>
 
   <!-- 영상 버전 / 영상 없는 버전 선택 -->
-  <button class="btn-teacher" id="btn-live" style="display:none;background:#eff6ff;color:#1d4ed8;margin-left:8px" onclick="openLivePanel()">📱 모바일 참여 QR</button>
   <span id="level-switch" style="display:inline-flex;gap:4px;margin-left:8px;background:#f1f5f9;padding:3px;border-radius:999px;vertical-align:middle">
     <button id="lv-1" onclick="setLevel(1)">1단계</button><button id="lv-2" onclick="setLevel(2)">2단계</button>
   </span>
@@ -978,7 +979,8 @@
       <button id="lb-next" onclick="liveNext()" title="다음 문제 (PageDown / Space)">▶</button>
       <span id="lb-nums"></span>
       <button id="lb-qr" onclick="openLivePanel()" title="QR 코드 보기">📱 QR</button>
-      <button id="lb-end" onclick="liveEnd()" title="수업 끝내기">수업 끝내기</button>
+      <button id="lb-start" class="go" onclick="liveOpenSession()" title="수업 시작">▶ 수업 시작</button>
+      <button id="lb-end" class="end" onclick="liveEnd()" title="수업 끝내기">수업 끝내기</button>
     </div>
     <div id="toast"></div>
   </div>
@@ -4595,11 +4597,13 @@ function liveBaseUrl() { return location.href.split('?')[0].split('#')[0]; }
 function initLive() {
   if (!LIVE_CONFIG.url || !LIVE_CONFIG.anonKey || !window.supabase) return;   // 설정이 없으면 기존 방식 그대로
   LIVE.sb = window.supabase.createClient(LIVE_CONFIG.url, LIVE_CONFIG.anonKey);
-  document.getElementById('btn-live').style.display = '';
   const saved = sessionStorage.getItem('liveStudent');
   if (saved) { resumeStudent(JSON.parse(saved)); return; }
   const code = new URLSearchParams(location.search).get('code');
-  if (code) { showJoin(code); joinNow(); }   // QR을 찍으면 입장하기 없이 바로 입장 (실패하면 입장 화면에 이유가 뜸)
+  if (code) { showJoin(code); joinNow(); return; }   // QR을 찍으면 입장하기 없이 바로 입장
+  const savedT = sessionStorage.getItem('liveTeacher');   // 새로고침해도 진행 중인 수업 이어가기
+  if (savedT) restoreTeacher(JSON.parse(savedT));
+  renderLiveBar();
 }
 
 function showLive(id) {
@@ -4714,19 +4718,11 @@ LIVE.attempt = async function (picked) {
 /* ── 강사 (로그인 없음: 수업을 열면 '강사 열쇠'가 생기고, 이 기기 브라우저에만 저장) ── */
 window.openLivePanel = function () {
   if (!LIVE.sb) return;
+  if (!(LIVE.mode === 'teacher' && LIVE.tid)) { toast('수업 시작 버튼을 먼저 눌러 주세요'); return; }
+  showLive('live-run');
+  renderLiveRun();
   document.getElementById('live-overlay').classList.add('show');
-  if (LIVE.tid) { showLive('live-run'); return; }
-  const saved = sessionStorage.getItem('liveTeacher');
-  if (saved) { restoreTeacher(JSON.parse(saved)); return; }
-  renderLiveOpen();
-  showLive('live-open');
 };
-
-function renderLiveOpen() {
-  const none = !QUESTIONS.length;   // 문제가 없으면 관리 모드로 가라는 안내만 보임
-  document.getElementById('live-empty').style.display = none ? '' : 'none';
-  document.getElementById('live-open-btn').style.display = none ? 'none' : '';
-}
 
 function goTeacherFromLive() {
   document.getElementById('live-overlay').classList.remove('show');
@@ -4766,11 +4762,16 @@ async function liveOpenSession() {
   const level = maxLevelOf(picked);
   const questions = picked.map(i => ({ question: QUESTIONS[i].question, directions: QUESTIONS[i].directions || '', level: Number(QUESTIONS[i].level || 1) }));
   const answers = picked.map(i => QUESTIONS[i].answer);
+  // 이 기기에서 열었던 이전 수업이 남아 있으면 먼저 닫음 (창을 닫았다 다시 열어도 적용)
+  const prev = JSON.parse(localStorage.getItem('liveLastTeacher') || 'null');
+  if (prev) { await LIVE.sb.rpc('end_session', { p_session: prev.tid, p_token: prev.token }); localStorage.removeItem('liveLastTeacher'); }
   const { data, error } = await LIVE.sb.rpc('create_session', { p_level: level, p_questions: questions, p_answers: answers });
   if (error) { toast(error.message); return; }
   const row = data[0];
+  localStorage.setItem('liveLastTeacher', JSON.stringify({ tid: row.out_session_id, token: row.out_token }));
   startTeacherState({ tid: row.out_session_id, token: row.out_token, code: row.out_code, picked, cur: 0, level });
   saveTeacher();
+  toast('수업을 시작했습니다. 📱 QR 버튼을 누르면 학생이 입장할 수 있어요.');
 }
 
 function renderLiveRun() {
@@ -4787,19 +4788,26 @@ function renderLiveRun() {
 // 화면 아래 작은 조작 바 (수업 중에만 보임, 패널을 닫아도 사용 가능)
 function renderLiveBar() {
   const bar = document.getElementById('live-bar');
-  const on = LIVE.mode === 'teacher' && !!LIVE.tid;
-  bar.classList.toggle('on', on);
-  document.body.classList.toggle('live-teacher', on);
-  if (!on) return;
-  document.getElementById('lb-count').textContent = `${LIVE.cur + 1} / ${LIVE.total}`;
-  document.getElementById('lb-prev').disabled = LIVE.cur <= 0;
-  document.getElementById('lb-next').disabled = LIVE.cur + 1 >= LIVE.total;
+  const teacher = !!LIVE.sb && !document.body.classList.contains('live-student');
+  bar.classList.toggle('on', teacher);
+  document.body.classList.toggle('live-teacher', teacher);
+  if (!teacher) return;
+  const running = LIVE.mode === 'teacher' && !!LIVE.tid;
+  const total = running ? LIVE.total : QUESTIONS.length;
+  const cur = running ? LIVE.cur : 0;
+  document.getElementById('lb-count').textContent = running ? `${cur + 1} / ${total}` : `${total}문제 준비`;
+  document.getElementById('lb-prev').disabled = !running || cur <= 0;
+  document.getElementById('lb-next').disabled = !running || cur + 1 >= total;
+  document.getElementById('lb-qr').disabled = !running;
+  document.getElementById('lb-start').style.display = running ? 'none' : '';
+  document.getElementById('lb-end').style.display = running ? '' : 'none';
   const nums = document.getElementById('lb-nums');
   nums.innerHTML = '';
-  for (let k = 0; k < LIVE.total; k++) {
+  for (let k = 0; k < total; k++) {
     const b = document.createElement('button');
     b.textContent = k + 1;
-    b.className = k === LIVE.cur ? 'on' : '';
+    b.className = running && k === cur ? 'on' : '';
+    b.disabled = !running;
     b.onclick = () => liveGoto(k);
     nums.appendChild(b);
   }
@@ -4839,12 +4847,12 @@ async function liveEnd() {
   const { error } = await LIVE.sb.rpc('end_session', { p_session: LIVE.tid, p_token: LIVE.token });
   if (error) { toast(error.message); return; }
   sessionStorage.removeItem('liveTeacher');
+  localStorage.removeItem('liveLastTeacher');
   LIVE.mode = 'off';
   LIVE.indices = null;
   LIVE.tid = null;
   LIVE.token = null;
-  renderLiveOpen();
-  showLive('live-open');
+  document.getElementById('live-overlay').classList.remove('show');
   renderLiveBar();
   toast('수업을 끝냈습니다.');
 }
