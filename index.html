@@ -797,11 +797,12 @@
     <div style="padding:14px 18px;overflow-y:auto;font-size:15px;line-height:1.7;color:#1c2433;">
 <div class="guide-top">
 <p class="guide-h">⭐ 꼭 알아두기</p>
-<p>· 수업 전: 문제출제에서 문제 만들기 → <b>저장하고 반영하기</b> 필수</p>
-<p>· 모바일 수업: <b>📱 모바일 참여 QR</b> → <b>수업 열기</b> → 코드·QR 공유</p>
-<p>· 다음 문제는 강사가 <b>다음 문제</b> 버튼으로 넘김</p>
+<p>· 수업 전: 목표설정에서 문제 만들기 → <b>저장하고 반영하기</b> 필수</p>
+<p>· 모바일 수업: 아래 조작 바의 <b>▶ 수업 시작</b> → <b>📱 QR</b> 을 학생에게 보여주기 (학생은 QR을 찍으면 바로 입장)</p>
+<p>· <b>모바일로 하지 않을 때는 ▶ 수업 시작을 누르지 않고 진행해도 됩니다.</b> 문제 번호나 ◀ ▶ 로 화면만 넘기면 됩니다.</p>
+<p>· 수업이 끝나면 <b>수업 끝내기</b> 버튼 누르기</p>
+<p>· 문제 넘기기: 번호 버튼, ◀ ▶ 버튼, 또는 키보드(PageDown·Space 다음 / PageUp 이전)</p>
 <p>· 정답 확인은 학생이 손을 들어 확인</p>
-<p>· 수업 기록은 하루 뒤 자동 삭제, 이름·점수 저장 안 함</p>
 <p class="guide-h" style="margin-top:8px;">📋 진행방법</p>
 <p>1. 강사가 미리 촬영한 영상을 보고 길 또는 사물 찾기</p>
 <p>2. 수업시간에 강사 또는 수강생의 표현을 보고 길 또는 사물 찾기</p>
@@ -827,7 +828,7 @@
 <details class="guide-acc">
 <summary>👩‍🏫 강사 안내</summary>
 <p><b>문제 만들기</b></p>
-<p>· 문제출제 → 문제 추가 (➕)</p>
+<p>· 목표설정 → 문제 추가 (➕)</p>
 <p>· 단계 선택 (1·2단계)</p>
 <p>· 정답 건물: 펼쳐서 배치도의 건물 클릭</p>
 <p>· 영상: 파일 올리기 또는 유튜브 주소</p>
@@ -838,9 +839,9 @@
 <p>· 보내는 컴퓨터: <b>💾 백업 파일 받기</b> (.json)</p>
 <p>· 받는 컴퓨터: <b>📂 백업 불러오기</b> → <b>저장하고 반영하기</b></p>
 <p><b>모바일 참여 수업 진행</b></p>
-<p>· <b>📱 모바일 참여 QR</b> → 풀 문제 체크 → <b>수업 열기</b></p>
-<p>· 학생이 QR을 찍거나 코드를 입력</p>
-<p>· <b>다음 문제</b>로 모든 학생 폰을 함께 넘김</p>
+<p>· 아래 조작 바의 <b>▶ 수업 시작</b> 누르기</p>
+<p>· 학생이 <b>📱 QR</b>을 찍으면 바로 입장</p>
+<p>· 번호 버튼이나 ◀ ▶ 로 넘기면 모든 학생 폰도 함께 넘어감</p>
 <p>· 끝나면 <b>수업 끝내기</b> (입장 막힘)</p>
 <p>· 같은 컴퓨터·브라우저에서 다시 열면 이어짐</p>
 <p>· QR 사진을 수업 밖 사람에게 보내지 않기</p>
@@ -897,7 +898,7 @@
       <button id="btn-video-off" title="영상 끄기 (영상 없는 버전)" onclick="setPlayMode('novideo')">✕</button>
       <div class="label"><span class="dot"></span><span id="video-label">수어 지시 영상</span></div>
       <div id="video-box">
-        <div class="placeholder">📹<br>여기에 수어 영상이 들어갑니다.<br>(문제출제에서 영상 등록 가능)</div>
+        <div class="placeholder">📹<br>여기에 수어 영상이 들어갑니다.<br>(목표설정에서 영상 등록 가능)</div>
       </div>
     </section>
 
@@ -974,7 +975,7 @@
       <button id="tp-right">▶</button>
     </div>
     <div id="live-bar">
-      <button class="btn-teacher" id="btn-admin" onclick="toggleTeacherModal(true)" title="문제 만들기·고치기">⚙️ 문제출제</button>
+      <button class="btn-teacher" id="btn-admin" onclick="toggleTeacherModal(true)" title="문제 만들기·고치기">⚙️ 목표설정</button>
       <button id="lb-prev" onclick="livePrev()" title="이전 문제 (PageUp)">◀</button>
       <span id="lb-count"></span>
       <button id="lb-next" onclick="liveNext()" title="다음 문제 (PageDown / Space)">▶</button>
@@ -1036,8 +1037,8 @@
       <p class="live-note">② 수강생은 폰으로 QR을 찍어 들어옵니다.</p>
       <p class="live-note">③ 문제를 넘길 때는 <b>다음 문제</b>를 누르면 모든 수강생 폰이 함께 넘어갑니다.</p>
       <div id="live-empty" style="display:none;">
-        <p class="live-note">등록된 문제가 없습니다. 먼저 문제출제에서 문제를 만드세요.</p>
-        <button onclick="goTeacherFromLive()">⚙️ 문제출제로 가기</button>
+        <p class="live-note">등록된 문제가 없습니다. 먼저 목표설정에서 문제를 만드세요.</p>
+        <button onclick="goTeacherFromLive()">⚙️ 목표설정으로 가기</button>
       </div>
       <button id="live-open-btn" onclick="liveOpenSession()">📡 수업 열기</button>
     </div>
@@ -4066,7 +4067,7 @@ window.loadQuestion = async function(i) {
       f.style.cssText = 'width:100%;height:100%;border:0;';
       vBox.appendChild(f);
     } else {
-      vBox.innerHTML = `<div class="placeholder">📹<br>유튜브 주소가 올바르지 않습니다.<br>(문제출제에서 주소 확인)</div>`;
+      vBox.innerHTML = `<div class="placeholder">📹<br>유튜브 주소가 올바르지 않습니다.<br>(목표설정에서 주소 확인)</div>`;
     }
   } else {
     // 파일: IndexedDB에 저장된 영상 사용, start/end 구간만 재생
@@ -4086,7 +4087,7 @@ window.loadQuestion = async function(i) {
       }
       vBox.appendChild(v);
     } else {
-      vBox.innerHTML = `<div class="placeholder">📹<br>등록된 수어 영상이 없습니다.<br>(문제출제에서 영상 파일 업로드)</div>`;
+      vBox.innerHTML = `<div class="placeholder">📹<br>등록된 수어 영상이 없습니다.<br>(목표설정에서 영상 파일 업로드)</div>`;
     }
   }
 
@@ -4798,37 +4799,48 @@ function renderLiveBar() {
   document.body.classList.toggle('live-teacher', teacher);
   if (!teacher) return;
   const live = !!LIVE.sb;   // 실시간 설정이 있을 때만 수업 관련 버튼 보임
-  ['lb-count', 'lb-prev', 'lb-next', 'lb-nums', 'lb-qr', 'lb-start', 'lb-end'].forEach(id => {
-    document.getElementById(id).style.display = live ? '' : 'none';
-  });
-  if (!live) return;
-  const running = LIVE.mode === 'teacher' && !!LIVE.tid;
-  const total = running ? LIVE.total : QUESTIONS.length;
-  const cur = running ? LIVE.cur : 0;
-  document.getElementById('lb-count').textContent = running ? `${cur + 1} / ${total}` : `${total}문제 준비`;
-  document.getElementById('lb-prev').disabled = !running || cur <= 0;
-  document.getElementById('lb-next').disabled = !running || cur + 1 >= total;
+  document.getElementById('lb-qr').style.display = live ? '' : 'none';
+  document.getElementById('lb-start').style.display = live ? '' : 'none';
+  document.getElementById('lb-end').style.display = live ? '' : 'none';
+  const running = live && LIVE.mode === 'teacher' && !!LIVE.tid;
+  const total = barTotal();
+  const cur = LIVE.cur;
+  document.getElementById('lb-count').textContent = total ? `${cur + 1} / ${total}` : '문제 없음';
+  document.getElementById('lb-prev').disabled = cur <= 0;
+  document.getElementById('lb-next').disabled = cur + 1 >= total;
   document.getElementById('lb-qr').disabled = !running;
-  document.getElementById('lb-start').style.display = running ? 'none' : '';
-  document.getElementById('lb-end').style.display = running ? '' : 'none';
+  if (live) {
+    document.getElementById('lb-start').style.display = running ? 'none' : '';
+    document.getElementById('lb-end').style.display = running ? '' : 'none';
+  }
   const nums = document.getElementById('lb-nums');
   nums.innerHTML = '';
   for (let k = 0; k < total; k++) {
     const b = document.createElement('button');
     b.textContent = k + 1;
-    b.className = running && k === cur ? 'on' : '';
-    b.disabled = !running;
+    b.className = k === cur ? 'on' : '';
     b.onclick = () => liveGoto(k);
     nums.appendChild(b);
   }
+}
+function barTotal() {
+  return (LIVE.mode === 'teacher' && LIVE.tid) ? LIVE.total : QUESTIONS.length;
 }
 
 // 강사가 문제를 넘김 (다음·이전·번호 버튼, 키보드 모두 이 함수를 씀)
 // 강사 열쇠를 확인한 뒤 모든 수강생 기기에 전달, 강사 화면도 같이 넘어감
 async function liveGoto(nxt) {
-  if (LIVE.busy) return;
-  if (nxt < 0 || nxt >= LIVE.total) return;
+  const running = LIVE.mode === 'teacher' && !!LIVE.tid;
+  if (nxt < 0 || nxt >= barTotal()) return;
   if (nxt === LIVE.cur) return;
+  if (!running) {   // 수업 시작 전: 화면에서만 문제 넘김 (학생 기기에는 보내지 않음)
+    LIVE.cur = nxt;
+    applyLevel(Number(QUESTIONS[nxt].level || 1) >= 2 ? 2 : 1);
+    loadQuestion(nxt);
+    renderLiveBar();
+    return;
+  }
+  if (LIVE.busy) return;
   LIVE.busy = true;
   try {
     const { error } = await LIVE.sb.rpc('set_current_q', { p_session: LIVE.tid, p_token: LIVE.token, p_q: nxt });
@@ -4839,12 +4851,12 @@ async function liveGoto(nxt) {
     renderLiveRun();
   } finally { LIVE.busy = false; }
 }
-function liveNext() { if (LIVE.cur + 1 >= LIVE.total) { toast('마지막 문제입니다. 수업을 끝내려면 "수업 끝내기"를 누르세요.'); return; } liveGoto(LIVE.cur + 1); }
+function liveNext() { if (LIVE.cur + 1 >= barTotal()) { toast('마지막 문제입니다.'); return; } liveGoto(LIVE.cur + 1); }
 function livePrev() { if (LIVE.cur <= 0) { toast('첫 문제입니다.'); return; } liveGoto(LIVE.cur - 1); }
 
 // 키보드·발표 리모컨: 강사 수업 화면이 열려 있을 때만 동작 (자동차 방향키는 그대로 둠)
 document.addEventListener('keydown', e => {
-  if (LIVE.mode !== 'teacher' || !LIVE.tid) return;   // 수업을 여는 동안은 패널을 닫아도 키보드 작동
+  if (document.body.classList.contains('live-student')) return;   // 학생 휴대폰에서는 키 조작 안 함
   const t = e.target;
   if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
   if (e.key === ' ' && t && t.tagName === 'BUTTON') return;   // 버튼에 포커스가 있으면 Space는 그 버튼을 누르는 용도
@@ -4860,6 +4872,7 @@ async function liveEnd() {
   localStorage.removeItem('liveLastTeacher');
   LIVE.mode = 'off';
   LIVE.indices = null;
+  LIVE.cur = 0;
   LIVE.tid = null;
   LIVE.token = null;
   document.getElementById('live-overlay').classList.remove('show');
