@@ -4571,7 +4571,7 @@ function initLive() {
   const saved = sessionStorage.getItem('liveStudent');
   if (saved) { resumeStudent(JSON.parse(saved)); return; }
   const code = new URLSearchParams(location.search).get('code');
-  if (code) showJoin(code);
+  if (code) { showJoin(code); joinNow(); }   // QR을 찍으면 입장하기 없이 바로 입장 (실패하면 입장 화면에 이유가 뜸)
 }
 
 function showLive(id) {
