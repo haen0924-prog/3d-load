@@ -714,7 +714,7 @@
     #touch-pad { display: grid; }
     #key-guide { display: none; }
     #btn-live { display: none !important; }   /* 모바일: 모바일 참여 QR 버튼 숨김 */
-    #level-switch { display: none !important; }   /* 모바일: 1·2단계 선택 숨김 (강사가 문제 제어) */
+    #level-switch, #daynight-switch { display: none !important; }   /* 모바일: 1·2단계 선택 숨김 (강사가 문제 제어) */
     #cam-btn { top: 8px; right: 8px; bottom: auto; }   /* 모바일: 카메라 버튼을 오른쪽 위로 (방향키와 겹치지 않게) */
     #cam-panel { top: 58px; bottom: auto; right: 8px; }
     /* 기기 화면 너비에 맞춰 크기 조절 (갤럭시 등 좁은 화면에서 겹치지 않게) */
@@ -777,6 +777,9 @@
   <span id="level-switch" style="display:inline-flex;gap:4px;margin-left:8px;background:#f1f5f9;padding:3px;border-radius:999px;vertical-align:middle">
     <button id="lv-1" onclick="setLevel(1)">1단계</button><button id="lv-2" onclick="setLevel(2)">2단계</button>
   </span>
+  <span id="daynight-switch" style="display:none;gap:4px;margin-left:8px;background:#f1f5f9;padding:3px;border-radius:999px;vertical-align:middle">
+    <button id="btn-day" onclick="setDayNight(false)">☀️ 낮</button><button id="btn-night" onclick="setDayNight(true)">🌙 밤</button>
+  </span>
 
   <div class="header-right">
     <button class="btn-teacher" style="background:#eef2ff;color:#1d4ed8" onclick="openRegionMap()">🗺 우리 지역 지도</button>
@@ -797,21 +800,28 @@
     <div style="padding:14px 18px;overflow-y:auto;font-size:15px;line-height:1.7;color:#1c2433;">
 <div class="guide-top">
 <p class="guide-h">⭐ 꼭 알아두기</p>
-<p>· 수업 전: 목표설정에서 문제 만들기 → <b>저장하고 반영하기</b> 필수</p>
+<p>· 수업 전에 목표설정에서 문제를 만든 뒤 <b>저장하고 반영하기</b>를 누르세요.</p>
 <p>· 수업은 아래 조작 바의 <b>숫자 버튼</b>으로 진행합니다.</p>
-<p>· 수강생을 <b>모바일로 참여</b>시킬 때만 <b>▶ 모바일 참여</b>를 누르고 <b>📱 QR</b>을 보여주세요. 학생은 QR을 찍으면 바로 입장합니다.</p>
-<p>· 모바일로 참여시키지 않을 때는 <b>▶ 모바일 참여</b>를 누르지 않아도 됩니다. 숫자 버튼으로 화면만 넘기면 됩니다.</p>
-<p>· 수업이 끝나면 <b>수업 끝내기</b> 버튼 누르기</p>
-<p>· 문제 넘기기: 아래 조작 바의 번호 버튼</p>
-<p>· 정답 확인은 학생이 손을 들어 확인</p>
+<p>· 수업이 끝나면 <b>수업 끝내기</b>를 누르세요.</p>
+<p>· 모바일 참여는 필요할 때만 사용합니다. (아래 '모바일 참여 수업 진행' 참고)</p>
 <p class="guide-h" style="margin-top:8px;">📋 진행방법</p>
-<p>1. 강사가 미리 촬영한 영상을 보고 길 또는 사물 찾기</p>
+<p>1. 영상을 보고 길 또는 사물 찾기</p>
 <p>2. 수업시간에 강사 또는 수강생의 표현을 보고 길 또는 사물 찾기</p>
 <p>3. 건물을 지정하고 수강생이 건물을 찾아가는 길 또는 사물을 표현하기</p>
-<p>4. 영상 없이 정답 건물만 지정해 두고, 현장에서 길 안내를 표현해도 됨</p>
-<p class="guide-h" style="margin-top:8px;">📝 수업 팁</p>
-<p>· 진행 방법은 목표설정을 하면서 진행하는 방법과, 목표설정 없이 현장에서 표현하게 하는 방법 등이 있습니다.</p>
+<p>4. 목표설정 없이 현장에서 길 안내를 표현하게 하기</p>
 </div>
+
+<details class="guide-acc">
+<summary>📘 1~2단계 설명</summary>
+<p><b>1단계 [모양과 방향 표현]</b></p>
+<p>· 건물의 모양 표현</p>
+<p>· 앞, 뒤, 좌, 우, 직진, 좌회전, 우회전 등 방향 표현</p>
+<p><b>2단계 [사물의 모양과 on/off, 사고 상황 표현]</b></p>
+<p>· 건물 앞 주차장의 차·버스와 건물 앞 사람 표현 (이 사물들은 움직이지 않음)</p>
+<p>· 아파트·호텔 불 켜짐/꺼짐 표현 (1단계는 모두 꺼져 있음)</p>
+<p>· 자동차, 자전거, 버스, 사람을 수형으로 표현</p>
+<p>· 탈것끼리, 또는 주차된 차·건물에 부딪히는 사고 상황 표현</p>
+</details>
 
 <details class="guide-acc">
 <summary>🚦 탈것과 사람이 갈 수 있는 길</summary>
@@ -820,14 +830,13 @@
 <p>· 자전거: 자전거 전용도로, 인도, 차도 일부, 주차장 이용</p>
 <p>· 사람: 인도와 횡단보도 이용</p>
 <p><b>2단계</b></p>
-<p>· 어디든 이동 가능</p>
-<p>· 신호 무시 가능</p>
+<p>· 어디든 이동 가능, 신호 무시 가능</p>
 </details>
 
 <details class="guide-acc">
 <summary>👩‍🏫 강사 안내</summary>
 <p><b>문제 만들기</b></p>
-<p>· 목표설정 → 문제 추가 (➕)</p>
+<p>· 목표설정 → 새 문제 추가하기</p>
 <p>· 단계 선택 (1·2단계)</p>
 <p>· 정답 건물: 펼쳐서 배치도의 건물 클릭</p>
 <p>· 영상: 파일 올리기 또는 유튜브 주소</p>
@@ -841,34 +850,22 @@
 <p>· 수강생을 모바일로 참여시킬 때만 아래 조작 바의 <b>▶ 모바일 참여</b>를 누르기</p>
 <p>· 학생이 <b>📱 QR</b>을 찍으면 바로 입장</p>
 <p>· 숫자 버튼으로 넘기면 모든 학생 폰도 함께 넘어감</p>
+<p>· 모바일로 참여할 때 학생은 정답을 맞히면 손을 들어 선생님께 알림</p>
 <p>· 끝나면 <b>수업 끝내기</b> (입장 막힘)</p>
-<p>· 같은 컴퓨터·브라우저에서 다시 열면 이어짐</p>
+<p>· 같은 컴퓨터·브라우저에서 페이지를 다시 열면 수업이 이어지고, 새 수업을 열면 이전 수업은 자동으로 닫힘</p>
 <p>· QR 사진을 수업 밖 사람에게 보내지 않기</p>
 <p><b>수업 중 화면 설정</b></p>
 <p>· 영상 끄기: 영상 칸 오른쪽 위 <b>✕</b> (지도만 보임)</p>
-<p>· 영상 켜기: 지도 왼쪽 아래 <b>🎬 영상 보기</b></p>
-<p>· 탈것 그림: 2단계에서 탈것 버튼 아래에 수형 표시</p>
+<p>· 영상 켜기: 화면 왼쪽 하단의 <b>🎬 영상 보기</b> 버튼</p>
+<p>· 탈것 그림: 2단계에서는 탈것 버튼에 수형 그림이 함께 나옴</p>
+<p>· 가로등: 길가에 있고, 밤(2단계)에만 등이 켜짐</p>
+<p>· 낮/밤 (2단계만): <b>☀️ 낮</b>, <b>🌙 밤</b> 버튼. 낮에는 아파트·호텔이 회색이고, 밤에는 하늘이 어두워지며 건물 창문과 움직이는 차의 전조등에 불이 켜짐</p>
 </details>
 
-<details class="guide-acc">
-<summary>📘 1~2단계 설명</summary>
-<p><b>1단계 [모양과 방향 표현]</b></p>
-<p>· 건물의 모양 표현</p>
-<p>· 앞, 뒤, 좌, 우, 직진, 좌회전, 우회전 등 방향 표현</p>
-<p><b>2단계 [사물의 모양과 on/off, 사고 상황 표현]</b></p>
-<p>· 추가되는 사물의 모양 표현</p>
-<p>· 경찰서, 소방서, 유치원, 카페 앞 차와 사람 표현</p>
-<p>· 아파트 불 켜짐/꺼짐 표현</p>
-<p>· 주차된 탈것들 표현</p>
-<p>· 자동차, 자전거, 버스, 사람을 수형을 사용해서 표현</p>
-<p>· 탈것(자동차, 버스, 자전거, 사람) 중 2가지를 선택해서 사고 상황을 표현</p>
-<p>· 주차된 탈것이나 건물에 부딪히면서 사고 상황을 표현</p>
-<p>· 어디든 이동 가능, 신호 무시 가능</p>
-</details>
 
 <details class="guide-acc">
 <summary>📱 학생: 폰으로 참여하기</summary>
-<p>· 선생님 화면의 QR 찍기 또는 6자리 코드 입력</p>
+<p>· 선생님 화면의 QR을 찍으면 바로 입장</p>
 <p>· 폰 조작 버튼으로 차를 움직여 목표 건물까지 이동</p>
 <p>· 수어 영상은 선생님 화면에서 봄</p>
 <p>· 건물 가까이 가서 누르면 정답 확인</p>
@@ -1401,7 +1398,7 @@ function makeTextTexture(text, bg, fg) {
 }
 
 // 아날로그 시계판 (10시 10분)
-function makeClockTexture() {
+function makeClockTexture(hourDeg = 305, minDeg = 60) {
   const cv = document.createElement('canvas');
   cv.width = 256; cv.height = 256;
   const c = cv.getContext('2d');
@@ -1417,8 +1414,8 @@ function makeClockTexture() {
     c.strokeStyle = '#1c2433'; c.lineWidth = w; c.lineCap = 'round';
     c.beginPath(); c.moveTo(128, 128); c.lineTo(128 + Math.cos(a) * len, 128 + Math.sin(a) * len); c.stroke();
   };
-  hand(305, 62, 12);   // 짧은 바늘 (시)
-  hand(60, 96, 8);     // 긴 바늘 (분)
+  hand(hourDeg, 62, 12);   // 짧은 바늘 (시)
+  hand(minDeg, 96, 8);     // 긴 바늘 (분)
   c.fillStyle = '#dc2626'; c.beginPath(); c.arc(128, 128, 8, 0, Math.PI * 2); c.fill();
   return new THREE.CanvasTexture(cv);
 }
@@ -1535,7 +1532,8 @@ function addRooftopDecor(g, b, wx, wz, h) {
     const col = isKinder ? 0xca8a04 : ((b.name === '미용실' || b.name === '병원') ? 0xbfe3f5 : 0x374151);   // 미용실·병원 문: 유리문   // 소방서 문: 경찰서와 같은 회색, 미용실 문: 유리
     if (!isKinder) [1, -1].forEach(sz => xs.forEach(x => {
       if (b.name === '미용실' || b.name === '약국') return;   // 미용실·약국 문은 네 면 통유리로 대체 (아래 블록)
-      add(new THREE.BoxGeometry(DW, DH, 0.2), col, x, DH / 2, sz * (wz / 2 + 0.08));
+      const dm = add(new THREE.BoxGeometry(DW, DH, 0.2), col, x, DH / 2, sz * (wz / 2 + 0.08));
+      if (b.name === '마트') markNightLit(dm, col);   // 마트 문: 밤에 켜짐
     }));
     if (isFire) {
       // 소방서 문 위 빨간 차양
@@ -1720,7 +1718,7 @@ function addRooftopDecor(g, b, wx, wz, h) {
   if (b.name === '성당') {
     // 성당 문: 앞뒤 면 가운데에 진회색 문 (건물이 돌아가도 보이도록 양쪽에)
     [1, -1].forEach(sz => {
-      add(new THREE.BoxGeometry(2.2, 2.6, 0.2), 0x374151, 0, 1.3, sz * (6 / 2 + 0.08));   // 성당 몸체 깊이(6)의 앞뒤 벽에 붙임
+      markNightLit(add(new THREE.BoxGeometry(2.2, 2.6, 0.2), 0x374151, 0, 1.3, sz * (6 / 2 + 0.08)), 0x374151);   // 성당 몸체 깊이(6)의 앞뒤 벽에 붙임
     });
     // 성당 (참고 사진): 가운데 높은 종탑 + 양옆 작은 탑, 탑 꼭대기는 회색 돔과 검은 십자가
     const BRICK = 0xa3543a, SLATE = 0x4b5563, DARK = 0x1f2937;
@@ -1766,7 +1764,7 @@ function addRooftopDecor(g, b, wx, wz, h) {
     roof.position.set(0, h + 1 + 1.6, 0); roof.rotation.y = Math.PI / 4; g.add(roof);
     [-3.9, -1.3, 1.3, 3.9].forEach(x => [1, -1].forEach(sz => {
       add(new THREE.BoxGeometry(1.9, 3.3, 0.1), 0x111827, x, 3.0, sz * (wz / 2 + 0.05));           // 창틀
-      add(new THREE.BoxGeometry(1.5, 2.9, 0.12), 0xffffff, x, 3.0, sz * (wz / 2 + 0.1));           // 창 (흰 문살)
+      markNightLit(add(new THREE.BoxGeometry(1.5, 2.9, 0.12), 0xffffff, x, 3.0, sz * (wz / 2 + 0.1)), 0xffffff);           // 창 (흰 문살)
     }));
     [1, -1].forEach(sz => add(new THREE.BoxGeometry(2.6, 0.9, 0.12), 0xfde047, 0, 6.4, sz * (wz / 2 + 0.06)));  // 노란 현판
     // 지붕 꼭대기의 卍 상징 (기둥 위에 세움)
@@ -2000,9 +1998,12 @@ function addRooftopDecor(g, b, wx, wz, h) {
     // 옥상의 아날로그 시계 (기둥 위 원형 시계판, 앞뒤 두 면)
     const y0 = h + 1.0;
     // 종탑 벽면(z = ±2)에 붙임. 종탑은 높이 h+1 ~ h+6
-    const clockTex = makeClockTexture();
+    const clockDay = makeClockTexture();          // 낮: 10시 10분
+    const clockNight = makeClockTexture(240, 0);  // 밤: 8시 정각
     [1, -1].forEach(sz => {
-      const face = new THREE.Mesh(new THREE.CircleGeometry(1.6, 32), new THREE.MeshLambertMaterial({ map: clockTex }));
+      const mat = new THREE.MeshLambertMaterial({ map: clockDay });
+      schoolClockMats.push({ mat, day: clockDay, night: clockNight });
+      const face = new THREE.Mesh(new THREE.CircleGeometry(1.6, 32), mat);
       face.position.set(0, h + 4.2, sz * 2.05);
       if (sz < 0) face.rotation.y = Math.PI;
       g.add(face);
@@ -2038,7 +2039,8 @@ function addRooftopDecor(g, b, wx, wz, h) {
     const F = Math.abs(out.x) * wx / 2 + Math.abs(out.z) * wz / 2;
     const dadd = (geo, color, x, y, z) => { const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color })); m.position.set(x, y, z); dec.add(m); return m; };
     dadd(new THREE.BoxGeometry(wx + 1, 0.4, 2.4), 0xcbd5e1, 0, 0.2, F + 1.0);        // 바닥판
-    dadd(new THREE.BoxGeometry(wx - 4, 2.6, 0.2), 0xffffff, 0, 2.2, F + 0.05);        // 창 속 (흰 벽)
+    const cafeWin = dadd(new THREE.BoxGeometry(wx - 4, 2.6, 0.2), 0xffffff, 0, 2.2, F + 0.05);   // 창 속 (흰 벽) — 밤에는 노랗게 켜짐
+    cafeWin.userData.nightGlass = true; cafeWin.userData.dayColor = 0xffffff;
     dadd(new THREE.BoxGeometry(wx - 4.5, 0.25, 0.25), 0x16a34a, 0, 3.55, F + 0.2);     // 차양 아래 띠
     dadd(new THREE.BoxGeometry(1.2, 1.0, 0.8), 0x111827, -2.5, 1.9, F + 0.5);          // 커피 기계
     dadd(new THREE.BoxGeometry(2.5, 1.5, 0.1), 0x9ca3af, 3.0, 2.8, F + 0.15);          // 메뉴판
@@ -2152,7 +2154,39 @@ function makeSignVehicle(type) {
 function makeVehicle(type) {
   const g = shapeMode ? makeSignVehicle(type) : createVehicleGroup(type);
   if (type === 'walk') g.scale.setScalar(0.81);   // 사람 크기 처음보다 19% 축소 (10% + 10%)
+  addHeadlights(g, type);   // 움직이는 탈것에만 전조등 (주차된 차는 없음)
   return g;
+}
+
+// 밤에 보이는 전조등: 자동차·버스 2개, 자전거 1개. 불빛 번짐(빛 효과)도 탈것과 함께 움직임
+let headlightGlowTex = null;
+function getHeadlightGlowTex() {
+  if (headlightGlowTex) return headlightGlowTex;
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const cx = c.getContext('2d');
+  const gr = cx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, 'rgba(255,245,180,1)');
+  gr.addColorStop(0.35, 'rgba(255,230,120,0.5)');
+  gr.addColorStop(1, 'rgba(255,230,120,0)');
+  cx.fillStyle = gr; cx.fillRect(0, 0, 64, 64);
+  headlightGlowTex = new THREE.CanvasTexture(c);
+  return headlightGlowTex;
+}
+function addHeadlights(g, type) {
+  const count = (type === 'car' || type === 'bus') ? 2 : (type === 'bicycle' ? 1 : 0);
+  if (!count) return;
+  const R = VEH_R[type] || 2.6;
+  const zF = -R * 0.9;                       // 앞쪽 (진행 방향 -z)
+  const y = type === 'bus' ? 1.8 : 1.0;
+  const xs = count === 2 ? [-R * 0.45, R * 0.45] : [0];
+  xs.forEach(x => {
+    const bulb = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.2), new THREE.MeshBasicMaterial({ color: 0xfff7b0 }));
+    bulb.position.set(x, y, zF - 0.1);
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: getHeadlightGlowTex(), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+    glow.scale.set(7, 7, 1);   // 번짐 크기 (숫자를 키울수록 넓게 번짐)
+    glow.position.set(x, y + 2.0, zF - 1.5);   // 빛은 전조등보다 위쪽 (숫자를 키울수록 위로)
+    [bulb, glow].forEach(o => { o.userData.headlight = true; o.visible = isNight; g.add(o); });
+  });
 }
 
 // 이미 놓인 탈것의 모양만 바꾸고, 자리와 방향은 그대로 둠
@@ -2392,7 +2426,6 @@ window.selectVehicle = function(type) {
     if (!isAllowedPosition(curX, curZ)) resetCar();
   }
   if (gameLevel < 2 && (type === 'walk' || type === 'bicycle')) resetCar();   // 사람은 인도, 자전거는 자전거길에서 시작
-  toast(`${VEHICLE_SPECS[type].name}(으)로 변경되었습니다! 🚦`);
 };
 
 
@@ -2409,8 +2442,10 @@ function init3DWorld() {
 
   camera = new THREE.PerspectiveCamera(55, 1, 0.1, 500);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+  scene.add(ambientLight);
   const sun = new THREE.DirectionalLight(0xfff3dd, 0.9);
+  sunLight = sun;
   sun.position.set(80, 120, 60);
   sun.castShadow = true;
   scene.add(sun);
@@ -2687,6 +2722,7 @@ function init3DWorld() {
     addRooftopDecor(g, b, wx, wz, h);
     // 건물 벽 간판 (동서남북 4면)
     if (!b.noSign) addBuildingSigns(g, b, wx, wz, h);
+    if (NIGHT_GLASS_NAMES.includes(b.name)) tagNightGlass(g, b, wx, wz, h);
 
     const SC = b.scale || 1;   // 건물 크기 배율 (극장 2배)
     g.scale.setScalar(SC);
@@ -2923,6 +2959,8 @@ function objectHit(x, z, m) {
 let gameLevel = 1;
 const levelTwoGroup = new THREE.Group();
 levelTwoGroup.visible = false;
+const litWinGroup = new THREE.Group();   // 불 켜진 아파트·호텔 창문 (2단계 또는 밤)
+let ambientLight = null, sunLight = null, isNight = false;
 const aptDarkGroup = new THREE.Group();   // 1단계 전용: 불 꺼진 아파트 창문 (2단계부터 숨김)
 const levelTwoBoxes = [];   // 사람·차가 피해 다니는 상자 {cx, cz, hw, hd}
 const levelTwoWalks = [];   // 2단계에서 새로 그린 인도 범위 {x0, x1, z0, z1} (사람·자전거·차 모두 통행)
@@ -2950,11 +2988,38 @@ function updateVehicleSign() {
   // 줄 왼쪽 밖으로 나가지 않도록 최소 0으로 맞춤 (제목과 겹침 방지)
 }
 // 단계 모양만 바꿈 (문제는 다시 불러오지 않음). 실시간 수업에서 문제마다 단계를 맞출 때 씀
+// 낮/밤: 2단계에서만 사용 (1단계는 항상 낮)
+function nightOn() { return isNight && gameLevel >= 2; }
+function applyNightVisuals() {
+  const nt = nightOn();
+  if (scene) scene.background = new THREE.Color(nt ? 0x1e293b : 0xcfe3f7);
+  if (ambientLight) ambientLight.intensity = nt ? 0.35 : 0.7;
+  if (sunLight) sunLight.intensity = nt ? 0.2 : 0.9;
+  schoolClockMats.forEach(c => { c.mat.map = nt ? c.night : c.day; c.mat.needsUpdate = true; });   // 밤에는 학교 시계가 8:00
+  litWinGroup.visible = nt;      // 밤: 불 켜진 아파트·호텔 창문
+  aptDarkGroup.visible = !nt;    // 낮: 아파트·호텔 전체 회색
+  scene.traverse(o => { if (o.userData && o.userData.headlight) o.visible = nt; });   // 전조등
+  setNightGlass(nt);             // 기존 건물 창문
+  refreshDayNightButtons();
+}
+function setDayNight(night) { isNight = night; applyNightVisuals(); }
+function refreshDayNightButtons() {
+  const sw = document.getElementById('daynight-switch');
+  if (sw) sw.style.display = gameLevel >= 2 ? 'inline-flex' : 'none';
+  [['btn-day', !nightOn()], ['btn-night', nightOn()]].forEach(([id, on]) => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.style.cssText = 'border:none;cursor:pointer;font-weight:700;font-size:14px;padding:6px 14px;border-radius:999px;'
+      + 'background:' + (on ? '#9a3412' : 'transparent') + ';color:' + (on ? '#ffffff' : '#9a3412') + ';';
+  });
+}
+
 function applyLevel(n) {
   if (n >= 3) n = 2;   // 예전 3단계는 2단계에 합쳐짐
   gameLevel = n;
   levelTwoGroup.visible = n >= 2;
-  aptDarkGroup.visible = n < 2;   // 1단계: 불 꺼진 아파트 / 2단계: 기존 창문
+  if (n < 2) isNight = false;   // 1단계는 항상 낮
+  applyNightVisuals();
   footGroup.visible = n >= 2;
   document.body.classList.toggle('lv3', n >= 2);   // 2단계: 탈것 수어 그림 보이기
   if (n < 2) clearOthers();
@@ -2967,10 +3032,108 @@ function applyLevel(n) {
 window.setLevel = function(n) {
   applyLevel(n);
   if (typeof loadQuestion === 'function') loadQuestion(levelQIdx()[0] ?? 0);
-  toast(gameLevel >= 2
-    ? '2단계: 사물·아파트 불·사고 상황 표현과 자유 이동이 추가되었습니다!'
-    : '1단계로 돌아왔습니다. 추가 물체가 사라졌습니다.');
 };
+
+// 밤에만 켜지는 기존 창문: 기존 유리(파랑·하늘·노랑 계열) 조각을 찾아 밤에 노랗게 바꿈
+const NIGHT_GLASS_NAMES = ['식당', '약국', '미용실', '카페', '극장', '교회', '병원', '마트', '성당', '절'];
+function tagNightGlass(g, b, wx, wz, h) {
+  const v = new THREE.Vector3();
+  g.updateMatrixWorld(true);
+  const found = [];
+  g.traverse(m => { if (m !== g && m.isMesh && m.material && m.material.color && !m.material.isMeshBasicMaterial) found.push(m); });
+  found.forEach(m => {
+    m.geometry.computeBoundingBox();
+    const sz = new THREE.Vector3();
+    m.geometry.boundingBox.getSize(sz);
+    if (Math.min(sz.x, sz.y, sz.z) > 0.35) return;                     // 얇은 판(창문)만
+    g.worldToLocal(m.getWorldPosition(v));                             // 건물 기준 위치
+    const onWall = Math.abs(v.z) >= wz / 2 - 0.6 || Math.abs(v.x) >= wx / 2 - 0.6;
+    if (!onWall || v.y < 0.2 || v.y > h - 0.5) return;                  // 벽 위치, 지붕 위 제외
+    const hsl = {}; m.material.color.getHSL(hsl);
+    const blueish = hsl.h >= 0.5 && hsl.h <= 0.72 && hsl.s >= 0.15;        // 파랑·하늘색 계열 (유리)
+    const paleYellow = hsl.h >= 0.1 && hsl.h <= 0.17 && hsl.l >= 0.75;      // 밝은 노랑 (병원 창문)
+    const theaterGlass = b.name === '극장' && blueish && hsl.s >= 0.3;     // 극장 어두운 파란 유리
+    const churchArch = b.name === '교회' && v.y >= 0.5 && hsl.l < 0.3;     // 교회 아치 창문 (아래 문 제외)
+    if (!(theaterGlass || churchArch || (blueish && hsl.l >= 0.6 && hsl.s >= 0.2) || paleYellow)) return;   // 유리 색만 (벽 장식·지붕 띠 제외)
+    const dayColor = b.name === '병원' ? 0xcbd5e1 : m.material.color.getHex();   // 병원은 낮에 회색
+    m.material = new THREE.MeshLambertMaterial({ color: dayColor });
+    m.userData.nightGlass = true;
+    m.userData.dayColor = dayColor;
+  });
+}
+function markNightLit(m, dayColor) {   // 밤에 노랗게 켜지는 조각 표시
+  m.userData.nightGlass = true;
+  m.userData.dayColor = dayColor;
+  return m;
+}
+// 가로등: 길 옆 인도에 세움 (차·사람 이동을 막지 않음). 밤(2단계)에만 등이 켜짐
+function addStreetLamps() {
+  const off = ROAD_HALF + 2.2;
+  const spots = [];
+  [30, 60, 90, 115].forEach(z => spots.push([off, z], [-off, z], [off, -z], [-off, -z]));   // 남북 길 옆
+  [30, 60, 90].forEach(x => spots.push([x, off], [x, -off], [-x, off], [-x, -off]));        // 동서 길 옆
+  // 회전교차로: 바깥 연두색 땅 위에 4개
+  // 회전교차로 바깥 자전거길 밖, 밝은 연두색 땅 위 (길 위에 서지 않도록 대각선 4곳)
+  const roundSpots = [[33, 0], [0, 33], [-33, 0], [0, -33]].map(([x, z]) => { const d = Math.SQRT1_2; return [(x + z) * d, (z - x) * d]; }).map(([x, z]) => [x * 1, z * 1]);
+  // 횡단보도 옆 가로등은 세우지 않음
+  const nearCrosswalk = (x, z) => CROSSWALKS.some(cw => cw.axis === 'z'
+    ? (Math.abs(x) <= 12 && Math.abs(z - cw.z) <= 6)
+    : (Math.abs(z) <= 12 && Math.abs(x - cw.x) <= 6));
+  // 길이 만나는 교차점 바로 옆 8개 (가운데에서 30칸 떨어진 곳)는 세우지 않음
+  const nearJunction = (x, z) => Math.min(Math.abs(x), Math.abs(z)) === off && Math.max(Math.abs(x), Math.abs(z)) === 30;
+  [...spots.filter(([x, z]) => !nearCrosswalk(x, z) && !nearJunction(x, z)), ...roundSpots].forEach(([x, z]) => {
+    const g = new THREE.Group();
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 7, 8), new THREE.MeshLambertMaterial({ color: 0x374151 }));
+    pole.position.y = 3.5; g.add(pole);
+    const head = markNightLit(new THREE.Mesh(new THREE.SphereGeometry(0.55, 14, 10), new THREE.MeshLambertMaterial({ color: 0x6b7280 })), 0x6b7280);   // 둥근 등
+    head.position.set(0, 7.3, 0); g.add(head);
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: getHeadlightGlowTex(), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+    glow.scale.set(4, 4, 1);
+    glow.position.set(0, 6.8, 0);
+    glow.userData.headlight = true;   // 밤에만 보임 (전조등과 같은 규칙)
+    glow.visible = false;
+    g.add(glow);
+    g.position.set(x, 0, z);
+    scene.add(g);
+    poleObstacles.push({ x, z, r: 0.5 });   // 가로등 기둥: 차·자전거·사람이 부딪힘
+  });
+}
+
+// 분수 물줄기: 2단계 낮에만 움직임 (작은 물방울이 솟았다가 흩어져 떨어짐)
+let fountainDrops = [];
+let schoolClockMats = [];   // 학교 시계판 (낮 10:10, 밤 8:00)
+let fountainSpray = null;
+function addFountainSpray() {
+  fountainSpray = new THREE.Group();
+  const dropMat = new THREE.MeshBasicMaterial({ color: 0xbae6fd, transparent: true, opacity: 0.85 });
+  for (let i = 0; i < 36; i++) {
+    const d = new THREE.Mesh(new THREE.SphereGeometry(0.2, 6, 5), dropMat);
+    d.userData.ph = i / 24;                       // 물방울마다 시작 시점을 다르게
+    d.userData.ang = i * 137.5 * Math.PI / 180;   // 사방으로 흩어지도록 방향을 나눔
+    fountainSpray.add(d);
+    fountainDrops.push(d);
+  }
+  fountainSpray.visible = false;
+  scene.add(fountainSpray);
+}
+function updateFountain(now) {
+  if (!fountainSpray) return;
+  fountainSpray.visible = gameLevel >= 2 && !isNight;
+  if (!fountainSpray.visible) return;
+  fountainDrops.forEach(d => {
+    const k = (now / 1500 + d.userData.ph) % 1;   // 0→1: 한 번 솟았다 떨어짐
+    const r = 0.5 + 4.2 * k;                       // 점점 더 멀리 퍼짐
+    d.position.set(Math.cos(d.userData.ang) * r, 4.4 + 4.5 * Math.sin(k * Math.PI), Math.sin(d.userData.ang) * r);   // 더 높이 솟음
+  });
+}
+
+function setNightGlass(night) {
+  scene.traverse(o => {
+    if (!o.userData || !o.userData.nightGlass) return;
+    o.material.color.setHex(night ? 0xfde68a : o.userData.dayColor);
+    o.material.emissive.setHex(night ? 0x553d00 : 0x000000);
+  });
+}
 
 // 2단계: 아파트 벽에 창문 그리기 (건물 벽 바로 앞에 얇은 그림 판을 붙임)
 // 판과 벽이 같은 자리에 겹쳐 깜박이지 않도록 polygonOffset 사용, 간판 자리는 비워 둠
@@ -3010,6 +3173,7 @@ function buildApartmentWindows(allDark, grp) {   // allDark: 모든 창문 끔 (
       const tex = new THREE.CanvasTexture(cv);
       const mat = new THREE.MeshLambertMaterial({
         map: tex, alphaTest: 0.5,
+        emissive: allDark ? 0x000000 : 0x553d00, emissiveMap: allDark ? null : tex,   // 밤에 켜진 창이 새 건물 유리처럼 빛나게
         polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1
       });
       const m = new THREE.Mesh(new THREE.PlaneGeometry(f.w, h), mat);
@@ -3063,6 +3227,7 @@ function buildHotelWindows(allDark, grp) {
       const tex = new THREE.CanvasTexture(cv);
       const mat = new THREE.MeshLambertMaterial({
         map: tex, alphaTest: 0.5,
+        emissive: allDark ? 0x000000 : 0x553d00, emissiveMap: allDark ? null : tex,   // 밤에 켜진 창이 새 건물 유리처럼 빛나게
         polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1
       });
       const m = new THREE.Mesh(new THREE.PlaneGeometry(f.w, h), mat);
@@ -3369,13 +3534,17 @@ function buildLevelTwo() {
   });
   car(-23, 68, 0xe2e8f0, 2.4, 4.6, 1.0, null, null, null, 2 / 3);   // 흰 승용차 1대
 
-  buildApartmentWindows(false, levelTwoGroup);   // 2·3단계: 불 켜진 창문 그대로
-  buildHotelWindows(false, levelTwoGroup);       // 2단계: 호텔 일부 켜짐
+  buildApartmentWindows(false, litWinGroup);   // 2단계·밤: 불 켜진 창문
+  buildHotelWindows(false, litWinGroup);       // 2단계·밤: 호텔 일부 켜짐
   buildApartmentWindows(true, aptDarkGroup);     // 1단계: 아파트 불 모두 끔
   buildHotelWindows(true, aptDarkGroup);         // 1단계: 호텔 불 모두 끔
   refreshLevelButtons();
   scene.add(levelTwoGroup);
   scene.add(aptDarkGroup);
+  scene.add(litWinGroup);
+  addStreetLamps();
+  addFountainSpray();
+  applyNightVisuals();
 }
 
 /* ── 횡단보도 + 신호등 ──
@@ -3882,6 +4051,7 @@ function handleImpact(hit) {
 }
 
 function tick() {
+  updateFountain(performance.now());   // 분수 물줄기 움직임
   if (fallBusy()) { keys.up = false; keys.down = false; keys.left = false; keys.right = false; }   // 넘어지는 동안은 조종 불가
   if (keys.up)   speed = Math.min(speed + ACCEL,  MAX_SPEED);
   if (keys.down) speed = Math.max(speed - ACCEL, -MAX_SPEED*0.55);
@@ -3906,8 +4076,8 @@ function tick() {
   } else {
     if (blocked && (keys.up || keys.down)) warnRedLight(walking);
     // 건물·주차된 차·사람·육교 계단 등 그림 물체에 부딪히면 불꽃이 튀며 충돌 (도로 경계는 제외)
-    if (!blocked && isAllowedPosition(fx, fz) && hitPoint && Math.abs(speed) > 0.05)
-      onCrash(hitPoint);
+    if (gameLevel >= 2 && !blocked && isAllowedPosition(fx, fz) && hitPoint && Math.abs(speed) > 0.05)
+      onCrash(hitPoint);   // 1단계는 충돌 효과 없이 멈추기만 함
     if (!blocked && isAllowedPosition(fx, fz) && hitPoint && Math.abs(speed) > 0.05) handleImpact(hitPoint);
     speed = 0;
   }
@@ -4122,7 +4292,6 @@ window.setPlayMode = function(m) {
   resize();
   document.getElementById('video-label').textContent = m === 'novideo' ? '길 안내 (영상 없음)' : '수어 지시 영상';
   loadQuestion(qIndex);
-  toast(m === 'novideo' ? '영상 없는 버전으로 바뀌었습니다 🗺' : '영상 버전으로 바뀌었습니다 🎬');
 };
 
 window.toggleGuide = function(show) {
