@@ -327,8 +327,8 @@
   #nv-actions .start-pick button { flex: 0 0 auto; padding: 10px 12px; background: #fff; color: #334155; box-shadow: none; border: 1px solid #cbd5e1; }
   #nv-actions .start-pick button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
   #nv-vehicles { position: absolute; left: 12px; top: 12px; display: none; gap: 4px; z-index: 20; background: #fff; padding: 4px; border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-  body.novideo #nv-vehicles { display: flex; }
-  body.novideo #vehicle-main { display: none; }
+  /* 영상을 꺼도 탈것 선택은 제목(수어 길찾기) 옆 헤더에 고정. 지도 위 상자는 전체 화면일 때만 */
+  body.novideo #vehicle-main { display: flex; }
   .nv-v { border: none; background: transparent; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 800; cursor: pointer; color: var(--muted); }
   .nv-v.active { background: #fff; color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
   .nv-v.pick, .v-btn.pick { background: #fff; color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }   /* 2단계에서 고른 탈것은 흰색 버튼 */
@@ -715,17 +715,23 @@
     #key-guide { display: none; }
     #btn-live { display: none !important; }   /* 모바일: 모바일 참여 QR 버튼 숨김 */
     #level-switch, #daynight-switch { display: none !important; }   /* 모바일: 1·2단계 선택 숨김 (강사가 문제 제어) */
-    #cam-btn { top: 8px; right: 8px; bottom: auto; }   /* 모바일: 카메라 버튼을 오른쪽 위로 (방향키와 겹치지 않게) */
-    #cam-panel { top: 58px; bottom: auto; right: 8px; }
+    #cam-btn { top: 78px; left: 8px; right: auto; bottom: auto; }   /* 모바일: 카메라 버튼은 제목 줄 아래 왼쪽 (탈것 칸과 겹치지 않게) */
+    #cam-panel { top: 118px; bottom: auto; left: 8px; right: auto; }
     /* 기기 화면 너비에 맞춰 크기 조절 (갤럭시 등 좁은 화면에서 겹치지 않게) */
-    header { padding: 8px 10px; gap: 8px; }
-    .vehicle-col { margin-left: 0; width: 100%; }
-    .vehicle-selector { margin-left: 0; width: 100%; box-sizing: border-box; padding: 3px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
+    /* 탈것 선택 상자를 제목(수어 길찾기) 줄에 올려 건물을 가리지 않게 한 줄로 배치 */
+    body.novideo #vehicle-main { display: grid; }   /* 모바일: 탈것 선택은 제목 줄(헤더)에 두고 */
+    #game-wrap:not(:fullscreen) #nv-vehicles { display: none !important; }   /* 지도 위 탈것 상자는 숨겨 건물을 가리지 않게 (전체 화면일 때만 표시) */
+    header { padding: 6px 8px; gap: 6px; flex-wrap: nowrap; }
+    header .logo { width: 28px; height: 28px; font-size: 15px; border-radius: 8px; }
+    header h1 { font-size: 14px; }
+    .vehicle-col { margin-left: 0; width: auto; flex: 1 1 auto; min-width: 0; }
+    .vehicle-selector { margin-left: 0; width: 100%; box-sizing: border-box; padding: 2px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
     .v-item { width: auto; min-width: 0; }
-    .v-btn { min-height: 52px; padding: 4px 0; width: 100%; min-width: 0; gap: 0; }
-    .v-btn .vemo { font-size: clamp(1.1em, 5vw, 1.6em); }
-    .v-btn .vword { font-size: clamp(10px, 2.9vw, 13px); white-space: nowrap; }
-    body.lv3 .v-btn { min-height: 60px; }
+    .v-btn { min-height: 46px; padding: 2px 0; width: 100%; min-width: 0; gap: 0; }
+    .v-btn .vemo { font-size: clamp(0.9em, 4vw, 1.2em); }
+    .v-btn .vword { font-size: clamp(9px, 2.6vw, 12px); white-space: nowrap; }
+    body.lv3 .v-btn { min-height: 52px; }
+    body.lv3 .v-btn .sign-img { max-height: 26px !important; max-width: 100% !important; }
     #touch-pad {
       right: 10px;
       bottom: 64px;   /* 출발점 줄 위에 배치 */
@@ -2150,6 +2156,15 @@ function makeSignVehicle(type) {
   return g;
 }
 
+// 지도에서 치운 물체의 그래픽 메모리(모양·재질)를 돌려줌. 텍스처는 여러 곳이 같이 쓰므로 건드리지 않음
+function disposeTree(g) {
+  if (!g) return;
+  g.traverse(m => {
+    if (m.geometry) m.geometry.dispose();
+    if (m.material) (Array.isArray(m.material) ? m.material : [m.material]).forEach(mt => mt.dispose());
+  });
+}
+
 // 조종 중인 탈것을 만들 때 현재 모양 모드에 맞춰 만듦
 function makeVehicle(type) {
   const g = shapeMode ? makeSignVehicle(type) : createVehicleGroup(type);
@@ -2195,6 +2210,7 @@ function swapModel(group, type) {
   g.position.copy(group.position);
   g.rotation.copy(group.rotation);
   scene.remove(group);
+  disposeTree(group);   // 지운 탈것의 GPU 메모리를 되돌려 줌 (안 하면 바꿀 때마다 쌓여 멈춤·지도 안 나옴)
   scene.add(g);
   return g;
 }
@@ -2353,6 +2369,7 @@ function dropOthersNotInPair() {
   Object.keys(lv3Others).forEach(t => {
     if (!lv3Pair.includes(t)) {
       scene.remove(lv3Others[t].group);
+      disposeTree(lv3Others[t].group);
       delete lv3Others[t];
     }
   });
@@ -2360,7 +2377,7 @@ function dropOthersNotInPair() {
 
 // 3단계를 벗어나면 조종하는 탈것 하나만 남김
 function clearOthers() {
-  Object.keys(lv3Others).forEach(t => scene.remove(lv3Others[t].group));
+  Object.keys(lv3Others).forEach(t => { scene.remove(lv3Others[t].group); disposeTree(lv3Others[t].group); });
   lv3Others = {};
   lv3Pair = [vehicleType];
 }
@@ -2418,6 +2435,7 @@ window.selectVehicle = function(type) {
     const curZ = car.position.z;
     const curAng = car.rotation.y;
     scene.remove(car);
+    disposeTree(car);
 
     car = makeVehicle(type);
     car.position.set(curX, 0, curZ);
@@ -2762,7 +2780,19 @@ function init3DWorld() {
 
   resetCar();
   resize();
+  precompileScene();
   tick();
+}
+
+// 처음에 숨겨 둔 2단계 물체와 모든 탈것 모양을 미리 준비 (단계·탈것을 바꿀 때 처음 한 번 끊기는 현상 방지)
+function precompileScene() {
+  if (!renderer || !renderer.compile) return;
+  const hidden = [];
+  scene.traverse(o => { if (!o.visible) { hidden.push(o); o.visible = true; } });
+  const extra = ['car', 'bicycle', 'bus', 'walk'].map(t => { const g = makeVehicle(t); scene.add(g); return g; });
+  try { renderer.compile(scene, camera); } catch (e) { console.warn('미리 준비 실패', e); }
+  extra.forEach(g => { scene.remove(g); disposeTree(g); });
+  hidden.forEach(o => { o.visible = false; });
 }
 
 window.resetCar = function() {
