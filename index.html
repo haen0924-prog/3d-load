@@ -694,16 +694,17 @@
     #touch-pad { display: grid; }
     #key-guide { display: none; }
     #btn-live { display: none !important; }   /* 모바일: 모바일 참여 QR 버튼 숨김 */
+    #level-switch { display: none !important; }   /* 모바일: 1·2단계 선택 숨김 (강사가 문제 제어) */
     #cam-btn { top: 8px; right: 8px; bottom: auto; }   /* 모바일: 카메라 버튼을 오른쪽 위로 (방향키와 겹치지 않게) */
     #cam-panel { top: 58px; bottom: auto; right: 8px; }
     /* 기기 화면 너비에 맞춰 크기 조절 (갤럭시 등 좁은 화면에서 겹치지 않게) */
     header { padding: 8px 10px; gap: 8px; }
     .vehicle-col { margin-left: 0; width: 100%; }
-    .vehicle-selector { margin-left: 0; width: 100%; box-sizing: border-box; padding: 3px; }
-    .v-item { width: auto; flex: 1 1 0; min-width: 0; }
-    .v-btn { min-height: 52px; padding: 4px 2px; width: 100%; }
+    .vehicle-selector { margin-left: 0; width: 100%; box-sizing: border-box; padding: 3px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
+    .v-item { width: auto; min-width: 0; }
+    .v-btn { min-height: 52px; padding: 4px 0; width: 100%; min-width: 0; gap: 0; }
     .v-btn .vemo { font-size: clamp(1.1em, 5vw, 1.6em); }
-    .v-btn .vword { font-size: clamp(11px, 3.2vw, 13.5px); }
+    .v-btn .vword { font-size: clamp(10px, 2.9vw, 13px); white-space: nowrap; }
     body.lv3 .v-btn { min-height: 60px; }
     #touch-pad {
       right: 10px;
@@ -719,7 +720,8 @@
     #nv-actions .start-pick button { padding: 8px clamp(8px, 2.6vw, 12px); font-size: clamp(12px, 3.6vw, 14px); }
   }
   @media (max-width:360px) {
-    .v-btn .vword { font-size: 10.5px; }
+    .v-btn .vemo { font-size: 1.1em; }
+    .v-btn .vword { font-size: 10px; }
     #touch-pad { grid-template-columns: repeat(3, 38px); grid-template-rows: 38px 38px; }
   }
   @media (min-width:821px) {
