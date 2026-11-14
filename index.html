@@ -1719,7 +1719,7 @@ function addRooftopDecor(g, b, wx, wz, h) {
       w.rotation.y = sx * Math.PI / 2;
     }));
     // 정면 아치 문
-    addL(archGeo(0.9, 1.7, 0.1), DARK, 0, 0.3, wx / 2 + 0.02 + 0.8);
+    markNightLit(addL(archGeo(0.9, 1.7, 0.1), DARK, 0, 0.3, wx / 2 + 0.02 + 0.8), DARK);   // 교회 정면 문: 밤에 켜짐
   }
   if (b.name === '성당') {
     // 성당 문: 앞뒤 면 가운데에 진회색 문 (건물이 돌아가도 보이도록 양쪽에)
@@ -2005,7 +2005,7 @@ function addRooftopDecor(g, b, wx, wz, h) {
     const y0 = h + 1.0;
     // 종탑 벽면(z = ±2)에 붙임. 종탑은 높이 h+1 ~ h+6
     const clockDay = makeClockTexture();          // 낮: 10시 10분
-    const clockNight = makeClockTexture(240, 0);  // 밤: 8시 정각
+    const clockNight = makeClockTexture(210, 0);  // 밤: 7시 정각 (시침 210°)
     [1, -1].forEach(sz => {
       const mat = new THREE.MeshLambertMaterial({ map: clockDay });
       schoolClockMats.push({ mat, day: clockDay, night: clockNight });
@@ -2154,6 +2154,78 @@ function makeSignVehicle(type) {
   arrow.position.set(0, 0.3, -2.8);
   g.add(arrow);
   return g;
+}
+
+// 중앙선: 흰색 실선. true로 두면 그리고, false로 두면 중앙선이 사라짐 (되돌리기)
+const SHOW_CENTER_LINES = true;
+
+// 동서남북 큰 길의 가운데에 흰 점선을 그림. 다른 길과 만나는 자리·원형 길(중앙공원 둘레)은 자동으로 비움
+// rects: 모든 길 (끊는 기준), lines: 선을 그릴 길
+function addCenterLines(rects, lines) {
+  const lineMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+  const LW = 0.3;                 // 선 두께
+  const DASH = 2.0, GAP = 1.5;    // 점선: 한 점 길이, 빈칸 길이
+  const R_IN = 17, R_OUT = 25;    // 원형 길의 안쪽·바깥쪽 반지름
+  const EPS = 0.01;
+  const dashes = [];              // 모든 점의 꼭짓점 모음
+  lines.forEach(r => {
+    const [x, z, w, d] = r;
+    const horiz = w >= d;                       // 가로(x 방향) 길인지
+    const width = horiz ? d : w, len = horiz ? w : d;
+    if (width < 8 || len < 6) return;           // 좁은 길·짧은 연결 길은 제외
+    const c = horiz ? z : x;                    // 선이 놓이는 고정 좌표
+    const mid = horiz ? x : z;
+    let pieces = [[mid - len / 2, mid + len / 2]];
+    const cut = (lo, hi) => {                   // [lo, hi] 구간을 선에서 뺌
+      const next = [];
+      pieces.forEach(([p, q]) => {
+        if (hi <= p + EPS || lo >= q - EPS) { next.push([p, q]); return; }
+        if (lo > p + EPS) next.push([p, lo]);
+        if (hi < q - EPS) next.push([hi, q]);
+      });
+      pieces = next;
+    };
+    // 1) 다른 길이 가로지르거나 만나는 자리
+    rects.forEach(o => {
+      if (o === r) return;
+      const [ox, oz, ow, od] = o;
+      if (horiz) {
+        if (Math.abs(c - oz) <= od / 2) cut(ox - ow / 2, ox + ow / 2);
+      } else {
+        if (Math.abs(c - ox) <= ow / 2) cut(oz - od / 2, oz + od / 2);
+      }
+    });
+    // 2) 원형 길(중앙공원 둘레) 자리: 반지름 17~25 사이
+    if (Math.abs(c) < R_OUT) {
+      const outer = Math.sqrt(R_OUT * R_OUT - c * c);
+      const inner = Math.abs(c) < R_IN ? Math.sqrt(R_IN * R_IN - c * c) : 0;
+      cut(-outer, -inner);
+      cut(inner, outer);
+    }
+    pieces.forEach(([p, q]) => {
+      for (let s = p; s < q; s += DASH + GAP) {          // 짧은 점과 빈칸을 번갈아 그림
+        const e = Math.min(s + DASH, q);
+        if (e - s < 0.5) continue;
+        // 점 하나의 네 꼭짓점(x, z)을 모아 두고, 마지막에 한 덩어리로 합침
+        const h = LW / 2;
+        if (horiz) dashes.push([s, c - h, e, c - h, e, c + h, s, c + h]);
+        else dashes.push([c - h, s, c + h, s, c + h, e, c - h, e]);
+      }
+    });
+  });
+  if (dashes.length === 0) return;
+  // 모든 점을 하나의 묶음(한 개의 그림 조각)으로 만듦: 그려지는 횟수가 줄어 화면 부담이 적음
+  const pos = [], nor = [], idx = [];
+  dashes.forEach((q, i) => {
+    for (let k = 0; k < 8; k += 2) { pos.push(q[k], 0.03, q[k + 1]); nor.push(0, 1, 0); }
+    const b = i * 4;
+    idx.push(b, b + 2, b + 1, b, b + 3, b + 2);   // 위쪽을 향하도록 순서 지정
+  });
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+  geo.setIndex(idx);
+  scene.add(new THREE.Mesh(geo, lineMat));
 }
 
 // 지도에서 치운 물체의 그래픽 메모리(모양·재질)를 돌려줌. 텍스처는 여러 곳이 같이 쓰므로 건드리지 않음
@@ -2351,12 +2423,12 @@ function switchControl(type) {
   delete lv3Others[type];
   if (!entry) {
     const g = makeVehicle(type);
-    const off = type === 'walk' ? 13.5 : type === 'bicycle' ? 8.7 : 6;
+    const off = type === 'walk' ? 15.5 : type === 'bicycle' ? 10.7 : 3.5;   // 자동차·버스: 점선 오른쪽 차선 가운데
     const sp = startPos(off);
     g.position.set(sp.x, 0, sp.z);
-    g.rotation.y = 0;
+    g.rotation.y = START.angle;   // 고른 출발점 방향을 보고 나옴 (동·서·남·북)
     scene.add(g);
-    entry = { group: g, speed: 0, angle: 0 };
+    entry = { group: g, speed: 0, angle: START.angle };
   }
   car = entry.group;
   speed = entry.speed;
@@ -2485,7 +2557,7 @@ function init3DWorld() {
   const ring = new THREE.Mesh(new THREE.RingGeometry(17, 25, 64), roadMat);
   ring.rotation.x = -Math.PI/2; ring.position.set(0, 0.02, 0); scene.add(ring);
   // 4갈래길: 북·남·동·서 방향으로 중앙공원에서 바깥까지
-  [[0,-70,10,100],[0,70,10,100],[70,0,100,10],[-70,0,100,10],
+  const ROAD_RECTS = [[0,-70,SPOKE_W,100],[0,70,SPOKE_W,100],[70,0,100,SPOKE_W],[-70,0,100,SPOKE_W],
    [-93,25.5,10,51],      // 극장 앞 횡단보도에서 좌회전해 남쪽으로 가는 길 (교회 쪽)
    [-93,-14,10,28],       // 극장 남쪽 끝까지 연장한 길 (극장 가까이 갈 수 있게)
    [-89.75,51,16.5,10],   // 교회 앞 동쪽 길 (교회 남쪽 출입구까지)
@@ -2498,10 +2570,12 @@ function init3DWorld() {
    [72.5,-33.75,10,57.5], // 소방서와 아파트 사이 북쪽 길: 동서 길에서 올라가 성당 남쪽(옆)까지 (동쪽으로 5 이동 → 2번째 이동)
    [-32.5,-96,75,10],     // 병원 앞 횡단보도 북쪽 길: 북쪽 남북 길에서 서쪽으로 절 북쪽까지
    [-69,-82.5,10,17]      // 절로 내려가는 연결 길 (절 북쪽 면 안쪽까지 이어서 틈이 생기지 않게)
-  ].forEach(([x,z,w,d]) => {
+  ];
+  ROAD_RECTS.forEach(([x,z,w,d]) => {
     const r = new THREE.Mesh(new THREE.PlaneGeometry(w, d), roadMat);
     r.rotation.x = -Math.PI/2; r.position.set(x, 0.02, z); scene.add(r);
   });
+  if (SHOW_CENTER_LINES) addCenterLines(ROAD_RECTS, ROAD_RECTS.filter(r => Math.max(r[2], r[3]) === 100));   // 동서남북 큰 길(길이 100)만   // 중앙선 (끄려면 SHOW_CENTER_LINES를 false로)
   // 자전거길: 차도 바로 옆 양쪽 (안쪽 6.2 ~ 바깥쪽 11.2), 횡단보도 자리에서는 끊김
   const bikeMat = new THREE.MeshLambertMaterial({ color: 0x722f37 });
   const bikeStrip = (xc, zc, w, h) => {
@@ -2509,7 +2583,7 @@ function init3DWorld() {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), bikeMat);
     m.rotation.x = -Math.PI / 2; m.position.set(xc, 0.04, zc); scene.add(m);
   };
-  const BL_C = 8.7;   // 자전거길 가운데 (폭 5)
+  const BL_C = SPOKE_HALF + 3.7;   // 자전거길 가운데 (폭 5, 큰 길 가장자리 바깥)
   // 남북 길 자전거길 (횡단보도 z=55, -88 주변 ±4는 비움)
   // 원형 길(반지름 25) 바깥에서 시작해 길이 겹치지 않게 함 (z 24.8 이상)
   // 오른쪽 자전거길 (동쪽·남쪽 방향 쪽): 횡단보도 자리도 끊기지 않고 한 줄로 길게
@@ -2526,7 +2600,7 @@ function init3DWorld() {
   // 원 자전거길: 네 조각으로 나누고 끝을 도로 가장자리(x=±5, z=±5)에 딱 맞춰 자름 (삐져나온 삼각형 없음)
   const rad = d => d * Math.PI / 180;
   const quad = new THREE.Shape();
-  const Ro = 30.5, Ri = 25.5, E = 5;
+  const Ro = 30.5, Ri = 25.5, E = SPOKE_HALF;
   const aOuterStart = Math.asin(E / Ro), aOuterEnd = Math.acos(E / Ro);     // 9.4°, 80.6°
   const aInnerStart = Math.asin(E / Ri), aInnerEnd = Math.acos(E / Ri);     // 11.3°, 78.7°
   quad.moveTo(Math.sqrt(Ri * Ri - E * E), E);                                // 안쪽, 가로 도로 가장자리
@@ -2547,9 +2621,9 @@ function init3DWorld() {
   // 신호등 기둥 자리는 띠를 잘라 비움 (기둥과 겹치지 않게)
   CROSSWALKS.forEach(cw => {
     const isZ = cw.axis === 'z';
-    const lo = isZ ? cw.z + 4.6 : cw.x + 4.6, hi = lo + 5, mid = (lo + hi) / 2, half = ROAD_HALF;   // 정지선(흰 선) 밖, 폭 5, 차도 위만 (인도 쪽 부분 삭제)
+    const lo = isZ ? cw.z + 4.6 : cw.x + 4.6, hi = lo + 5, mid = (lo + hi) / 2, half = SPOKE_HALF;   // 정지선(흰 선) 밖, 폭 5, 차도 위만 (인도 쪽 부분 삭제)
     const poles = [
-      { x: isZ ? 5.6 : cw.x + 5, z: isZ ? cw.z + 5 : 5.6 },   // 차량 신호 기둥
+      { x: isZ ? SPOKE_HALF + 2.6 : cw.x + SPOKE_HALF, z: isZ ? cw.z + SPOKE_HALF : SPOKE_HALF + 2.6 },   // 차량 신호 기둥 (길 가장자리)
       cw.ped, cw.ped2                                         // 사람 신호 기둥
     ];
     const cuts = poles
@@ -2797,7 +2871,7 @@ function precompileScene() {
 
 window.resetCar = function() {
   if (!car) return;
-  const sp = startPos(vehicleType === 'walk' ? 13.5 : vehicleType === 'bicycle' ? 8.7 : 0);
+  const sp = startPos(vehicleType === 'walk' ? 15.5 : vehicleType === 'bicycle' ? 10.7 : 3.5);   // 자동차·버스: 점선 오른쪽 차선 가운데
   car.position.set(sp.x, 0, sp.z);
   angle = START.angle; speed = 0;
   car.rotation.y = angle;
@@ -2808,11 +2882,15 @@ document.querySelectorAll('.start-pick button').forEach(btn => {
   btn.onclick = () => {
     START = { ...START_POINTS[btn.dataset.start] };
     document.querySelectorAll('.start-pick button').forEach(b => b.classList.toggle('on', b === btn));
+    // 출발점이 바뀌면 나머지 탈것도 이전 자리에서 지우고, 다음에 고를 때 새 출발점에서 다시 나오게 함
+    Object.keys(lv3Others).forEach(t => { scene.remove(lv3Others[t].group); disposeTree(lv3Others[t].group); delete lv3Others[t]; });
     resetCar();
   };
 });
 
 const ROAD_HALF = 5;   // 길 폭의 절반 (길 폭 10)
+const SPOKE_HALF = 7;  // 동서남북 큰 길의 절반 (길 폭 14)
+const SPOKE_W = 14;    // 동서남북 큰 길의 폭
 
 // 자동차·버스·자전거: 원형 길과 4갈래길 위에서만 이동 (pad = 길 가장자리를 넘어 걸칠 수 있는 여유)
 // 자전거: 자전거 전용도로 띠와 그 옆 인도(건물 앞까지 갈 수 있도록)에서 이동
@@ -2826,17 +2904,17 @@ function onBikeLane(x, z) {
   if (onDrivableRoad(x, z, 0)) return true;   // 자전거도 차도 우측 가장자리로 통행 (도로교통법)
   // 인도: 자전거도 자유롭게 다닐 수 있음 (차도는 제외)
   if (r >= 25 && r <= 36) return true;
-  if (ax > ROAD_HALF && ax <= 10.5 && az >= 25 && az <= 120) return true;
-  if (az > ROAD_HALF && az <= 10.5 && ax >= 25 && ax <= 120) return true;
+  if (ax > SPOKE_HALF && ax <= 13.2 && az >= 25 && az <= 120) return true;
+  if (az > SPOKE_HALF && az <= 13.2 && ax >= 25 && ax <= 120) return true;
   if (r >= 23 && r <= 31.5) return true;                                // 원형 길 바깥 자전거길 (+차도 가장자리)
-  if (ax >= 3 && ax <= 12.2 && az >= 23.8 && az <= 120) return true;    // 남북 길 옆 자전거길
-  if (az >= 3 && az <= 12.2 && ax >= 23.8 && ax <= 120) return true;    // 동서 길 옆 자전거길
+  if (ax >= 3 && ax <= 13.2 && az >= 23.8 && az <= 120) return true;    // 남북 길 옆 자전거길
+  if (az >= 3 && az <= 13.2 && ax >= 23.8 && ax <= 120) return true;    // 동서 길 옆 자전거길
   if (ax <= 12.2 && az >= 17 && az <= 31.5) return true;                // 중앙공원 입구 (끊긴 자리도 지나감)
   if (az <= 12.2 && ax >= 17 && ax <= 31.5) return true;
   if (CROSSWALKS.some(cw => cw.axis === 'z' ? (Math.abs(x) <= 11.2 && z >= cw.z + 4.6 && z <= cw.z + 9.6)
                                             : (Math.abs(z) <= 11.2 && x >= cw.x + 4.6 && x <= cw.x + 9.6))) return true;  // 횡단보도 옆 가로지르는 자전거길
-  if (CROSSWALKS.some(cw => cw.axis === 'z' ? (x >= 3 && x <= 12.2 && Math.abs(z - cw.z) < 4)
-                                            : (z >= 3 && z <= 12.2 && Math.abs(x - cw.x) < 4))) return true;  // 횡단보도 오른쪽 자전거길
+  if (CROSSWALKS.some(cw => cw.axis === 'z' ? (x >= 3 && x <= 13.2 && Math.abs(z - cw.z) < 4)
+                                            : (z >= 3 && z <= 13.2 && Math.abs(x - cw.x) < 4))) return true;  // 횡단보도 오른쪽 자전거길
   return false;
 }
 
@@ -2871,8 +2949,8 @@ function onWalkable(x, z) {
   if (ax < 3 && az >= 20 && az <= 120) return false;                    // 남북 차도 가운데
   if (az < 3 && ax >= 20 && ax <= 120) return false;                    // 동서 차도 가운데
   if (r >= 19 && r <= 23) return false;                                 // 원형 차도 가운데
-  if (ax >= 7.2 && ax <= 10.2 && az >= 20 && az <= 120) return false;   // 남북 자전거길 가운데
-  if (az >= 7.2 && az <= 10.2 && ax >= 20 && ax <= 120) return false;   // 동서 자전거길 가운데
+  if (ax >= 9.2 && ax <= 12.2 && az >= 20 && az <= 120) return false;   // 남북 자전거길 가운데
+  if (az >= 9.2 && az <= 12.2 && ax >= 20 && ax <= 120) return false;   // 동서 자전거길 가운데
   if (r >= 26.5 && r <= 29.5) return false;                             // 원형 자전거길 가운데
   if (r >= 119 && r <= 122) return false;                               // 바깥 큰 원 자전거길 가운데
   return true;
@@ -2881,8 +2959,8 @@ function onWalkable(x, z) {
 function onDrivableRoad(x, z, pad) {
   const r = Math.hypot(x, z);
   if (r >= Math.max(15, 17 - pad) && r <= 25 + pad) return true;      // 원형 길 (공원 바로 바깥까지)
-  if (Math.abs(x) <= ROAD_HALF + pad && Math.abs(z) >= 20 && Math.abs(z) <= 120) return true;   // 남북 길
-  if (Math.abs(z) <= ROAD_HALF + pad && Math.abs(x) >= 20 && Math.abs(x) <= 120) return true;   // 동서 길
+  if (Math.abs(x) <= SPOKE_HALF + pad && Math.abs(z) >= 20 && Math.abs(z) <= 120) return true;   // 남북 길
+  if (Math.abs(z) <= SPOKE_HALF + pad && Math.abs(x) >= 20 && Math.abs(x) <= 120) return true;   // 동서 길
   if (x >= -98 - pad && x <= -88 + pad && z >= -pad && z <= 51 + pad) return true;              // 교회 가는 남쪽 길
   if (x >= -98 - pad && x <= -88 + pad && z >= -28 - pad && z <= 0 + pad) return true;          // 극장 쪽 연장 길
   if (x >= 67.5 - pad && x <= 106 + pad && z >= -48 - pad && z <= -44 + pad) return true;        // 아파트 북쪽 동서 길
@@ -2903,11 +2981,11 @@ function onDrivableRoad(x, z, pad) {
 function onSidewalkOrCrosswalk(x, z) {
   const r = Math.hypot(x, z);
   if (r >= 25 && r <= 36) return true;                                                             // 원형 길 바깥 인도
-  if (Math.abs(x) > ROAD_HALF && Math.abs(x) <= 10.5 && Math.abs(z) >= 25 && Math.abs(z) <= 120) return true;  // 남북 길 옆 인도
-  if (Math.abs(z) > ROAD_HALF && Math.abs(z) <= 10.5 && Math.abs(x) >= 25 && Math.abs(x) <= 120) return true;  // 동서 길 옆 인도
+  if (Math.abs(x) > SPOKE_HALF && Math.abs(x) <= 13.2 && Math.abs(z) >= 25 && Math.abs(z) <= 120) return true;  // 남북 길 옆 인도
+  if (Math.abs(z) > SPOKE_HALF && Math.abs(z) <= 13.2 && Math.abs(x) >= 25 && Math.abs(x) <= 120) return true;  // 동서 길 옆 인도
   for (const cw of CROSSWALKS) {
-    if (cw.axis === 'z' && Math.abs(x) <= ROAD_HALF && Math.abs(z - cw.z) <= 6) return true;   // 남북 길 횡단보도
-    if (cw.axis === 'x' && Math.abs(z) <= ROAD_HALF && Math.abs(x - cw.x) <= 6) return true;   // 동서 길 횡단보도
+    if (cw.axis === 'z' && Math.abs(x) <= SPOKE_HALF && Math.abs(z - cw.z) <= 6) return true;   // 남북 길 횡단보도
+    if (cw.axis === 'x' && Math.abs(z) <= SPOKE_HALF && Math.abs(x - cw.x) <= 6) return true;   // 동서 길 횡단보도
   }
   return false;
 }
@@ -3110,7 +3188,7 @@ function markNightLit(m, dayColor) {   // 밤에 노랗게 켜지는 조각 표�
 }
 // 가로등: 길 옆 인도에 세움 (차·사람 이동을 막지 않음). 밤(2단계)에만 등이 켜짐
 function addStreetLamps() {
-  const off = ROAD_HALF + 2.2;
+  const off = SPOKE_HALF + 2.2;
   const spots = [];
   [30, 60, 90, 115].forEach(z => spots.push([off, z], [-off, z], [off, -z], [-off, -z]));   // 남북 길 옆
   [30, 60, 90].forEach(x => spots.push([x, off], [x, -off], [-x, off], [-x, -off]));        // 동서 길 옆
@@ -3595,10 +3673,10 @@ function buildLevelTwo() {
    green, yellow, red: 신호 길이(초) / offset: 신호 시작 시점 차이 */
 const CROSSWALKS = [
   // 사람 신호등: 횡단보도 줄무늬의 양 끝, 도로 가장자리 모서리에 대각선으로 한 쌍씩
-  { axis:'z', x:0,   z:55,  ped:{ x:5.6,  z:52.5, fx:1, fz:0 }, ped2:{ x:-5.6, z:57.5, fx:-1, fz:0 }, green:7, yellow:2, red:6, offset:0 },
-  { axis:'z', x:0,   z:-88, ped:{ x:5.6,  z:-90.5, fx:1, fz:0 }, ped2:{ x:-5.6, z:-85.5, fx:-1, fz:0 }, green:7, yellow:2, red:6, offset:4 },
-  { axis:'x', x:-87, z:0,   ped:{ x:-90.5, z:-5.6, fx:0, fz:-1 }, ped2:{ x:-83.5, z:5.6, fx:0, fz:1 }, green:7, yellow:2, red:6, offset:8 },
-  { axis:'x', x:60,  z:0,   ped:{ x:56.5, z:-5.6, fx:0, fz:-1 }, ped2:{ x:63.5, z:5.6, fx:0, fz:1 }, green:7, yellow:2, red:6, offset:12 }
+  { axis:'z', x:0,   z:55,  ped:{ x:7.6,  z:52.5, fx:1, fz:0 }, ped2:{ x:-7.6, z:57.5, fx:-1, fz:0 }, green:7, yellow:2, red:6, offset:0 },
+  { axis:'z', x:0,   z:-88, ped:{ x:7.6,  z:-90.5, fx:1, fz:0 }, ped2:{ x:-7.6, z:-85.5, fx:-1, fz:0 }, green:7, yellow:2, red:6, offset:4 },
+  { axis:'x', x:-87, z:0,   ped:{ x:-90.5, z:-7.6, fx:0, fz:-1 }, ped2:{ x:-83.5, z:7.6, fx:0, fz:1 }, green:7, yellow:2, red:6, offset:8 },
+  { axis:'x', x:60,  z:0,   ped:{ x:56.5, z:-7.6, fx:0, fz:-1 }, ped2:{ x:63.5, z:7.6, fx:0, fz:1 }, green:7, yellow:2, red:6, offset:12 }
 ];
 const SIGNAL_COLORS = { red: 0xef4444, yellow: 0xfacc15, green: 0x22c55e };
 const SIGNAL_DIM    = { red: 0x4a1d1d, yellow: 0x4a4119, green: 0x17402a };
@@ -3755,7 +3833,7 @@ function buildCrosswalks() {
     // 차량 신호등: 빨강·노랑·초록 3개가 가로로 놓인 머리, 길 옆 기둥에서 팔이 뻗어 도로 위에 매달림
     const isZ = cw.axis === 'z';
     const hx = isZ ? 0 : cw.x + 5, hz = isZ ? cw.z + 5 : 0;      // 신호 머리 위치 (차가 올라오는 쪽)
-    const sx = isZ ? 5.6 : cw.x + 5, sz = isZ ? cw.z + 5 : 5.6;      // 지지 기둥 위치 (길 옆 인도)
+    const sx = isZ ? SPOKE_HALF + 2.6 : cw.x + SPOKE_HALF, sz = isZ ? cw.z + SPOKE_HALF : SPOKE_HALF + 2.6;      // 지지 기둥 위치 (길 옆 인도)
     const pole2 = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 7.2, 8), poleMat);
     pole2.position.set(sx, 3.6, sz); g.add(pole2);
     poleObstacles.push({ x: sx, z: sz, r: 0.8 });
