@@ -362,6 +362,8 @@
   #fs-daynight { display: none !important; }
   #game-wrap:fullscreen #fs-daynight.on { display: inline-flex !important; }
   #fs-daynight { position: absolute; top: 24px; right: 100px; z-index: 5; gap: 4px; background: rgba(255,255,255,0.92); padding: 4px; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); align-items: center; }
+  /* 제작자 표시: 화면 하단 가운데 아주 작은 연한 회색 글씨 */
+  #maker-credit { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #c3c9d4; pointer-events: none; z-index: 1; white-space: nowrap; user-select: none; }
   /* 우리 지역 지도 '크게 보기': 화면 전체 */
   #region-box.big { width: 100vw !important; height: 100vh !important; border-radius: 0 !important; }
 
@@ -967,6 +969,8 @@
       </div>
     </div>
     
+    <!-- 제작자 표시 (화면 하단 가운데, 연한 회색. 누르는 기능은 없음) -->
+    <div id="maker-credit">제작: 유진</div>
     <!-- 전체 화면 전용 낮/밤 선택 (2단계에서만 보임, 나침반 왼쪽) -->
     <div id="fs-daynight">
       <button id="fs-btn-day" onclick="setDayNight(false)">☀️ 낮</button><button id="fs-btn-night" onclick="setDayNight(true)">🌙 밤</button>
@@ -2635,7 +2639,7 @@ function init3DWorld() {
     const isZ = cw.axis === 'z';
     const lo = isZ ? cw.z + 4.6 : cw.x + 4.6, hi = lo + 5, mid = (lo + hi) / 2, half = SPOKE_HALF;   // 정지선(흰 선) 밖, 폭 5, 차도 위만 (인도 쪽 부분 삭제)
     const poles = [
-      { x: isZ ? SPOKE_HALF + 2.6 : cw.x + SPOKE_HALF, z: isZ ? cw.z + SPOKE_HALF : SPOKE_HALF + 2.6 },   // 차량 신호 기둥 (길 가장자리)
+      signalPole(cw),   // 차량 신호 기둥 (길 가장자리)
       cw.ped, cw.ped2                                         // 사람 신호 기둥
     ];
     const cuts = poles
@@ -2910,8 +2914,8 @@ const SPOKE_W = 14;    // 동서남북 큰 길의 폭
 function onBikeLane(x, z) {
   const r = Math.hypot(x, z), ax = Math.abs(x), az = Math.abs(z);
   // 자전거가 못 지나가는 곳: 횡단보도 줄무늬, 육교 계단
-  if (CROSSWALKS.some(cw => cw.axis === 'z' ? (ax <= 5.5 && Math.abs(z - cw.z) <= 3.2)
-                                            : (az <= 5.5 && Math.abs(x - cw.x) <= 3.2))) return false;
+  if (CROSSWALKS.some(cw => cw.axis === 'z' ? (ax <= SPOKE_HALF && Math.abs(z - cw.z) <= 3.2)
+                                            : (az <= SPOKE_HALF && Math.abs(x - cw.x) <= 3.2))) return false;
   if (gameLevel >= 2 && Math.abs(x - FOOT_BX) <= FOOT_HALF_W + 4.5 && az >= FOOT_STAIR_Z - 1.7) return false;
   if (onDrivableRoad(x, z, 0)) return true;   // 자전거도 차도 우측 가장자리로 통행 (도로교통법)
   // 인도: 자전거도 자유롭게 다닐 수 있음 (차도는 제외)
@@ -3202,7 +3206,7 @@ function markNightLit(m, dayColor) {   // 밤에 노랗게 켜지는 조각 표�
 }
 // 가로등: 길 옆 인도에 세움 (차·사람 이동을 막지 않음). 밤(2단계)에만 등이 켜짐
 function addStreetLamps() {
-  const off = SPOKE_HALF + 2.2;
+  const off = SPOKE_HALF + 0.6;   // 차도 가장자리와 자전거길 사이 연두색 땅 (7~8.2)
   const spots = [];
   [30, 60, 90, 115].forEach(z => spots.push([off, z], [-off, z], [off, -z], [-off, -z]));   // 남북 길 옆
   [30, 60, 90].forEach(x => spots.push([x, off], [x, -off], [-x, off], [-x, -off]));        // 동서 길 옆
@@ -3709,8 +3713,8 @@ function signalState(cw, nowMs) {
 
 // 자동차 중심이 횡단보도 구역 안에 있는지 (차 앞부분이 횡단보도 밖에 멈추도록 여유를 둠)
 function inCrosswalkZone(cw, x, z) {
-  if (cw.axis === 'z') return Math.abs(x - cw.x) < 5.5 && Math.abs(z - cw.z) < 7;
-  return Math.abs(z - cw.z) < 5.5 && Math.abs(x - cw.x) < 7;
+  if (cw.axis === 'z') return Math.abs(x - cw.x) < SPOKE_HALF + 0.5 && Math.abs(z - cw.z) < 7;
+  return Math.abs(z - cw.z) < SPOKE_HALF + 0.5 && Math.abs(x - cw.x) < 7;
 }
 
 // 빨간불인데 구역 밖에서 구역 안으로 들어가려 하면 그 횡단보도를 돌려줌
@@ -3820,6 +3824,11 @@ function buildFootbridge() {
   });
 }
 
+// 신호등 지지 기둥 위치: 머리(횡단보도 쪽 차도 위)와 같은 줄에 세워서 팔이 끊기지 않게 함
+function signalPole(cw) {
+  return cw.axis === 'z' ? { x: SPOKE_HALF + 0.5, z: cw.z + 5 } : { x: cw.x + 5, z: SPOKE_HALF + 0.5 };   // 차도 가장자리 바로 옆 (자전거길과 겹치지 않게)
+}
+
 function buildCrosswalks() {
   const whiteMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
   const poleMat = new THREE.MeshLambertMaterial({ color: 0x64748b });
@@ -3827,7 +3836,7 @@ function buildCrosswalks() {
 
   CROSSWALKS.forEach(cw => {
     // 줄무늬: 차가 달리는 방향과 같은 흰 막대를 나란히 배치
-    for (let o = -4; o <= 4; o += 2) {
+    for (let o = -6; o <= 6; o += 2) {
       const geo = cw.axis === 'z' ? new THREE.BoxGeometry(1, 0.05, 6) : new THREE.BoxGeometry(6, 0.05, 1);
       const m = new THREE.Mesh(geo, whiteMat);
       if (cw.axis === 'z') m.position.set(cw.x + o, 0.07, cw.z);
@@ -3836,7 +3845,7 @@ function buildCrosswalks() {
     }
     // 정지선 (양쪽)
     [-4, 4].forEach(d => {
-      const geo = cw.axis === 'z' ? new THREE.BoxGeometry(10, 0.05, 0.6) : new THREE.BoxGeometry(0.6, 0.05, 10);
+      const geo = cw.axis === 'z' ? new THREE.BoxGeometry(14, 0.05, 0.6) : new THREE.BoxGeometry(0.6, 0.05, 14);
       const m = new THREE.Mesh(geo, whiteMat);
       if (cw.axis === 'z') m.position.set(cw.x, 0.08, cw.z + d);
       else m.position.set(cw.x + d, 0.08, cw.z);
@@ -3847,12 +3856,13 @@ function buildCrosswalks() {
     // 차량 신호등: 빨강·노랑·초록 3개가 가로로 놓인 머리, 길 옆 기둥에서 팔이 뻗어 도로 위에 매달림
     const isZ = cw.axis === 'z';
     const hx = isZ ? 0 : cw.x + 5, hz = isZ ? cw.z + 5 : 0;      // 신호 머리 위치 (차가 올라오는 쪽)
-    const sx = isZ ? SPOKE_HALF + 2.6 : cw.x + SPOKE_HALF, sz = isZ ? cw.z + SPOKE_HALF : SPOKE_HALF + 2.6;      // 지지 기둥 위치 (길 옆 인도)
+    const { x: sx, z: sz } = signalPole(cw);      // 지지 기둥 위치 (길 옆 인도)
     const pole2 = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 7.2, 8), poleMat);
     pole2.position.set(sx, 3.6, sz); g.add(pole2);
     poleObstacles.push({ x: sx, z: sz, r: 0.8 });
-    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 7, 6), poleMat);
-    arm.position.set((hx + sx) / 2, 7.2, (hz + sz) / 2);
+    const armLen = isZ ? sx - hx : sz - hz;   // 머리에서 기둥까지 정확히 이어지도록 길이 계산
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, armLen, 6), poleMat);
+    arm.position.set(isZ ? (hx + sx) / 2 : hx, 7.2, isZ ? hz : (hz + sz) / 2);
     if (isZ) arm.rotation.z = Math.PI / 2; else arm.rotation.x = Math.PI / 2;
     g.add(arm);
     const head = new THREE.Mesh(isZ ? new THREE.BoxGeometry(5.2, 1.6, 1.2) : new THREE.BoxGeometry(1.2, 1.6, 5.2), boxMat);
@@ -4786,7 +4796,7 @@ function mapInnerSVG(idx, sel) {   // idx: 누르면 정답을 고르는 문제 
   s += `<text x="0" y="1.5" font-size="3.6" text-anchor="middle" font-weight="bold" fill="#14532d">🌳 중앙공원</text>`;
   // 횡단보도와 신호등 위치
   CROSSWALKS.forEach(cw => {
-    for (let o = -4; o <= 4; o += 2) {
+    for (let o = -6; o <= 6; o += 2) {
       if (cw.axis === 'z') s += `<rect x="${cw.x + o - 0.5}" y="${cw.z - 3}" width="1" height="6" fill="#ffffff"/>`;
       else s += `<rect x="${cw.x - 3}" y="${cw.z + o - 0.5}" width="6" height="1" fill="#ffffff"/>`;
     }
