@@ -355,10 +355,15 @@
   #game-wrap:fullscreen { background: #000; }
   #game-wrap:fullscreen #key-guide,
   #game-wrap:fullscreen #signal-hud,
-  #game-wrap:fullscreen #compass-hud,
   #game-wrap:fullscreen #touch-pad { display: none !important; }
   #game-wrap:fullscreen #nv-actions .fs-btn { display: none !important; }
   #game-wrap:fullscreen #nv-vehicles { display: flex !important; top: auto !important; bottom: 12px; left: 12px; }   /* 전체 화면에서도 탈것 선택 (하단 왼쪽) */
+  /* 전체 화면 낮/밤 선택: 상단 오른쪽, 나침반 바로 왼쪽 (2단계에서만) */
+  #fs-daynight { display: none !important; }
+  #game-wrap:fullscreen #fs-daynight.on { display: inline-flex !important; }
+  #fs-daynight { position: absolute; top: 24px; right: 100px; z-index: 5; gap: 4px; background: rgba(255,255,255,0.92); padding: 4px; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); align-items: center; }
+  /* 우리 지역 지도 '크게 보기': 화면 전체 */
+  #region-box.big { width: 100vw !important; height: 100vh !important; border-radius: 0 !important; }
 
   /* 건물 이름표 (화면 위에 항상 같은 크기로 표시) */
   #label-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
@@ -883,10 +888,13 @@
 
 <!-- 우리 지역 지도 창 -->
 <div id="region-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:300;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:14px;width:min(960px,94vw);height:min(720px,88vh);display:flex;flex-direction:column;overflow:hidden;">
+  <div id="region-box" style="background:#fff;border-radius:14px;width:min(960px,94vw);height:min(720px,88vh);display:flex;flex-direction:column;overflow:hidden;">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #e2e8f0;">
       <b>📍 우리 지역 지도</b>
-      <button onclick="closeRegionMap()" style="border:none;border-radius:8px;padding:8px 14px;background:#eef1f6;font-weight:700;cursor:pointer;">닫기 ✕</button>
+      <span style="display:flex;gap:8px;">
+        <button id="rm-big-btn" onclick="toggleRegionBig()" style="border:none;border-radius:8px;padding:8px 14px;background:#eef2ff;color:#1d4ed8;font-weight:700;cursor:pointer;">⤢ 크게 보기</button>
+        <button onclick="closeRegionMap()" style="border:none;border-radius:8px;padding:8px 14px;background:#eef1f6;font-weight:700;cursor:pointer;">닫기 ✕</button>
+      </span>
     </div>
     <div id="region-map" style="flex:1;min-height:0;">
       <div style="padding:20px;">위치를 찾는 중...</div>
@@ -959,6 +967,10 @@
       </div>
     </div>
     
+    <!-- 전체 화면 전용 낮/밤 선택 (2단계에서만 보임, 나침반 왼쪽) -->
+    <div id="fs-daynight">
+      <button id="fs-btn-day" onclick="setDayNight(false)">☀️ 낮</button><button id="fs-btn-night" onclick="setDayNight(true)">🌙 밤</button>
+    </div>
     <!-- 동서남북 방위계 (Compass HUD) -->
     <div id="compass-hud">
       <div id="compass-dial">
@@ -3126,7 +3138,9 @@ function studentGotNight(v) {
 function refreshDayNightButtons() {
   const sw = document.getElementById('daynight-switch');
   if (sw) sw.style.display = gameLevel >= 2 ? 'inline-flex' : 'none';
-  [['btn-day', !nightOn()], ['btn-night', nightOn()]].forEach(([id, on]) => {
+  const fsSw = document.getElementById('fs-daynight');
+  if (fsSw) fsSw.classList.toggle('on', gameLevel >= 2);
+  [['btn-day', !nightOn()], ['btn-night', nightOn()], ['fs-btn-day', !nightOn()], ['fs-btn-night', nightOn()]].forEach(([id, on]) => {
     const b = document.getElementById(id);
     if (!b) return;
     b.style.cssText = 'border:none;cursor:pointer;font-weight:700;font-size:14px;padding:6px 14px;border-radius:999px;'
@@ -4833,6 +4847,13 @@ window.openRegionMap = function() {
 
 window.closeRegionMap = function() {
   document.getElementById('region-modal').style.display = 'none';
+};
+
+// 우리 지역 지도: 화면 가득 보기 (전체 화면 기능 없이 창 크기만 키움 → 휴대폰에서도 동작)
+window.toggleRegionBig = function() {
+  const on = document.getElementById('region-box').classList.toggle('big');
+  document.getElementById('rm-big-btn').textContent = on ? '⤡ 작게 보기' : '⤢ 크게 보기';
+  setTimeout(() => window.dispatchEvent(new Event('resize')), 50);   // 지도 다시 맞춤
 };
 
 function showRegionMap(lat, lng) {
