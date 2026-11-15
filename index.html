@@ -364,7 +364,8 @@
   #game-wrap:fullscreen #fs-daynight.on { display: inline-flex !important; }
   #fs-daynight { position: absolute; top: 24px; right: 100px; z-index: 5; gap: 4px; background: rgba(255,255,255,0.92); padding: 4px; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); align-items: center; }
   /* 제작자 표시: 화면 하단 가운데 아주 작은 연한 회색 글씨 */
-  #maker-credit { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #c3c9d4; pointer-events: none; z-index: 1; white-space: nowrap; user-select: none; }
+  #maker-credit { position: absolute; bottom: 3px; right: 8px; font-size: 10px; color: #c3c9d4; pointer-events: none; z-index: 1; white-space: nowrap; user-select: none; }
+  @media (max-width: 820px) { #maker-credit { display: none !important; } }   /* 모바일에서는 표시하지 않음 */
   /* 우리 지역 지도 '크게 보기': 화면 전체 */
   #region-box.big { width: 100vw !important; height: 100vh !important; border-radius: 0 !important; }
 
@@ -978,7 +979,7 @@
     </div>
     
     <!-- 제작자 표시 (화면 하단 가운데, 연한 회색. 누르는 기능은 없음) -->
-    <div id="maker-credit">제작: 유진</div>
+    <div id="maker-credit">Created by Yujin</div>
     <!-- 전체 화면 전용 낮/밤 선택 (2단계에서만 보임, 나침반 왼쪽) -->
     <div id="fs-daynight">
       <button id="fs-btn-day" onclick="setDayNight(false)">☀️ 낮</button><button id="fs-btn-night" onclick="setDayNight(true)">🌙 밤</button>
@@ -2689,8 +2690,9 @@ const BIKE_RECTS = [];   // 자전거길 사각형 {x0,x1,z0,z1} (인도가 자�
 function init3DWorld() {
   const canvas = document.getElementById('game-canvas');
   renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));   // 고해상도 화면에서 그리는 양을 줄여 PC 부담 감소
   renderer.shadowMap.enabled = true;
+  renderer.shadowMap.autoUpdate = false;   // 그림자는 매 프레임이 아니라 3프레임마다 다시 그림 (tick에서 맞춤)
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xcfe3f7);
@@ -4345,13 +4347,16 @@ function handleImpact(hit) {
   }
 }
 
+let frameNo = 0;
 function tick() {
+  frameNo++;
+  renderer.shadowMap.needsUpdate = (frameNo % 3 === 0);
   updateFountain(performance.now());   // 분수 물줄기 움직임
   if (fallBusy()) { keys.up = false; keys.down = false; keys.left = false; keys.right = false; }   // 넘어지는 동안은 조종 불가
   if (planeOn) {   // 비행기 모드: 차 조종 대신 비행
     flyPlane();
     updateSignals();
-    updateLabels();
+    if (frameNo % 2 === 0) updateLabels();
     billboardSprites.forEach(sp => sp.quaternion.copy(camera.quaternion));
     renderer.render(scene, camera);
     requestAnimationFrame(tick);
@@ -4406,7 +4411,7 @@ function tick() {
   const CAM_TILT_UP = camCfg.tilt * Math.PI / 180;
   const aimY = 3 + Math.tan(CAM_TILT_UP) * (camDist + LOOK_AHEAD);
   camera.lookAt(car.position.x - Math.sin(angle) * LOOK_AHEAD, aimY, car.position.z - Math.cos(angle) * LOOK_AHEAD);
-  updateLabels();
+  if (frameNo % 2 === 0) updateLabels();
 
   // 빌보드 간판 카메라 동기화 (항상 화면을 정면으로 바라봄)
   billboardSprites.forEach(sp => sp.quaternion.copy(camera.quaternion));
