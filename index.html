@@ -2491,7 +2491,7 @@ function onLv3Click(e) {
   }
 }
 function updateLv3Pair() {
-  const keys = { car: 'car', bicycle: 'bike', bus: 'bus', walk: 'walk' };
+  const keys = { car: 'car', bicycle: 'bike', bus: 'bus', walk: 'walk', plane: 'plane' };
   Object.keys(keys).forEach(t => {
     const on = gameLevel < 2 || lv3Pair.includes(t);
     const vItem = document.getElementById('vbtn-' + keys[t])?.parentElement;
@@ -2509,7 +2509,7 @@ function updateLv3Pair() {
 /* ── 비행기 (2단계 전용) ──
    마을 동쪽 활주로에서 출발 → 활주로를 달려 이륙 → 방향키로 하늘을 날아다님
    ↑: 활주로에서 가속 / 공중에서 상승,  ↓: 하강,  ← →: 방향 바꾸기 */
-const RUNWAY = { x0: 126, x1: 210, z: 0, hw: 3 };   // 마을 동쪽 밖 빈 땅 (길이 84, 육교 쪽으로 가지 않게 동쪽으로 이륙)   // 마을 동쪽 밖 빈 땅 (육교 쪽으로 가지 않게 동쪽으로 이륙)
+const RUNWAY = { x: 170, z0: -180, z1: 180, hw: 3 };   // 마을 동쪽 밖, 남북 방향 활주로 (남쪽 끝에서 북쪽으로 이륙)
 let planeOn = false;
 let planeGroup = null;
 let planeFly = { x: 0, z: 0, y: 0, h: 0, s: 0, vy: 0, bank: 0, pr: 0 };
@@ -2540,6 +2540,14 @@ function makePlaneModel() {
   prop.add(new THREE.Mesh(blade, dark));
   const b2 = new THREE.Mesh(blade, dark); b2.rotation.z = Math.PI / 2; prop.add(b2);
   g.add(prop);
+  // 밤에만 켜지는 비행등: 왼쪽 날개 빨강, 오른쪽 날개 초록, 꼬리 하양 (낮에는 꺼짐)
+  [[-4.6, 1.3, 0.3, 0xef4444], [4.6, 1.3, 0.3, 0x22c55e], [0, 2.2, 2.7, 0xffffff]].forEach(([x, y, z, c]) => {
+    const lt = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), new THREE.MeshBasicMaterial({ color: c }));
+    lt.position.set(x, y, z);
+    lt.userData.headlight = true;   // applyNightVisuals가 밤에만 보이게 함
+    lt.visible = false;
+    g.add(lt);
+  });
   g.userData.prop = prop;
   return g;
 }
@@ -2547,29 +2555,33 @@ function makePlaneModel() {
 function buildPlaneRunway() {
   const mat = new THREE.MeshLambertMaterial({ color: 0x4b5563 });
   const white = new THREE.MeshLambertMaterial({ color: 0xffffff });
-  const len = RUNWAY.x1 - RUNWAY.x0, cx = (RUNWAY.x0 + RUNWAY.x1) / 2;
-  const deck = new THREE.Mesh(new THREE.PlaneGeometry(len, RUNWAY.hw * 2), mat);
+  const len = RUNWAY.z1 - RUNWAY.z0, cz = (RUNWAY.z0 + RUNWAY.z1) / 2;
+  const deck = new THREE.Mesh(new THREE.PlaneGeometry(RUNWAY.hw * 2, len), mat);
   deck.rotation.x = -Math.PI / 2;
-  deck.position.set(cx, 0.05, RUNWAY.z);
+  deck.position.set(RUNWAY.x, 0.05, cz);
   levelTwoGroup.add(deck);
-  [-RUNWAY.hw + 0.3, RUNWAY.hw - 0.3].forEach(dz => {   // 활주로 양쪽 흰 선
-    const e = new THREE.Mesh(new THREE.BoxGeometry(len, 0.06, 0.25), white);
-    e.position.set(cx, 0.08, RUNWAY.z + dz);
+  [-RUNWAY.hw + 0.3, RUNWAY.hw - 0.3].forEach(dx => {   // 활주로 양쪽 흰 선
+    const e = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.06, len), white);
+    e.position.set(RUNWAY.x + dx, 0.08, cz);
     levelTwoGroup.add(e);
   });
-  for (let x = RUNWAY.x0 + 3; x < RUNWAY.x1 - 3; x += 6) {   // 가운데 점선
-    const d = new THREE.Mesh(new THREE.BoxGeometry(3, 0.06, 0.25), white);
-    d.position.set(x, 0.08, RUNWAY.z);
-    levelTwoGroup.add(d);
-  }
-  // 비행장 주차장 (활주로 북쪽 빈 땅) + 주차된 비행기 3대 (움직이지 않는 장식)
-  const apron = new THREE.Mesh(new THREE.PlaneGeometry(len, 9), mat);
+  // 가운데 점선: 그림 한 장을 길이만큼 반복 (물체 하나로 처리해 그리기 횟수를 줄임)
+  const dc = document.createElement('canvas'); dc.width = 4; dc.height = 64;
+  const dctx = dc.getContext('2d'); dctx.fillStyle = '#ffffff'; dctx.fillRect(0, 0, 4, 32);
+  const dashTex = new THREE.CanvasTexture(dc);
+  dashTex.wrapT = THREE.RepeatWrapping; dashTex.repeat.set(1, len / 6);
+  const dashes = new THREE.Mesh(new THREE.PlaneGeometry(0.25, len), new THREE.MeshLambertMaterial({ map: dashTex, transparent: true }));
+  dashes.rotation.x = -Math.PI / 2;
+  dashes.position.set(RUNWAY.x, 0.08, cz);
+  levelTwoGroup.add(dashes);
+  // 비행장 주차장 (활주로 서쪽 옆 빈 땅) + 주차된 비행기 3대 (움직이지 않는 장식, 북쪽을 봄)
+  const apron = new THREE.Mesh(new THREE.PlaneGeometry(9, 60), mat);
   apron.rotation.x = -Math.PI / 2;
-  apron.position.set(cx, 0.04, RUNWAY.z - 10.5);
+  apron.position.set(RUNWAY.x - 10.5, 0.04, 100);
   levelTwoGroup.add(apron);
-  [RUNWAY.x0 + 10, RUNWAY.x0 + 27, RUNWAY.x0 + 44].forEach(px => {
+  [80, 100, 120].forEach(pz => {
     const parked = makePlaneModel();
-    parked.position.set(px, 0, RUNWAY.z - 10.5);
+    parked.position.set(RUNWAY.x - 10.5, 0, pz);
     levelTwoGroup.add(parked);
   });
 
@@ -2586,8 +2598,8 @@ function setPlaneMode(on) {
   const keyGuide = document.getElementById('key-guide');
   if (on) {
     if (!planeKeyText && keyGuide) planeKeyText = keyGuide.textContent;
-    // 활주로 서쪽 끝에서 동쪽(마을 밖)을 보고 출발
-    planeFly = { x: RUNWAY.x0 + 4, z: RUNWAY.z, y: 0, h: -Math.PI / 2, s: 0, vy: 0, bank: 0, pr: 0 };
+    // 활주로 남쪽 끝에서 북쪽을 보고 출발
+    planeFly = { x: RUNWAY.x, z: RUNWAY.z1 - 4, y: 0, h: 0, s: 0, vy: 0, bank: 0, pr: 0 };
     speed = 0;
     planeGroup.visible = true;
     if (keyGuide) keyGuide.textContent = '⌨ 비행기: ↑ 달리기·상승 · ↓ 하강 · ← → 방향';
@@ -2598,6 +2610,7 @@ function setPlaneMode(on) {
   document.querySelectorAll('.v-btn, .nv-v').forEach(b => b.classList.remove('active'));
   const ids = on ? ['vbtn-plane', 'nv-vbtn-plane'] : [PLANE_BUTTON_IDS[vehicleType], 'nv-' + PLANE_BUTTON_IDS[vehicleType]];
   ids.forEach(id => document.getElementById(id)?.classList.add('active'));
+  updateLv3Pair();   // 선택된 2개는 흰색 상자·파란 테두리로 강조 (비행기 포함)
 }
 
 // 비행기 높이(y)에서 물체에 닿는지: 건물은 꼭대기보다 낮을 때만, 기둥·사람·차·육교는 낮게 날 때만 막힘
@@ -2613,12 +2626,12 @@ function planeBlocked(x, z, y) {
 }
 
 function resetPlane() {
-  Object.assign(planeFly, { x: RUNWAY.x0 + 4, z: RUNWAY.z, y: 0, h: -Math.PI / 2, s: 0, vy: 0, bank: 0, stopT: 0 });
+  Object.assign(planeFly, { x: RUNWAY.x, z: RUNWAY.z1 - 4, y: 0, h: 0, s: 0, vy: 0, bank: 0, stopT: 0 });
 }
 
 function flyPlane() {
   const P = planeFly;
-  const onRunway = P.x >= RUNWAY.x0 && P.x <= RUNWAY.x1 && Math.abs(P.z - RUNWAY.z) <= RUNWAY.hw;
+  const onRunway = Math.abs(P.x - RUNWAY.x) <= RUNWAY.hw && P.z >= RUNWAY.z0 && P.z <= RUNWAY.z1;
   // 활주로 밖 땅에서 멈추면 3초 뒤 처음 자리로 돌아감
   if (P.y <= 0 && P.s === 0 && !onRunway) {
     if (!P.stopT) P.stopT = performance.now();
@@ -2675,8 +2688,15 @@ function flyPlane() {
 }
 
 window.selectVehicle = function(type) {
-  if (type === 'plane') { setPlaneMode(true); return; }
+  if (type === 'plane') {
+    if (gameLevel < 2) return;
+    if (!lv3Pair.includes('plane')) lv3Pair = [vehicleType, 'plane'];   // 조종 중인 탈것 + 비행기 (2개까지)
+    dropOthersNotInPair();
+    setPlaneMode(true);
+    return;
+  }
   if (planeOn) setPlaneMode(false);
+  lv3Pair = lv3Pair.filter(t => t !== 'plane');   // 다른 탈것을 고르면 비행기 선택은 빠짐
   if (!VEHICLE_SPECS[type]) return;
   if (gameLevel >= 2 && !lv3Pair.includes(type)) {
     // 2개가 이미 골라져 있으면 지금 타는 것 + 새로 고른 것만 남김
