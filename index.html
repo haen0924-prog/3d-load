@@ -58,6 +58,7 @@
   /* 이동수단 선택 버튼 바 */
   .vehicle-col { display: flex; flex-direction: column; align-items: flex-start; margin-left: 12px; flex-shrink: 0; }
   .vehicle-col .vehicle-selector { margin-left: 0; position: relative; }
+  body:not(.lv3) #vitem-plane, body:not(.lv3) #nvitem-plane { display: none !important; }
   .vehicle-sign-row { display: none; position: relative; width: 100%; height: 68px; margin-top: 2px; }
   body.lv3 .vehicle-sign-row { display: block; }
   .sign-img { display: none; position: absolute; top: 2px; height: 64px; width: auto; }
@@ -732,6 +733,7 @@
     header .logo { width: 28px; height: 28px; font-size: 15px; border-radius: 8px; }
     header h1 { font-size: 14px; }
     .vehicle-col { margin-left: 0; width: auto; flex: 1 1 auto; min-width: 0; }
+    body.lv3 .vehicle-selector { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .vehicle-selector { margin-left: 0; width: 100%; box-sizing: border-box; padding: 2px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
     .v-item { width: auto; min-width: 0; }
     .v-btn { min-height: 46px; padding: 2px 0; width: 100%; min-width: 0; gap: 0; }
@@ -782,6 +784,9 @@
     </div>
     <div class="v-item">
       <button class="v-btn" id="vbtn-walk" onclick="selectVehicle('walk')"><span class="vemo">🚶</span><span class="vword">사람</span><img class="sign-img" id="sign-walk" alt="사람 수어" src="data:image/png;base64,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"></button>
+    </div>
+    <div class="v-item" id="vitem-plane">
+      <button class="v-btn" id="vbtn-plane" onclick="selectVehicle('plane')"><span class="vemo">✈️</span><span class="vword">비행기</span></button>
     </div>
   </div>
   </div>
@@ -956,6 +961,9 @@
       </div>
       <div class="nv-item">
         <button class="nv-v" id="nv-vbtn-walk" onclick="selectVehicle('walk')"><span class="vemo">🚶</span><span class="vword">사람</span><img class="nv-sign" id="nv-sign-walk" alt="사람 수어" src="data:image/png;base64,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"></button>
+      </div>
+      <div class="nv-item" id="nvitem-plane">
+        <button class="nv-v" id="nv-vbtn-plane" onclick="selectVehicle('plane')"><span class="vemo">✈️</span><span class="vword">비행기</span></button>
       </div>
     </div>
     <div id="nv-actions">
@@ -2496,7 +2504,148 @@ function updateLv3Pair() {
   });
 }
 
+
+/* ── 비행기 (2단계 전용) ──
+   마을 동쪽 활주로에서 출발 → 활주로를 달려 이륙 → 방향키로 하늘을 날아다님
+   ↑: 활주로에서 가속 / 공중에서 상승,  ↓: 하강,  ← →: 방향 바꾸기 */
+const RUNWAY = { x0: 126, x1: 210, z: 0, hw: 3 };   // 마을 동쪽 밖 빈 땅 (길이 84, 육교 쪽으로 가지 않게 동쪽으로 이륙)   // 마을 동쪽 밖 빈 땅 (육교 쪽으로 가지 않게 동쪽으로 이륙)
+let planeOn = false;
+let planeGroup = null;
+let planeFly = { x: 0, z: 0, y: 0, h: 0, s: 0, vy: 0, bank: 0, pr: 0 };
+let planeKeyText = '';
+
+function makePlaneModel() {
+  const g = new THREE.Group();
+  g.rotation.order = 'YXZ';   // 먼저 옆으로 기울고(롤), 위아래 숙이고(피치), 마지막에 방향 돌림(요)
+  const white = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
+  const blue = new THREE.MeshLambertMaterial({ color: 0x1d4ed8 });
+  const red = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
+  const dark = new THREE.MeshLambertMaterial({ color: 0x374151 });
+  const add = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); g.add(m); return m; };
+  // 동체: 가운데 기준, 코는 앞(-z) 방향
+  const body = add(new THREE.CylinderGeometry(0.7, 0.7, 6, 12), white, 0, 1.2, 0);
+  body.rotation.x = Math.PI / 2;
+  add(new THREE.SphereGeometry(0.7, 12, 8), white, 0, 1.2, -3);          // 코
+  add(new THREE.BoxGeometry(1.45, 0.3, 3.2), blue, 0, 1.45, 0.2);         // 파란 줄무늬 (위쪽)
+  add(new THREE.BoxGeometry(9, 0.18, 1.8), white, 0, 1.2, 0.3);           // 날개
+  add(new THREE.BoxGeometry(0.18, 1.6, 1.3), red, 0, 2.1, 2.7);           // 꼬리 날개
+  add(new THREE.BoxGeometry(3.4, 0.16, 1.0), white, 0, 1.4, 2.7);         // 꼬리 수평날개
+  add(new THREE.CylinderGeometry(0.25, 0.25, 0.3, 8), dark, 0, 1.2, -3.5).rotation.x = Math.PI / 2;   // 프로펠러 축
+  add(new THREE.BoxGeometry(0.25, 0.5, 0.25), dark, 1.2, 0.25, -0.5);    // 바퀴
+  add(new THREE.BoxGeometry(0.25, 0.5, 0.25), dark, -1.2, 0.25, -0.5);
+  const prop = new THREE.Group();          // 프로펠러 날개 (돌아감)
+  prop.position.set(0, 1.2, -3.6);
+  const blade = new THREE.BoxGeometry(0.15, 2.6, 0.1);
+  prop.add(new THREE.Mesh(blade, dark));
+  const b2 = new THREE.Mesh(blade, dark); b2.rotation.z = Math.PI / 2; prop.add(b2);
+  g.add(prop);
+  g.userData.prop = prop;
+  return g;
+}
+
+function buildPlaneRunway() {
+  const mat = new THREE.MeshLambertMaterial({ color: 0x4b5563 });
+  const white = new THREE.MeshLambertMaterial({ color: 0xffffff });
+  const len = RUNWAY.x1 - RUNWAY.x0, cx = (RUNWAY.x0 + RUNWAY.x1) / 2;
+  const deck = new THREE.Mesh(new THREE.PlaneGeometry(len, RUNWAY.hw * 2), mat);
+  deck.rotation.x = -Math.PI / 2;
+  deck.position.set(cx, 0.05, RUNWAY.z);
+  levelTwoGroup.add(deck);
+  [-RUNWAY.hw + 0.3, RUNWAY.hw - 0.3].forEach(dz => {   // 활주로 양쪽 흰 선
+    const e = new THREE.Mesh(new THREE.BoxGeometry(len, 0.06, 0.25), white);
+    e.position.set(cx, 0.08, RUNWAY.z + dz);
+    levelTwoGroup.add(e);
+  });
+  for (let x = RUNWAY.x0 + 3; x < RUNWAY.x1 - 3; x += 6) {   // 가운데 점선
+    const d = new THREE.Mesh(new THREE.BoxGeometry(3, 0.06, 0.25), white);
+    d.position.set(x, 0.08, RUNWAY.z);
+    levelTwoGroup.add(d);
+  }
+  // 비행장 주차장 (활주로 북쪽 빈 땅) + 주차된 비행기 3대 (움직이지 않는 장식)
+  const apron = new THREE.Mesh(new THREE.PlaneGeometry(len, 9), mat);
+  apron.rotation.x = -Math.PI / 2;
+  apron.position.set(cx, 0.04, RUNWAY.z - 10.5);
+  levelTwoGroup.add(apron);
+  [RUNWAY.x0 + 10, RUNWAY.x0 + 27, RUNWAY.x0 + 44].forEach(px => {
+    const parked = makePlaneModel();
+    parked.position.set(px, 0, RUNWAY.z - 10.5);
+    levelTwoGroup.add(parked);
+  });
+
+  planeGroup = makePlaneModel();
+  planeGroup.visible = false;
+  scene.add(planeGroup);
+}
+
+const PLANE_BUTTON_IDS = { car: 'vbtn-car', bicycle: 'vbtn-bike', bus: 'vbtn-bus', walk: 'vbtn-walk' };
+function setPlaneMode(on) {
+  if (on && gameLevel < 2) return;
+  if (on === planeOn || !planeGroup) return;
+  planeOn = on;
+  const keyGuide = document.getElementById('key-guide');
+  if (on) {
+    if (!planeKeyText && keyGuide) planeKeyText = keyGuide.textContent;
+    // 활주로 서쪽 끝에서 동쪽(마을 밖)을 보고 출발
+    planeFly = { x: RUNWAY.x0 + 4, z: RUNWAY.z, y: 0, h: -Math.PI / 2, s: 0, vy: 0, bank: 0, pr: 0 };
+    speed = 0;
+    planeGroup.visible = true;
+    if (keyGuide) keyGuide.textContent = '⌨ 비행기: ↑ 달리기·상승 · ↓ 하강 · ← → 방향';
+  } else {
+    planeGroup.visible = false;
+    if (keyGuide && planeKeyText) keyGuide.textContent = planeKeyText;
+  }
+  document.querySelectorAll('.v-btn, .nv-v').forEach(b => b.classList.remove('active'));
+  const ids = on ? ['vbtn-plane', 'nv-vbtn-plane'] : [PLANE_BUTTON_IDS[vehicleType], 'nv-' + PLANE_BUTTON_IDS[vehicleType]];
+  ids.forEach(id => document.getElementById(id)?.classList.add('active'));
+}
+
+function flyPlane() {
+  const P = planeFly;
+  const onRunway = P.x >= RUNWAY.x0 && P.x <= RUNWAY.x1 && Math.abs(P.z - RUNWAY.z) <= RUNWAY.hw;
+  if (P.y <= 0) {   // 땅 위: 활주로에서만 달릴 수 있고, 빨라지면 위 키로 이륙
+    P.y = 0;
+    if (keys.up && onRunway) P.s = Math.min(P.s + 0.012, 0.7);
+    else P.s *= 0.94;
+    if (!onRunway) P.s *= 0.9;
+    if (P.s < 0.01) P.s = 0;
+    const lift = keys.up && P.s >= 0.35 ? 0.14 : 0;
+    P.vy += (lift - P.vy) * 0.1;
+  } else {   // 하늘: 일정한 속도로 날고, 위·아래 키로 고도 조절
+    P.s += (0.55 - P.s) * 0.02;
+    const target = keys.up ? 0.14 : keys.down ? -0.14 : 0;
+    P.vy += (target - P.vy) * 0.08;
+  }
+  P.y += P.vy;
+  if (P.y > 40) { P.y = 40; P.vy = 0; }
+  if (P.y < 0) { P.y = 0; if (P.vy < 0) P.vy = 0; }
+  // 방향 바꾸기 (땅 위에서는 달리고 있을 때만)
+  const turnRate = (P.s > 0.05 || P.y > 0) ? 0.03 : 0;
+  if (keys.left) P.h += turnRate;
+  if (keys.right) P.h -= turnRate;
+  P.bank += (((keys.left ? 0.45 : 0) - (keys.right ? 0.45 : 0)) - P.bank) * 0.1;   // 도는 쪽으로 날개 기울임
+  P.x = Math.max(-197, Math.min(197, P.x - Math.sin(P.h) * P.s));
+  P.z = Math.max(-197, Math.min(197, P.z - Math.cos(P.h) * P.s));
+
+  planeGroup.position.set(P.x, P.y, P.z);
+  planeGroup.rotation.set(Math.max(-0.35, Math.min(0.35, P.vy * 2)), P.h, P.bank);   // x: 코 위·아래, y: 방향, z: 기울기
+  // 프로펠러: 날거나 달릴 때만 돌고, 착륙해 멈추면 2초쯤 걸려 천천히 멈춤
+  const propTarget = (P.y > 0 || P.s > 0.05) ? 0.6 : 0;
+  P.pr += (propTarget - P.pr) * 0.025;
+  if (P.pr < 0.002) P.pr = 0;
+  planeGroup.userData.prop.rotation.z += P.pr;
+
+  // 비행기 뒤쪽 위에서 따라감
+  const d = 16, hgt = 6 + P.y * 0.6;
+  camera.position.lerp(new THREE.Vector3(P.x + Math.sin(P.h) * d, P.y + hgt, P.z + Math.cos(P.h) * d), 0.12);
+  camera.lookAt(P.x, P.y + 1.5, P.z);
+
+  const compassDial = document.getElementById('compass-dial');
+  if (compassDial) compassDial.style.transform = `rotate(${((P.h * 180 / Math.PI) % 360)}deg)`;
+}
+
 window.selectVehicle = function(type) {
+  if (type === 'plane') { setPlaneMode(true); return; }
+  if (planeOn) setPlaneMode(false);
   if (!VEHICLE_SPECS[type]) return;
   if (gameLevel >= 2 && !lv3Pair.includes(type)) {
     // 2개가 이미 골라져 있으면 지금 타는 것 + 새로 고른 것만 남김
@@ -3155,6 +3304,7 @@ function refreshDayNightButtons() {
 function applyLevel(n) {
   if (n >= 3) n = 2;   // 예전 3단계는 2단계에 합쳐짐
   gameLevel = n;
+  if (n < 2 && planeOn) setPlaneMode(false);
   levelTwoGroup.visible = n >= 2;
   if (n < 2 && LIVE.mode !== 'student' && isNight) { isNight = false; pushNight(); }   // 1단계는 항상 낮 (강사 화면 → 수강생 기기도 낮)
   applyNightVisuals();
@@ -3681,6 +3831,7 @@ function buildLevelTwo() {
   scene.add(aptDarkGroup);
   scene.add(litWinGroup);
   addStreetLamps();
+  buildPlaneRunway();
   addFountainSpray();
   applyNightVisuals();
 }
@@ -4197,6 +4348,15 @@ function handleImpact(hit) {
 function tick() {
   updateFountain(performance.now());   // 분수 물줄기 움직임
   if (fallBusy()) { keys.up = false; keys.down = false; keys.left = false; keys.right = false; }   // 넘어지는 동안은 조종 불가
+  if (planeOn) {   // 비행기 모드: 차 조종 대신 비행
+    flyPlane();
+    updateSignals();
+    updateLabels();
+    billboardSprites.forEach(sp => sp.quaternion.copy(camera.quaternion));
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+    return;
+  }
   if (keys.up)   speed = Math.min(speed + ACCEL,  MAX_SPEED);
   if (keys.down) speed = Math.max(speed - ACCEL, -MAX_SPEED*0.55);
   if (!keys.up && !keys.down) speed *= FRICTION;
