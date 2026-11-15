@@ -2509,7 +2509,7 @@ function updateLv3Pair() {
 /* ── 비행기 (2단계 전용) ──
    마을 동쪽 활주로에서 출발 → 활주로를 달려 이륙 → 방향키로 하늘을 날아다님
    ↑: 활주로에서 가속 / 공중에서 상승,  ↓: 하강,  ← →: 방향 바꾸기 */
-const RUNWAY = { x: 170, z0: -180, z1: 180, hw: 3 };   // 마을 동쪽 밖, 남북 방향 활주로 (남쪽 끝에서 북쪽으로 이륙)
+const RUNWAY = { x: 170, z0: -180, z1: 160, hw: 3 };   // 마을 동쪽 밖, 남북 방향 활주로 (남쪽 끝에서 북쪽으로 이륙)
 let planeOn = false;
 let planeGroup = null;
 let planeFly = { x: 0, z: 0, y: 0, h: 0, s: 0, vy: 0, bank: 0, pr: 0 };
@@ -2559,11 +2559,11 @@ function buildPlaneRunway() {
   const deck = new THREE.Mesh(new THREE.PlaneGeometry(RUNWAY.hw * 2, len), mat);
   deck.rotation.x = -Math.PI / 2;
   deck.position.set(RUNWAY.x, 0.05, cz);
-  levelTwoGroup.add(deck);
+  airportGroup.add(deck);
   [-RUNWAY.hw + 0.3, RUNWAY.hw - 0.3].forEach(dx => {   // 활주로 양쪽 흰 선
     const e = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.06, len), white);
     e.position.set(RUNWAY.x + dx, 0.08, cz);
-    levelTwoGroup.add(e);
+    airportGroup.add(e);
   });
   // 가운데 점선: 그림 한 장을 길이만큼 반복 (물체 하나로 처리해 그리기 횟수를 줄임)
   const dc = document.createElement('canvas'); dc.width = 4; dc.height = 64;
@@ -2573,13 +2573,13 @@ function buildPlaneRunway() {
   const dashes = new THREE.Mesh(new THREE.PlaneGeometry(0.25, len), new THREE.MeshLambertMaterial({ map: dashTex, transparent: true }));
   dashes.rotation.x = -Math.PI / 2;
   dashes.position.set(RUNWAY.x, 0.08, cz);
-  levelTwoGroup.add(dashes);
+  airportGroup.add(dashes);
   // 비행장 주차장 (활주로 서쪽 옆 빈 땅) + 주차된 비행기 3대 (움직이지 않는 장식, 북쪽을 봄)
   const apron = new THREE.Mesh(new THREE.PlaneGeometry(9, 60), mat);
   apron.rotation.x = -Math.PI / 2;
-  apron.position.set(RUNWAY.x - 10.5, 0.04, 100);
-  levelTwoGroup.add(apron);
-  [80, 100, 120].forEach(pz => {
+  apron.position.set(RUNWAY.x - 10.5, 0.04, AIRPORT_Z);
+  airportGroup.add(apron);   // 주차장은 1단계에서도 보임
+  [AIRPORT_Z - 20, AIRPORT_Z, AIRPORT_Z + 20].forEach(pz => {   // 주차된 비행기는 2단계에만
     const parked = makePlaneModel();
     parked.position.set(RUNWAY.x - 10.5, 0, pz);
     levelTwoGroup.add(parked);
@@ -2613,16 +2613,66 @@ function setPlaneMode(on) {
   updateLv3Pair();   // 선택된 2개는 흰색 상자·파란 테두리로 강조 (비행기 포함)
 }
 
+const airportBoxes = [];   // 공항 건물·관제탑 (비행기만 부딪힘)
+
 // 비행기 높이(y)에서 물체에 닿는지: 건물은 꼭대기보다 낮을 때만, 기둥·사람·차·육교는 낮게 날 때만 막힘
 function planeBlocked(x, z, y) {
   const m = 1.0;
   if (poleObstacles.some(p => Math.hypot(x - p.x, z - p.z) < p.r && y < 8)) return true;   // 가로등·신호등 기둥 (약 8 높이)
   if (buildingBoxes.some(b => Math.abs(x - b.cx) < b.hw + m && Math.abs(z - b.cz) < b.hd + m && y < b.top)) return true;
   if (buildingPolys.some(bp => nearPoly(x, z, bp.pts, m) && y < bp.top)) return true;
+  if (airportBoxes.some(b => Math.abs(x - b.cx) < b.hw + m && Math.abs(z - b.cz) < b.hd + m && y < b.top)) return true;
   if (gameLevel >= 2 && y < 4 && levelTwoBoxes.some(b => Math.abs(x - b.cx) < b.hw + m && Math.abs(z - b.cz) < b.hd + m)) return true;   // 주차된 차·사람 등
   const fh = footbridgeHeight(x, z);
   if (fh !== null && y < fh + 1) return true;   // 육교 계단·다리 바닥
   return false;
+}
+
+// 공항 터미널과 관제탑 (그림 참고: 유리 벽, 곡선 지붕 느낌의 넓은 건물, 높은 관제탑). 적은 수의 상자로 만들어 가볍게 함
+const airportGroup = new THREE.Group();   // 공항은 1단계·2단계 모두 보임
+const AIRPORT_Z = 35;   // 공항 기준 z: 호텔(x 103)의 동쪽, 남쪽으로 3 이동
+function buildAirport() {
+  scene.add(airportGroup);
+  const cream = new THREE.MeshLambertMaterial({ color: 0xf5f1e6 });
+  const glass = new THREE.MeshLambertMaterial({ color: 0xbfdbfe });
+  const grey = new THREE.MeshLambertMaterial({ color: 0xe5e7eb });
+  const TX = 120, TZ = AIRPORT_Z;   // 터미널: 호텔 동쪽
+  const body = new THREE.Mesh(new THREE.BoxGeometry(12, 7, 40), cream);
+  body.position.set(TX, 3.5, TZ);
+  airportGroup.add(body);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4.5, 36), glass);   // 활주로 쪽 유리 벽
+  wall.position.set(TX + 6.2, 4, TZ);
+  airportGroup.add(wall);
+  markNightLit(wall, 0xbfdbfe);   // 밤: 터미널 유리 창문이 켜짐
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(13.5, 0.8, 41.5), grey);   // 지붕
+  roof.position.set(TX, 7.4, TZ);
+  airportGroup.add(roof);
+  const TWX = 130, TWZ = AIRPORT_Z - 18;   // 관제탑 (터미널 북쪽 뒤편)
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.3, 16, 10), grey);
+  shaft.position.set(TWX, 8, TWZ);
+  airportGroup.add(shaft);
+  const cab = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.0, 2.2, 12), glass);
+  cab.position.set(TWX, 17.1, TWZ);
+  airportGroup.add(cab);
+  markNightLit(cab, 0xbfdbfe);   // 밤: 관제실이 켜짐
+  const top = new THREE.Mesh(new THREE.CylinderGeometry(2.8, 2.8, 0.5, 12), grey);
+  top.position.set(TWX, 18.5, TWZ);
+  airportGroup.add(top);
+  // 터미널 벽(마을 쪽 서면)에 "공항" 간판
+  const signTex = makeSignTexture('공항', 16, 2.6, 1.4);
+  const signMat = new THREE.MeshBasicMaterial({ map: signTex, transparent: true });
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(16, 2.6), signMat);
+  sign.position.set(TX - 6.05, 4.6, TZ);
+  sign.rotation.y = -Math.PI / 2;
+  airportGroup.add(sign);
+  // 터미널 지붕 위 비행기 모형
+  const roofPlane = makePlaneModel();
+  roofPlane.scale.set(0.8, 0.8, 0.8);
+  roofPlane.position.set(TX, 7.8, TZ);
+  roofPlane.rotation.y = Math.PI / 2;
+  airportGroup.add(roofPlane);
+  airportBoxes.push({ cx: TX, cz: TZ, hw: 6, hd: 20, top: 8 });
+  airportBoxes.push({ cx: TWX, cz: TWZ, hw: 2.6, hd: 2.6, top: 19 });
 }
 
 function resetPlane() {
@@ -3885,6 +3935,7 @@ function buildLevelTwo() {
   scene.add(litWinGroup);
   addStreetLamps();
   buildPlaneRunway();
+  buildAirport();
   addFountainSpray();
   applyNightVisuals();
 }
@@ -4158,12 +4209,12 @@ const labelEls = [];
 function buildLabelOverlay() {
   const layer = document.getElementById('label-layer');
   if (!layer) return;
-  const add = (icon, name, x, y, z) => {
+  const add = (icon, name, x, y, z, lv2) => {
     const el = document.createElement('div');
     el.className = 'bld-label';
     el.textContent = `${icon} ${name}`;
     layer.appendChild(el);
-    labelEls.push({ el, pos: new THREE.Vector3(x, y, z) });
+    labelEls.push({ el, pos: new THREE.Vector3(x, y, z), lv2: !!lv2 });
   };
   // 건물 이름은 건물 벽의 3D 간판으로 표시 (addBuildingSigns)
 }
@@ -4174,10 +4225,10 @@ function updateLabels() {
   if (!wrap || !camera) return;
   const w = wrap.clientWidth, h = wrap.clientHeight;
   const v = new THREE.Vector3();
-  labelEls.forEach(({ el, pos }) => {
+  labelEls.forEach(({ el, pos, lv2 }) => {
     v.copy(pos).project(camera);
     const dist = camera.position.distanceTo(pos);
-    const visible = v.z < 1 && dist < 200 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05;
+    const visible = (!lv2 || gameLevel >= 2) && v.z < 1 && dist < 200 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05;
     if (!visible) { el.style.display = 'none'; return; }
     el.style.display = 'block';
     const sx = (v.x + 1) / 2 * w;
