@@ -5149,10 +5149,7 @@ function renderMapGuide() {
   box.innerHTML = `<svg viewBox="-120 -120 240 260" style="width:100%;max-width:560px;display:block;margin:0 auto;border-radius:10px;border:1px solid #cbd5e1;">${mapInnerSVG()}</svg>`;
 }
 
-/* ── 우리 지역 지도 (구글 지도, 내 위치 기준) ──
-   GOOGLE_MAPS_KEY 를 비워두면 기본 구글 지도 화면을 보여줌.
-   구글 지도 API 키를 넣으면 건물과 길 중심의 단순한 지도 스타일을 적용함. */
-const GOOGLE_MAPS_KEY = 'AIzaSyDW_y-lOpHFSKZ_fIiHcML806FPEgTArg0';
+/* ── 우리 지역 지도 (구글 지도 화면을 주소창 방식으로 표시, 내 위치 기준) ── */
 const FALLBACK_LOCATION = { lat: 37.8813, lng: 127.7298 };   // 내 위치를 못 찾을 때 보여줄 기본 지역 (춘천 시내)
 const SIMPLE_MAP_STYLE = [
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
@@ -5192,87 +5189,7 @@ window.toggleRegionBig = function() {
 
 function showRegionMap(lat, lng) {
   const box = document.getElementById('region-map');
-  box.innerHTML = '';
-  if (!GOOGLE_MAPS_KEY) {
-    box.innerHTML = `<iframe src="https://maps.google.com/maps?q=${lat},${lng}&z=17&t=m&output=embed" style="width:100%;height:100%;border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
-    return;
-  }
-  // 키 설정이 잘못되면 구글이 이 함수를 불러서 화면에 안내를 보여 줌
-  window.gm_authFailure = () => {
-    box.innerHTML = '<div style="padding:16px;font-size:14px;line-height:1.6;color:#334155;">지도를 불러오지 못했습니다.<br>구글 지도 키 설정(사용 설정된 API, 웹사이트 제한)을 확인해 주세요.<br>(F12 → 콘솔 창의 빨간 글씨를 보면 원인을 알 수 있습니다.)</div>';
-  };
-  loadGoogleMaps(() => {
-    const map = new google.maps.Map(box, { center: { lat, lng }, zoom: 17, disableDefaultUI: true, styles: SIMPLE_MAP_STYLE });
-    new google.maps.Marker({ position: { lat, lng }, map, title: '내 위치' });
-  });
-}
-
-function loadGoogleMaps(cb) {
-  if (window.google && google.maps) return cb();
-  const s = document.createElement('script');
-  s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}`;
-  s.onload = cb;
-  document.head.appendChild(s);
-}
-
-/* ── 우리 지역 지도 안의 길찾기 (Routes API): 지도를 한 번 누르면 출발, 한 번 더 누르면 도착 ── */
-let rmMap = null, rmPolylines = [];
-let rmStart = null, rmEnd = null, rmStartMarker = null, rmEndMarker = null, rmMsg = null;
-
-function setupRouteOnMap(map) {
-  rmMap = map;
-  const bar = document.createElement('div');
-  bar.style.cssText = 'margin:8px;padding:8px 10px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:13px;display:flex;gap:8px;align-items:center;max-width:90vw;';
-  bar.innerHTML = '<span id="rm-route-msg"></span><button type="button" id="rm-route-clear" style="border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;padding:3px 8px;cursor:pointer;">지우기</button>';
-  map.controls[google.maps.ControlPosition.TOP_CENTER].push(bar);
-  bar.querySelector('#rm-route-clear').onclick = clearRoute;
-  rmMsg = bar.querySelector('#rm-route-msg');
-  clearRoute();
-  map.addListener('click', e => regionMapTap(e.latLng));
-}
-
-function setRouteMsg(t) { if (rmMsg) rmMsg.textContent = t; }
-
-function clearRoute() {
-  rmStart = null; rmEnd = null;
-  if (rmStartMarker) rmStartMarker.setMap(null);
-  if (rmEndMarker) rmEndMarker.setMap(null);
-  rmStartMarker = null; rmEndMarker = null;
-  rmPolylines.forEach(pl => pl.setMap(null));
-  rmPolylines = [];
-  setRouteMsg('지도를 한 번 눌러 출발지를 고르세요.');
-}
-
-async function regionMapTap(ll) {
-  if (!rmStart || rmEnd) {   // 새로 시작: 이 점이 출발지
-    clearRoute();
-    rmStart = ll;
-    rmStartMarker = new google.maps.Marker({ position: ll, map: rmMap, label: '출', title: '출발' });
-    setRouteMsg('이제 도착지를 한 번 눌러 주세요.');
-    return;
-  }
-  rmEnd = ll;   // 두 번째 누른 곳: 도착지
-  rmEndMarker = new google.maps.Marker({ position: ll, map: rmMap, label: '도', title: '도착' });
-  setRouteMsg('길을 찾는 중...');
-  try {
-    const { Route } = await google.maps.importLibrary('routes');
-    const { routes } = await Route.computeRoutes({
-      origin: rmStart,
-      destination: rmEnd,
-      travelMode: 'WALKING',
-      fields: ['path', 'distanceMeters', 'durationMillis']
-    });
-    if (!routes || routes.length === 0) { setRouteMsg('길을 찾지 못했습니다. 다른 곳을 골라 주세요.'); return; }
-    const route = routes[0];
-    rmPolylines = route.createPolylines({ strokeColor: '#1d4ed8', strokeWeight: 6 });
-    rmPolylines.forEach(pl => pl.setMap(rmMap));
-    const km = (route.distanceMeters / 1000).toFixed(2);
-    const min = Math.max(1, Math.round(route.durationMillis / 60000));
-    setRouteMsg(`${km}km, 약 ${min}분 (도보)`);
-  } catch (err) {
-    console.error('길찾기 실패:', err);
-    setRouteMsg('길을 찾지 못했습니다. 다른 곳을 골라 주세요.');
-  }
+  box.innerHTML = `<iframe src="https://maps.google.com/maps?q=${lat},${lng}&z=17&t=m&output=embed" style="width:100%;height:100%;border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
 }
 
 /* ── 앱 시작 로드 ── */
