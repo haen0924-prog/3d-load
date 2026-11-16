@@ -3366,6 +3366,51 @@ function updateVehicleSign() {
 // 단계 모양만 바꿈 (문제는 다시 불러오지 않음). 실시간 수업에서 문제마다 단계를 맞출 때 씀
 // 낮/밤: 2단계에서만 사용 (1단계는 항상 낮)
 function nightOn() { return isNight && gameLevel >= 2; }
+// 밤 하늘: 별 + 초승달 (밤에만 보임)
+let nightSkyGroup = null;
+function buildNightSky() {
+  nightSkyGroup = new THREE.Group();
+  // 별: 하늘 쪽(위쪽 반구)에 무작위로 흩뿌림
+  const N = 220, pos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const el = 0.12 + Math.random() * 1.1;             // 높이 각도 (지평선 위)
+    const r = 380;
+    pos[i * 3]     = Math.cos(a) * Math.cos(el) * r;
+    pos[i * 3 + 1] = Math.sin(el) * r;
+    pos[i * 3 + 2] = Math.sin(a) * Math.cos(el) * r;
+  }
+  const sg = new THREE.BufferGeometry();
+  sg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const stars = new THREE.Points(sg, new THREE.PointsMaterial({
+    color: 0xffffff, size: 2.2, sizeAttenuation: false, fog: false, transparent: true, opacity: 0.9
+  }));
+  nightSkyGroup.add(stars);
+  // 초승달: 큰 원에서 살짝 옆으로 옮긴 원을 빼서 만든 모양
+  // 초승달 외곽선: 큰 원의 바깥 호 + 옆으로 옮긴 원의 안쪽 호 (구멍 없이 한 덩어리로 그림)
+  const R = 9, d = 4.5, r = 8.1;
+  const hx = (d * d + R * R - r * r) / (2 * d), hy = Math.sqrt(R * R - hx * hx);   // 두 뿔(끝) 위치
+  const shape = new THREE.Shape();
+  shape.moveTo(hx, hy);
+  shape.absarc(0, 0, R, Math.atan2(hy, hx), Math.atan2(-hy, hx) + Math.PI * 2, false);   // 바깥 호: 왼쪽을 지나 아래 뿔까지
+  shape.absarc(d, 0, r, Math.atan2(-hy, hx - d), Math.atan2(hy, hx - d) - Math.PI * 2, true);   // 안쪽 호: 아래 뿔에서 위 뿔로
+  // 그림 참고: 노란 초승달 + 진한 노란 테두리
+  const moon = new THREE.Group();
+  const moonGeo = new THREE.ShapeGeometry(shape, 24);
+  const outline = new THREE.Mesh(moonGeo,
+    new THREE.MeshBasicMaterial({ color: 0xd4a300, fog: false, side: THREE.DoubleSide }));
+  outline.scale.set(1.07, 1.07, 1);
+  outline.position.z = -0.05;   // 테두리는 뒤에
+  moon.add(outline);
+  moon.add(new THREE.Mesh(moonGeo,
+    new THREE.MeshBasicMaterial({ color: 0xfde000, fog: false, side: THREE.DoubleSide })));
+  moon.position.set(-170, 150, -170);
+  moon.lookAt(0, 0, 0);   // 밝은 면이 마을 쪽을 향하게
+  nightSkyGroup.add(moon);
+  nightSkyGroup.visible = false;
+  scene.add(nightSkyGroup);
+}
+
 function applyNightVisuals() {
   const nt = nightOn();
   if (scene) scene.background = new THREE.Color(nt ? 0x1e293b : 0xcfe3f7);
@@ -3376,6 +3421,7 @@ function applyNightVisuals() {
   aptDarkGroup.visible = !nt;    // 낮: 아파트·호텔 전체 회색
   scene.traverse(o => { if (o.userData && o.userData.headlight) o.visible = nt; });   // 전조등
   setNightGlass(nt);             // 기존 건물 창문
+  if (nightSkyGroup) nightSkyGroup.visible = nt;   // 밤 하늘: 별·초승달
   refreshDayNightButtons();
 }
 function setDayNight(night) { isNight = night; applyNightVisuals(); pushNight(); }
@@ -3936,6 +3982,7 @@ function buildLevelTwo() {
   addStreetLamps();
   buildPlaneRunway();
   buildAirport();
+  buildNightSky();
   addFountainSpray();
   applyNightVisuals();
 }
@@ -5143,6 +5190,58 @@ function showRegionMap(lat, lng) {
   loadGoogleMaps(() => {
     const map = new google.maps.Map(box, { center: { lat, lng }, zoom: 17, disableDefaultUI: true, styles: SIMPLE_MAP_STYLE });
     new google.maps.Marker({ position: { lat, lng }, map, title: '내 위치' });
+    setupRouteOnMap(map);
+  });
+}
+
+/* ── 우리 지역 지도 안의 길찾기: 지도를 한 번 누르면 출발, 한 번 더 누르면 도착 ── */
+let rmMap = null, rmDirService = null, rmDirRenderer = null;
+let rmStart = null, rmEnd = null, rmStartMarker = null, rmEndMarker = null, rmMsg = null;
+
+function setupRouteOnMap(map) {
+  rmMap = map;
+  rmDirService = new google.maps.DirectionsService();
+  rmDirRenderer = new google.maps.DirectionsRenderer({ map, suppressMarkers: true, polylineOptions: { strokeColor: '#1d4ed8', strokeWeight: 6 } });
+  const bar = document.createElement('div');
+  bar.style.cssText = 'margin:8px;padding:8px 10px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:13px;display:flex;gap:8px;align-items:center;max-width:90vw;';
+  bar.innerHTML = '<span id="rm-route-msg"></span><button type="button" id="rm-route-clear" style="border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;padding:3px 8px;cursor:pointer;">지우기</button>';
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(bar);
+  bar.querySelector('#rm-route-clear').onclick = clearRoute;
+  rmMsg = bar.querySelector('#rm-route-msg');
+  clearRoute();
+  map.addListener('click', e => regionMapTap(e.latLng));
+}
+
+function setRouteMsg(t) { if (rmMsg) rmMsg.textContent = t; }
+
+function clearRoute() {
+  rmStart = null; rmEnd = null;
+  if (rmStartMarker) rmStartMarker.setMap(null);
+  if (rmEndMarker) rmEndMarker.setMap(null);
+  rmStartMarker = null; rmEndMarker = null;
+  if (rmDirRenderer) rmDirRenderer.setDirections({ routes: [] });
+  setRouteMsg('지도를 한 번 눌러 출발지를 고르세요.');
+}
+
+function regionMapTap(ll) {
+  if (!rmStart || rmEnd) {   // 새로 시작: 이 점이 출발지
+    clearRoute();
+    rmStart = ll;
+    rmStartMarker = new google.maps.Marker({ position: ll, map: rmMap, label: '출', title: '출발' });
+    setRouteMsg('이제 도착지를 한 번 눌러 주세요.');
+    return;
+  }
+  rmEnd = ll;   // 두 번째 누른 곳: 도착지
+  rmEndMarker = new google.maps.Marker({ position: ll, map: rmMap, label: '도', title: '도착' });
+  setRouteMsg('길을 찾는 중...');
+  rmDirService.route({ origin: rmStart, destination: rmEnd, travelMode: google.maps.TravelMode.WALKING }, (res, status) => {
+    if (status === 'OK') {
+      rmDirRenderer.setDirections(res);
+      const leg = res.routes[0].legs[0];
+      setRouteMsg(`${leg.distance.text}, 약 ${leg.duration.text} (도보)`);
+    } else {
+      setRouteMsg('길을 찾지 못했습니다. 다른 곳을 골라 주세요. (' + status + ')');
+    }
   });
 }
 
