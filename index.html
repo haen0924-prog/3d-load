@@ -5152,7 +5152,7 @@ function renderMapGuide() {
 /* ── 우리 지역 지도 (구글 지도, 내 위치 기준) ──
    GOOGLE_MAPS_KEY 를 비워두면 기본 구글 지도 화면을 보여줌.
    구글 지도 API 키를 넣으면 건물과 길 중심의 단순한 지도 스타일을 적용함. */
-const GOOGLE_MAPS_KEY = '';
+const GOOGLE_MAPS_KEY = 'AIzaSyDW_y-lOpHFSKZ_fIiHcML806FPEgTArg0';
 const FALLBACK_LOCATION = { lat: 37.8813, lng: 127.7298 };   // 내 위치를 못 찾을 때 보여줄 기본 지역 (춘천 시내)
 const SIMPLE_MAP_STYLE = [
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
@@ -5204,14 +5204,12 @@ function showRegionMap(lat, lng) {
   });
 }
 
-/* ── 우리 지역 지도 안의 길찾기: 지도를 한 번 누르면 출발, 한 번 더 누르면 도착 ── */
-let rmMap = null, rmDirService = null, rmDirRenderer = null;
+/* ── 우리 지역 지도 안의 길찾기 (Routes API): 지도를 한 번 누르면 출발, 한 번 더 누르면 도착 ── */
+let rmMap = null, rmPolylines = [];
 let rmStart = null, rmEnd = null, rmStartMarker = null, rmEndMarker = null, rmMsg = null;
 
 function setupRouteOnMap(map) {
   rmMap = map;
-  rmDirService = new google.maps.DirectionsService();
-  rmDirRenderer = new google.maps.DirectionsRenderer({ map, suppressMarkers: true, polylineOptions: { strokeColor: '#1d4ed8', strokeWeight: 6 } });
   const bar = document.createElement('div');
   bar.style.cssText = 'margin:8px;padding:8px 10px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:13px;display:flex;gap:8px;align-items:center;max-width:90vw;';
   bar.innerHTML = '<span id="rm-route-msg"></span><button type="button" id="rm-route-clear" style="border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;padding:3px 8px;cursor:pointer;">지우기</button>';
@@ -5229,11 +5227,12 @@ function clearRoute() {
   if (rmStartMarker) rmStartMarker.setMap(null);
   if (rmEndMarker) rmEndMarker.setMap(null);
   rmStartMarker = null; rmEndMarker = null;
-  if (rmDirRenderer) rmDirRenderer.setDirections({ routes: [] });
+  rmPolylines.forEach(pl => pl.setMap(null));
+  rmPolylines = [];
   setRouteMsg('지도를 한 번 눌러 출발지를 고르세요.');
 }
 
-function regionMapTap(ll) {
+async function regionMapTap(ll) {
   if (!rmStart || rmEnd) {   // 새로 시작: 이 점이 출발지
     clearRoute();
     rmStart = ll;
@@ -5244,23 +5243,25 @@ function regionMapTap(ll) {
   rmEnd = ll;   // 두 번째 누른 곳: 도착지
   rmEndMarker = new google.maps.Marker({ position: ll, map: rmMap, label: '도', title: '도착' });
   setRouteMsg('길을 찾는 중...');
-  rmDirService.route({ origin: rmStart, destination: rmEnd, travelMode: google.maps.TravelMode.WALKING }, (res, status) => {
-    if (status === 'OK') {
-      rmDirRenderer.setDirections(res);
-      const leg = res.routes[0].legs[0];
-      setRouteMsg(`${leg.distance.text}, 약 ${leg.duration.text} (도보)`);
-    } else {
-      setRouteMsg('길을 찾지 못했습니다. 다른 곳을 골라 주세요. (' + status + ')');
-    }
-  });
-}
-
-function loadGoogleMaps(cb) {
-  if (window.google && google.maps) return cb();
-  const s = document.createElement('script');
-  s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}`;
-  s.onload = cb;
-  document.head.appendChild(s);
+  try {
+    const { Route } = await google.maps.importLibrary('routes');
+    const { routes } = await Route.computeRoutes({
+      origin: rmStart,
+      destination: rmEnd,
+      travelMode: 'WALKING',
+      fields: ['path', 'distanceMeters', 'durationMillis']
+    });
+    if (!routes || routes.length === 0) { setRouteMsg('길을 찾지 못했습니다. 다른 곳을 골라 주세요.'); return; }
+    const route = routes[0];
+    rmPolylines = route.createPolylines({ strokeColor: '#1d4ed8', strokeWeight: 6 });
+    rmPolylines.forEach(pl => pl.setMap(rmMap));
+    const km = (route.distanceMeters / 1000).toFixed(2);
+    const min = Math.max(1, Math.round(route.durationMillis / 60000));
+    setRouteMsg(`${km}km, 약 ${min}분 (도보)`);
+  } catch (err) {
+    console.error('길찾기 실패:', err);
+    setRouteMsg('길을 찾지 못했습니다. 다른 곳을 골라 주세요.');
+  }
 }
 
 /* ── 앱 시작 로드 ── */
