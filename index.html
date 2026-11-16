@@ -1517,6 +1517,8 @@ function makeSwastikaTexture() {
   return new THREE.CanvasTexture(cv);
 }
 
+const fenceBoxes = [];   // 교회 울타리 충돌 상자 (차·사람·자전거·비행기)
+
 function addRooftopDecor(g, b, wx, wz, h) {
 
   const add = (geo, color, x, y, z) => {
@@ -1547,6 +1549,12 @@ function addRooftopDecor(g, b, wx, wz, h) {
     railX(FZ, 2);             // 앞쪽(남) 가운데 출입구
     railZ(-FX);               // 서쪽
     railZ(FX);                // 동쪽
+    // 울타리 충돌: 앞쪽(남) 가운데 출입구 2칸만 비워 둠
+    fenceBoxes.push({ cx: b.x, cz: b.z - FZ, hw: FX, hd: 0.3 });                              // 북쪽
+    fenceBoxes.push({ cx: b.x - (FX + 1) / 2, cz: b.z + FZ, hw: (FX - 1) / 2, hd: 0.3 });     // 남쪽 왼쪽
+    fenceBoxes.push({ cx: b.x + (FX + 1) / 2, cz: b.z + FZ, hw: (FX - 1) / 2, hd: 0.3 });     // 남쪽 오른쪽
+    fenceBoxes.push({ cx: b.x - FX, cz: b.z, hw: 0.3, hd: FZ });                              // 서쪽
+    fenceBoxes.push({ cx: b.x + FX, cz: b.z, hw: 0.3, hd: FZ });                              // 동쪽
   }
   if (b.name === '학교' || b.name === '도서관') {
     // 학교·도서관: 건물 둘레에 나무 테라스
@@ -2622,6 +2630,7 @@ function planeBlocked(x, z, y) {
   if (buildingBoxes.some(b => Math.abs(x - b.cx) < b.hw + m && Math.abs(z - b.cz) < b.hd + m && y < b.top)) return true;
   if (buildingPolys.some(bp => nearPoly(x, z, bp.pts, m) && y < bp.top)) return true;
   if (airportBoxes.some(b => Math.abs(x - b.cx) < b.hw + m && Math.abs(z - b.cz) < b.hd + m && y < b.top)) return true;
+  if (fenceBoxes.some(f => Math.abs(x - f.cx) < f.hw + m && Math.abs(z - f.cz) < f.hd + m && y < 2.5)) return true;   // 울타리 (낮게 날 때만 막힘)
   if (gameLevel >= 2 && y < 4 && levelTwoBoxes.some(b => Math.abs(x - b.cx) < b.hw + m && Math.abs(z - b.cz) < b.hd + m)) return true;   // 주차된 차·사람 등
   const fh = footbridgeHeight(x, z);
   if (fh !== null && y < fh + 1) return true;   // 육교 계단·다리 바닥
@@ -3315,6 +3324,7 @@ function objectHit(x, z, m) {
   if (poleObstacles.some(p => Math.hypot(x - p.x, z - p.z) < p.r)) return true;   // 신호등 기둥·분수
   const margin = m !== undefined ? m : (vehicleType === 'walk' ? 0.49 : 1.5);   // 사람은 건물 벽에 조금 더 가까이 갈 수 있음
   if (buildingPolys.some(bp => nearPoly(x, z, bp.pts, margin))) return true;   // 반원형 건물 (카페)
+  if (fenceBoxes.some(f => Math.abs(x - f.cx) < f.hw + margin && Math.abs(z - f.cz) < f.hd + margin)) return true;   // 교회 울타리
   // 2단계: 조종하지 않는 다른 탈것(예: 사람, 자전거)과도 부딪힘
   if (gameLevel >= 2) {
     for (const t of Object.keys(lv3Others)) {
