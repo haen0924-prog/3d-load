@@ -5204,7 +5204,6 @@ function showRegionMap(lat, lng) {
   loadGoogleMaps(() => {
     const map = new google.maps.Map(box, { center: { lat, lng }, zoom: 17, disableDefaultUI: true, styles: SIMPLE_MAP_STYLE });
     new google.maps.Marker({ position: { lat, lng }, map, title: '내 위치' });
-    setupRouteOnMap(map);
   });
 }
 
